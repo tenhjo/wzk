@@ -251,15 +251,6 @@ def get_n_rows(file, table):
         return pd.read_sql_query(con=con, sql=f"SELECT COALESCE(MAX(rowid), 0) FROM {table}").values[0, 0]
 
 
-def get_n_samples(file, i_worlds=-1):
-    i_worlds_all = get_values(file=file, columns="i_world", table="paths")
-    unique, counts = np.unique(i_worlds_all, return_counts=True)
-    if i_worlds == -1:
-        return counts
-    else:
-        return counts[i_worlds]
-
-
 def integrity_check(file):
     with open_db_connection(file=file, close=True, lock=None) as con:
         c = pd.read_sql_query(con=con, sql="pragma integrity_check")
@@ -575,7 +566,7 @@ class Table:
         self.table: str = table
         self.cols: list[Col] = cols
 
-    def __call__(self):
+    def __call__(self) -> str:
         return self.table
 
     def __getitem__(self, item):

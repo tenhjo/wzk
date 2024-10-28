@@ -21,7 +21,7 @@ __open_cmd_dict = {"Linux": "xdg-open",
 
 # ICLOUD = 'Library/Mobile Documents/com~apple~CloudDocs'
 
-EXT_DICT = dict(pickle="pkl",
+EXT_DICT = dict(pkl="pkl", pickle="pickle",
                 json="json",
                 txt="text", text="txt",
                 mat="mat",
@@ -196,18 +196,21 @@ def remove_extension(file: str, ext: str):
 
 # –-- pickle -----------------------------------------------------------------------------------------------------------
 def save_pickle(obj, file: str):
-    file = ensure_file_extension(file=file, ext=EXT_DICT["pickle"])
+    file = ensure_file_extension(file=file, ext=EXT_DICT["pkl"])
     mkdirs(directory=os.path.split(file)[0])
     with open(file, "wb") as f:
         pickle.dump(obj, f)
 
 
 def load_pickle(file: str):
-    file = ensure_file_extension(file=file, ext=EXT_DICT["pickle"])
+    ext_list = [EXT_DICT["pkl"], EXT_DICT["pickle"]]
 
-    with open(file, "rb") as f:
-        obj = pickle.load(f)
-    return obj
+    for ext in ext_list:
+        file = ensure_file_extension(file=file, ext=ext)
+        if os.path.exists(file):
+            with open(file, "rb") as f:
+                obj = pickle.load(f)
+            return obj
 
 
 # json

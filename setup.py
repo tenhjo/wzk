@@ -6,7 +6,7 @@ setup(
     author="Johannes Tenhumberg",
     author_email="johannes.tenhumberg@gmail.com",
     description="WZK - WerkZeugKasten - Collection of different Python Tools",
-    url="https://github.com/scleronomic/wzk",
+    url="https://github.com/tenhjo/wzk",
     packages=find_packages(),
     install_requires=["numpy",
                       "scipy",

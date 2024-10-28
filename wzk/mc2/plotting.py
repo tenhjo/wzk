@@ -162,6 +162,9 @@ def plot_bimg_mesh(vis, h, bimg, limits, level=0, color=default_color, alpha=1.0
 
     voxel_size = grid.limits2voxel_size(shape=bimg.shape, limits=limits)
     v, f = bimage.bimg2surf(img=bimg, limits=limits + voxel_size / 2, level=level)
+    print(np.sum(bimg))
+
+    vis[h].delete()
     vis[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=v, faces=f), material=material)
     return h
 

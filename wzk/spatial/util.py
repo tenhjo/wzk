@@ -4,6 +4,7 @@ from wzk import np2
 
 
 def initialize_frames(shape, n_dim, mode="hm", dtype=None, order=None):
+    """Beware of the n_dim+1 coming from homogenous transformation"""
     f = np.zeros((np2.shape_wrapper(shape) + (n_dim+1, n_dim+1)), dtype=dtype, order=order)
     if mode == "zero":
         pass

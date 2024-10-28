@@ -220,21 +220,31 @@ def trans_dcm2frame(trans=None, dcm=None):
 
 # --- Sanity Checks ----------------------------------------------------------------------------------------------------
 def is_rotation(r):
-    b_too_large_value = ((np.abs(r) > 2).sum(axis=(-2, -1)) > 0)
-    if np.any(b_too_large_value):
-        if r.ndim == 2:
-            return False
-        else:
-            raise NotImplementedError
+    assert np.shape(r)[-1] == 3
+    _eps = 1e-5
+    _squeeze = False
+    if np.ndim(r) == 2:
+        r = r[np.newaxis, :, :]
+        _squeeze = True
 
-    rtr = r @ np.swapaxes(r, -2, -1)
-    b = np.allclose(rtr, np.eye(3), atol=5e-2)
+    b = ((np.abs(r) > 2).sum(axis=(-2, -1)) > 0)
+
+    r2 = r[~b]
+    rtr = r2 @ np.swapaxes(r2, -2, -1)
+
+    # b[~b] = np.sum(np.abs(rtr - np.eye(3)), axis=(-1, -2)) < _eps
+    b[~b] = np.linalg.norm(dcm2rotvec(rtr), axis=(-1)) < _eps
+
+    if _squeeze:
+        b = b[0]
+
     return b
 
 
 def is_frame(f):
+    _eps = 1e-7
     a = is_rotation(f[..., :-1, :-1])
-    b = np.allclose(f[..., -1, -1], 1)
+    b = np.abs(f[..., -1, -1] - 1) < _eps
     return np.logical_and(a, b)
 
 
