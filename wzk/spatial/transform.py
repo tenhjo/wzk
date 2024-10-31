@@ -227,13 +227,12 @@ def is_rotation(r):
         r = r[np.newaxis, :, :]
         _squeeze = True
 
-    b = ((np.abs(r) > 2).sum(axis=(-2, -1)) > 0)
+    b = np.sum(np.abs(r) > 2, axis=(-2, -1)) == 0
 
-    r2 = r[~b]
-    rtr = r2 @ np.swapaxes(r2, -2, -1)
-
-    # b[~b] = np.sum(np.abs(rtr - np.eye(3)), axis=(-1, -2)) < _eps
-    b[~b] = np.linalg.norm(dcm2rotvec(rtr), axis=(-1)) < _eps
+    if np.any(b):
+        r2 = r[b]
+        rtr = r2 @ np.swapaxes(r2, -2, -1)
+        b[~b] = np.linalg.norm(dcm2rotvec(rtr), axis=(-1)) < _eps
 
     if _squeeze:
         b = b[0]

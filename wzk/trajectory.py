@@ -7,6 +7,7 @@ dbees: scaled difference to the bee-line
 # TODO move to mopla at some point
 
 import numpy as np
+
 from scipy.interpolate import UnivariateSpline
 
 from wzk import printing, math2
@@ -103,8 +104,9 @@ def get_steps_norm(q,
     return np.linalg.norm(get_steps(q=q, is_periodic=is_periodic), axis=-1)
 
 
-def get_substeps(x, n,
-                 is_periodic=None, include_start=True):
+# @jit why
+def get_substeps(x: np.ndarray, n: int,
+                 is_periodic=None, include_start: bool = True):
 
     *shape, m, d = x.shape
 
@@ -128,14 +130,16 @@ def get_substeps(x, n,
     return x_ss
 
 
-def get_steps_between(start, end, n, is_periodic=None):
+def get_steps_between(start: np.ndarray, end: np.ndarray, n: int,
+                      is_periodic=None):
     q = np.concatenate([start[..., np.newaxis, :], end[..., np.newaxis, :]], axis=-2)
-    q = get_substeps(q, n=n-1, is_periodic=is_periodic)
+    q = get_substeps(x=q, n=n-1, is_periodic=is_periodic, include_start=True)
     return q
 
 
-def get_substeps_adjusted(x, n,
-                          is_periodic=None, weighting=None, enforce_equal_steps=False):
+# @jit why
+def get_substeps_adjusted(x: np.ndarray, n: int,
+                          is_periodic=None, weighting=None, enforce_equal_steps: bool = False):
 
     *shape, m, d = x.shape
 
@@ -190,7 +194,9 @@ def get_substeps_adjusted(x, n,
     return x_n
 
 
-def get_path_adjusted(x, n=None, is_periodic=None, weighting=None, enforce_equal_steps=False, __m=5):
+# @jit why
+def get_path_adjusted(x: np.ndarray, n: int = None,
+                      is_periodic=None, weighting=None, enforce_equal_steps: bool = False, __m: int = 5):
     n0 = x.shape[-2]
     if n is None:
         n = n0

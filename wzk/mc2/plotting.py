@@ -41,12 +41,27 @@ def get_material(color=default_color, alpha=1.0, wireframe=False):
     return material
 
 
-def wrapper_handle(handle=None, default="", n=None):
+def wrapper_handle(vis, handle=None, default="", n=None):
     if handle is None:
         if n is None:
             return f"{default}-{uuid4()}"
         else:
-            return [wrapper_handle(handle=handle, default=default, n=None) for _ in range(n)]
+            return [wrapper_handle(vis=vis, handle=handle, default=default, n=None) for _ in range(n)]
+
+    elif isinstance(handle, str):
+        pass
+
+    elif isinstance(handle, list):
+        if len(handle) == n:
+            pass
+
+        elif len(handle) > n:
+            delete(vis=vis, handle=handle[n:])
+            handle = handle[:n]
+
+        elif len(handle) < n:
+            handle += wrapper_handle(vis=vis, handle=None, default=default, n=n-len(handle))
+
     return handle
 
 
@@ -72,7 +87,7 @@ def color2rgb_list(color, n):
 def plot_points(vis, h,
                 x, size=0.001, color=default_color):
 
-    h = wrapper_handle(handle=h, default="points")
+    h = wrapper_handle(vis=vis, handle=h, default="points")
     x = wrapper_x(x)
 
     material = mg.PointsMaterial(size=size)
@@ -84,7 +99,7 @@ def plot_points(vis, h,
 
 
 def plot_lines(vis, h, x, lines=None, color=default_color, alpha=1.):
-    h = wrapper_handle(handle=h, default="lines")
+    h = wrapper_handle(vis=vis, handle=h, default="lines")
     x = wrapper_x(x)
 
     material = get_material(color=color, alpha=alpha)
@@ -105,7 +120,7 @@ def plot_lines(vis, h, x, lines=None, color=default_color, alpha=1.):
 
 
 def plot_faces(vis, h, x, faces, color=default_color, alpha=1.0):
-    h = wrapper_handle(handle=h, default="faces")
+    h = wrapper_handle(vis=vis, handle=h, default="faces")
     faces = wrapper_faces(faces=faces)
 
     material = get_material(color=color, alpha=alpha)
@@ -118,7 +133,9 @@ def plot_spheres(vis, h, x, r, color=default_color, alpha=1.0, wireframe=False, 
     x = np.atleast_2d(x)
     r = np.atleast_1d(r)
 
-    h = wrapper_handle(handle=h, default="sphere", n=len(x))
+    h = wrapper_handle(vis=vis, handle=h, default="sphere", n=len(x))
+    assert len(x) == len(r) == len(h)
+
     for hh, xx, rr in zip(h, x, r):
         vis[hh].set_object(geometry=mg.Sphere(radius=rr), material=material)
         vis[hh].set_transform(mt.translation_matrix(xx))
@@ -141,7 +158,7 @@ def plot_cube(vis, h, limits, mode="faces", **kwargs):
 
 def plot_bimg_voxel(vis, h,
                     bimg, limits, color=default_color, alpha=1.0):
-    h = wrapper_handle(handle=h, default="bimg")
+    h = wrapper_handle(vis=vis, handle=h, default="bimg")
 
     material = get_material(color=color, alpha=alpha)
     voxel_size = grid.limits2voxel_size(shape=bimg.shape, limits=limits)
@@ -155,8 +172,16 @@ def plot_bimg_voxel(vis, h,
     return h
 
 
+def delete(vis, handle):
+    if isinstance(handle, str):
+        vis[handle].delete()
+    elif isinstance(handle, list):
+        for h in handle:
+            vis[h].delete()
+
+
 def plot_bimg_mesh(vis, h, bimg, limits, level=0, color=default_color, alpha=1.0):
-    h = wrapper_handle(handle=h, default="bimg")
+    h = wrapper_handle(vis=vis, handle=h, default="bimg")
 
     material = get_material(color=color, alpha=alpha)
 
@@ -164,7 +189,8 @@ def plot_bimg_mesh(vis, h, bimg, limits, level=0, color=default_color, alpha=1.0
     v, f = bimage.bimg2surf(img=bimg, limits=limits + voxel_size / 2, level=level)
     print(np.sum(bimg))
 
-    vis[h].delete()
+    delete(vis=vis, handle=h)
+
     vis[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=v, faces=f), material=material)
     return h
 
@@ -200,7 +226,7 @@ def plot_arrow(vis, h, x, v, length=1.0, color=default_color, alpha=1.0):
         return [plot_arrow(vis=vis, h=hh, x=xx, v=vv, length=ll, color=cc, alpha=aa)
                 for (hh, xx, vv, ll, cc, aa) in zip(h, x, v, length, color, alpha)]
 
-    h = wrapper_handle(handle=h, default="arrow")
+    h = wrapper_handle(vis=vis, handle=h, default="arrow")
     h_cone = f"{h}-cone"
     h_cylinder = f"{h}-cylinder"
 
@@ -239,7 +265,7 @@ def plot_coordinate_frames(vis, h, f, scale=1.0, **kwargs):
     xyz_str = "xyz"
 
     if np.ndim(f) == 2:
-        h = wrapper_handle(handle=h, default="frame")
+        h = wrapper_handle(vis=vis, handle=h, default="frame")
 
         color = kwargs.pop("color", ("red", "green", "blue"))
         color = np2.scalar2array(color, shape=3)
