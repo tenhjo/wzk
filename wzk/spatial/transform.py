@@ -232,7 +232,7 @@ def is_rotation(r):
     if np.any(b):
         r2 = r[b]
         rtr = r2 @ np.swapaxes(r2, -2, -1)
-        b[~b] = np.linalg.norm(dcm2rotvec(rtr), axis=(-1)) < _eps
+        b[b] = np.linalg.norm(dcm2rotvec(rtr), axis=(-1)) < _eps
 
     if _squeeze:
         b = b[0]

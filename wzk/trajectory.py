@@ -104,7 +104,6 @@ def get_steps_norm(q,
     return np.linalg.norm(get_steps(q=q, is_periodic=is_periodic), axis=-1)
 
 
-# @jit why
 def get_substeps(x: np.ndarray, n: int,
                  is_periodic=None, include_start: bool = True):
 
@@ -137,7 +136,6 @@ def get_steps_between(start: np.ndarray, end: np.ndarray, n: int,
     return q
 
 
-# @jit why
 def get_substeps_adjusted(x: np.ndarray, n: int,
                           is_periodic=None, weighting=None, enforce_equal_steps: bool = False):
 
@@ -194,7 +192,6 @@ def get_substeps_adjusted(x: np.ndarray, n: int,
     return x_n
 
 
-# @jit why
 def get_path_adjusted(x: np.ndarray, n: int = None,
                       is_periodic=None, weighting=None, enforce_equal_steps: bool = False, __m: int = 5):
     n0 = x.shape[-2]
