@@ -206,7 +206,7 @@ def clip_periodic(x, a_min, a_max):
     return x
 
 
-def clip2(x, clip, mode, axis=-1):
+def clip2(x, clip: float, mode: str, axis=-1):
     if mode:
         if mode == "value":
             return np.clip(x, a_min=-clip, a_max=+clip)

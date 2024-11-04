@@ -133,7 +133,7 @@ def plot_spheres(vis, h, x, r, color=default_color, alpha=1.0, wireframe=False, 
     x = np.atleast_2d(x)
     r = np.atleast_1d(r)
 
-    h = wrapper_handle(vis=vis, handle=h, default="sphere", n=len(x))
+    h = wrapper_handle(vis=vis, handle=h, default="spheres", n=len(x))
     assert len(x) == len(r) == len(h)
 
     for hh, xx, rr in zip(h, x, r):
