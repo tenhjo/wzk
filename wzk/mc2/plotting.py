@@ -35,7 +35,9 @@ def rgba2material(rgba, material=None):
 def get_material(color=default_color, alpha=1.0, wireframe=False):
     rgba = mpl2.colors.to_rgba(c=color, alpha=alpha)
 
-    material = mg.MeshPhongMaterial()
+    # material = mg.MeshPhongMaterial()
+    # material = mg.MeshBasicMaterial()
+    material = mg.MeshLambertMaterial(dict(flatShading=True))
     material = rgba2material(rgba=rgba, material=material)
     material.wireframe = wireframe
     return material

@@ -3,7 +3,6 @@ import numpy as np
 from scipy.spatial import ConvexHull
 
 from wzk import printing, np2, math2, random2
-from wzk.cpp2py.min_sphere import min_sphere  # noqa
 
 
 def get_ortho_star_2d(x):
