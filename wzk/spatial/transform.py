@@ -333,12 +333,18 @@ def add_trans(f, x):
     return f1
 
 
+def make_x_hm(x):
+    x1 = np.ones(x.shape[:-1] + (4,))
+    x1[..., :3] = x[..., :3]
+    return x1
+
+
 def Ax(A, x):
     if A is None:
         return x
 
     if x.shape[-1] != A.shape[-1]:
-        x = np.concatenate([x, np.ones_like(x[..., :1])], axis=-1)
+        x = make_x_hm(x)
 
     if A.ndim == 2 and x.ndim == 2:
         A = A[np.newaxis, :, :]
