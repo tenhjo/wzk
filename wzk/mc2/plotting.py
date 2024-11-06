@@ -289,9 +289,10 @@ def plot_coordinate_frames(vis, h, f, scale=1.0, **kwargs):
                 for hh, ff, cc in zip(h, f, color)]
 
 
-def transform(vis, h, f):
+def transform(vis, h, f: np.ndarray):
     if f is None:
         return
+    f = np.array(f)
 
     if isinstance(h, str) and f.ndim == 2:
         vis[h].set_transform(f)
@@ -317,6 +318,7 @@ def __load_mesh(mesh):
 def plot_meshes(vis, h, meshes, f=None, color="white", alpha=1., **kwargs):  # noqa
     material = get_material(color=color, alpha=alpha)
 
+    h = wrapper_handle(vis=vis, handle=h, default="mesh", n=len(meshes))
     for hh, mm in zip(h, meshes):
         vis[hh].set_object(__load_mesh(mm), material)
 
