@@ -26,4 +26,4 @@ def visual_bell(n=3):
 
 
 if __name__ == "__main__":
-    visual_bell(n=5)
+    visual_bell(n=10)
