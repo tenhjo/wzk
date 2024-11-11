@@ -44,10 +44,9 @@ def test_spheres2bimg():
     r = np.random.uniform(low=0.1, high=0.2, size=n)
     img = bimage.spheres2bimg(x=x, r=r, shape=shape, limits=limits)
 
-    from wzk import pv2
-    pl = pv2.Plotter()
-    pv2.plot_bimg(pl=pl, img=img, limits=limits)
-    pl.show()
+    from wzk import mc2
+    vis = mc2.Visualizer()
+    mc2.plot_bimg(vis=vis, img=img, limits=limits, h=None)
 
 
 if __name__ == "__main__":

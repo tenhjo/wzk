@@ -33,20 +33,20 @@ class Test(TestCase):
         print(arr2)
 
         fig, ax = plotting.new_fig(title="upper, ij")
-        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="upper", axis_order="ij")
+        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="upper", axis_order="ij->xy")
 
         fig, ax = plotting.new_fig(title="upper, ji")
-        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="upper", axis_order="ji")
+        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="upper", axis_order="ij->yx")
 
         fig, ax = plotting.new_fig(title="lower, ij")
-        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ij")
+        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ij->xy")
 
         fig, ax = plotting.new_fig(title="lower, ji")
-        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ji")
+        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ij->yx")
 
         fig, ax = plotting.new_fig(title="lower, ji")
-        h = plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ji")
-        plotting.imshow(h=h, img=arr, mask=arr % 2 == 1, cmap="Reds", axis_order="ji")
+        h = plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ij->yx")
+        plotting.imshow(h=h, img=arr, mask=arr % 2 == 1, cmap="Reds", axis_order="ij->yx")
 
         fig, ax = plotting.new_fig(aspect=1)
         arr = np.arange(42).reshape(6, 7)

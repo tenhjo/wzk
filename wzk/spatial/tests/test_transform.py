@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from wzk import spatial, pv2
+from wzk import spatial, mc2
 
 
 class Test(unittest.TestCase):
@@ -26,11 +26,8 @@ def vis_rotvec():
     print(rv)
     f = spatial.trans_rotvec2frame(trans=x, rotvec=rv)
 
-    pl = pv2.Plotter()
-    pv2.plot_coordinate_frames(f=f, pl=pl)
-    pl.add_axes_at_origin(labels_off=False)
-
-    pl.show()
+    vis = mc2.Visualizer()
+    mc2.plot_coordinate_frames(vis=vis, f=f, h=None)
 
 
 def vis_get_frames_between():
@@ -43,7 +40,6 @@ def vis_get_frames_between():
 
     assert np.allclose(f0, f[0])
     assert np.allclose(f1, f[-1])
-    from wzk import pv2
-    pl = pv2.Plotter()
-    pv2.plot_coordinate_frames(pl=pl, f=f, scale=0.2)
-    pl.show()
+
+    vis = mc2.Visualizer()
+    mc2.plot_coordinate_frames(vis=vis, f=f, h=None, scale=0.2)

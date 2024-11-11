@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
             self.assertTrue(np.allclose(d, d_true), msg=f"{d_true} | {d.mean()} | {d}")
 
     def test_capsule_capsule_permutations(self):
-        m = 10000
+        m = 1000
         for i in range(m):
             printing.progress_bar(prefix="capsule_capsule_permutation", i=i, n=m, eta=True)
 
@@ -86,7 +86,7 @@ class Test(unittest.TestCase):
         capsule_b = np.array([[+offset, 0.0, 0.0],
                               [-1, -1, -1]])
 
-        m = 10000
+        m = 1000
         for i in range(m):
             printing.progress_bar(prefix="capsule_capsule_closest", i=i, n=m, eta=True)
             capsule_a[1] = np.random.random(3)

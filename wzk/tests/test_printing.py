@@ -38,13 +38,14 @@ class Test(TestCase):
         print("normal")
 
         for c in ["w", "r", "g", "y", "b", "m", "c", "l", "k", "w"]:
-            print(printing.color_text(s=c, color=c, background="w"))
-
-        for c in ["w", "r", "g", "y", "b", "m", "c", "l", "k", "w"]:
             print(printing.color_text(s=c, color=c, background=c))
 
         for c in ["w", "r", "g", "y", "b", "m", "c", "l", "k", "w"]:
             print(printing.color_text(s=c, color=c, background="k"))
+
+        for c in ["w", "r", "g", "y", "b", "m", "c", "l", "k", "w", "k"]:
+            print(printing.color_text(s=c, color=c, background="w"))
+
 
     def test_save_string_concatenate(self):
         s = "test - full"
