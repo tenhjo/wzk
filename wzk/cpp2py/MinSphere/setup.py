@@ -1,6 +1,5 @@
 import os
 from setuptools import Extension, setup
-from wzk import files
 
 
 HOMEBREW_PREFIX = "/opt/homebrew/Cellar"

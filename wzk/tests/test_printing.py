@@ -46,7 +46,6 @@ class Test(TestCase):
         for c in ["w", "r", "g", "y", "b", "m", "c", "l", "k", "w", "k"]:
             print(printing.color_text(s=c, color=c, background="w"))
 
-
     def test_save_string_concatenate(self):
         s = "test - full"
         prefix = "hello"

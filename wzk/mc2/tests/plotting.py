@@ -61,15 +61,15 @@ def try_plot_bimg():
 def try_arrow():
     p = mc2.Visualizer()
 
-    vis["triad"].set_object(mc2.mg.triad())
-    vis["triad1"].set_object(mc2.mg.triad())
+    p["triad"].set_object(mc2.mg.triad())
+    p["triad1"].set_object(mc2.mg.triad())
 
     f = np.eye(4)
     mc2.plot_arrow(p=p, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
     f = mc2.spatial.sample_frames()
     mc2.plot_arrow(p=p, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
 
-    vis["triad"].set_transform(f)
+    p["triad"].set_transform(f)
 
 
 def try_coordinate_frames(mode="A"):

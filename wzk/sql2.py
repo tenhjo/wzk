@@ -95,12 +95,13 @@ def order2sql(order_by, dtype=str):
 @contextmanager
 def open_db_connection(file: str,
                        lock=None,
-                       close: bool = True,
-                       check_same_thread: bool = False,
-                       isolation_level: str = "DEFERRED"):
+                       close: bool = True):
+
     """
     Safety wrapper for the database call.
     """
+    check_same_thread = False
+    isolation_level = "DEFERRED"
 
     if lock is not None:
         lock.acquire()
@@ -131,8 +132,8 @@ def __commit(con):
         pass
 
 
-def execute(file, query, isolation_level="DEFERRED", lock=None):
-    with open_db_connection(file=file, close=True, isolation_level=isolation_level, lock=lock) as con:
+def execute(file, query, lock=None):
+    with open_db_connection(file=file, close=True, lock=lock) as con:
         # con.execute("PRAGMA max_page_count = 200000")
         # con.execute("PRAGMA page_size = 65536")
         con.execute(query)
@@ -176,7 +177,7 @@ def vacuum(file):
 
 
 def get_tables(file: str) -> list:
-    with open_db_connection(file=file, close=True) as con:
+    with open_db_connection(file=file, close=True, lock=None) as con:
         t = pd.read_sql_query(sql="SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'",
                               con=con)
     t = t["name"].values
@@ -224,7 +225,7 @@ def summary(file):
 def rename_tables(file: str, tables: dict) -> None:
     old_names = get_tables(file=file)
     print(f"rename_tables file:'{file}' {tables}")
-    with open_db_connection(file=file, close=True) as con:
+    with open_db_connection(file=file, close=True, lock=None) as con:
         cur = con.cursor()
         for old in old_names:
             if old in tables:
@@ -235,7 +236,7 @@ def rename_tables(file: str, tables: dict) -> None:
 def rename_columns(file: str, table: str, columns: dict) -> None:
     old_list = get_columns(file=file, table=table, mode="name")
     print(f"rename_columns file:'{file}' table:'{table}' {columns}")
-    with open_db_connection(file=file, close=True) as con:
+    with open_db_connection(file=file, close=True, lock=None) as con:
         cur = con.cursor()
         for old in columns:
             if old in old_list:
@@ -350,7 +351,6 @@ def delete_columns(file: str, table: str, columns, lock=None):
     vacuum(file)
 
 
-
 def add_column(file, table, column, dtype, lock=None):
     columns = get_columns(file=file, table=table, mode="name")
     if column in columns:
@@ -421,7 +421,7 @@ def change_column_dtype(file, table, column, dtype, lock=None):
 
 # Get and Set SQL values
 def get_values(file: str, table: str, columns=None, rows=-1,
-                   return_type: str = "list", squeeze_col: bool = True, squeeze_row: bool = True):
+               return_type: str = "list", squeeze_col: bool = True, squeeze_row: bool = True):
     """
     'i_samples' == i_samples_global
     """
@@ -485,7 +485,7 @@ def get_values(file: str, table: str, columns=None, rows=-1,
 
 
 def set_values(file: str, table: str,
-                   values: tuple, columns, rows=-1, lock=None):
+               values: tuple, columns, rows=-1, lock=None):
     """
     values = ([...], [...], [...], ...)
     """

@@ -145,7 +145,7 @@ def get_ticks_index(ax, axis, v, squeeze=True):
     else:
         raise ValueError
 
-    v = v.astype(int)
+    v = np.array(v, dtype=int)
     if squeeze:
         v = np.squeeze(v)
     return v

@@ -15,13 +15,13 @@ MeshGeometry_DICT = dict(stl=mg.StlMeshGeometry,
 default_color = "white"
 
 
-def ih_visualizer(vis: Visualizer):
-    if vis is None:
-        vis = Visualizer(vis)
-    return vis
+def ih_visualizer(p: Visualizer):
+    if p is None:
+        p = Visualizer(p)
+    return p
 
 
-def ih_handle(vis: Visualizer, h=None, default="", n=None):
+def ih_handle(p: Visualizer, h=None, default="", n=None):
     if h is None:
         if n is None:
             return f"{default}-{uuid4()}"
@@ -93,25 +93,25 @@ def color2rgb_list(color, n):
 
 
 def plot_points(x, size=0.001, color=default_color,
-                vis: Visualizer = None, h=None):
+                p: Visualizer = None, h=None):
 
-    vis = ih_visualizer(vis)
+    p = ih_visualizer(p)
     h = ih_handle(p=p, h=h, default="points")
     x = wrapper_x(x)
 
     material = mg.PointsMaterial(size=size)
     rgb_list = color2rgb_list(color=color, n=x.shape[1])
 
-    vis[h].set_object(geometry=mg.PointsGeometry(position=x, color=rgb_list), material=material)
+    p[h].set_object(geometry=mg.PointsGeometry(position=x, color=rgb_list), material=material)
 
     return h
 
 
 def plot_lines(x, lines=None,
                color=default_color, alpha=1.,
-               vis: Visualizer = None, h=None):
+               p: Visualizer = None, h=None):
 
-    vis = ih_visualizer(vis)
+    p = ih_visualizer(p)
     h = ih_handle(p=p, h=h, default="lines")
 
     x = wrapper_x(x)
@@ -128,29 +128,29 @@ def plot_lines(x, lines=None,
         xl = x[:, lines].reshape(3, -1)
         lines = mg.LineSegments(geometry=mg.PointsGeometry(position=xl, color=None), material=material)
 
-    vis[h].set_object(lines)
+    p[h].set_object(lines)
 
     return h
 
 
 def plot_faces(x, faces, color=default_color, alpha=1.0,
-               vis: Visualizer = None, h=None):
+               p: Visualizer = None, h=None):
 
-    vis = ih_visualizer(vis)
+    p = ih_visualizer(p)
     h = ih_handle(p=p, h=h, default="faces")
 
     faces = wrapper_faces(faces=faces)
 
     material = get_material(color=color, alpha=alpha)
 
-    vis[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=x, faces=faces), material=material)
+    p[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=x, faces=faces), material=material)
 
 
 def plot_spheres(x, r, color=default_color, alpha=1.0, wireframe=False,
-                 vis: Visualizer = None, h=None,
+                 p: Visualizer = None, h=None,
                  **kwargs):  # noqa
 
-    vis = ih_visualizer(vis)
+    p = ih_visualizer(p)
 
     material = get_material(color=color, alpha=alpha, wireframe=wireframe)
     x = np.atleast_2d(x)
@@ -160,8 +160,8 @@ def plot_spheres(x, r, color=default_color, alpha=1.0, wireframe=False,
     assert len(x) == len(r) == len(h)
 
     for hh, xx, rr in zip(h, x, r):
-        vis[hh].set_object(geometry=mg.Sphere(radius=rr), material=material)
-        vis[hh].set_transform(mt.translation_matrix(xx))
+        p[hh].set_object(geometry=mg.Sphere(radius=rr), material=material)
+        p[hh].set_transform(mt.translation_matrix(xx))
 
     return h
 
@@ -184,7 +184,7 @@ def plot_cube(limits, mode="faces",
 def plot_bimg_voxel(bimg, limits, color=default_color, alpha=1.0,
                     p=None, h=None):
 
-    vis = ih_visualizer(p=p)
+    p = ih_visualizer(p=p)
     h = ih_handle(p=p, h=h, default="bimg")
 
     material = get_material(color=color, alpha=alpha)
@@ -193,25 +193,25 @@ def plot_bimg_voxel(bimg, limits, color=default_color, alpha=1.0,
     i = np.array(np.nonzero(bimg)).T
     x = grid.i2x(i=i, limits=limits, shape=bimg.shape, mode="c")
     for j, xx in enumerate(x):
-        vis[f"{h}/voxel-{j}"].set_object(geometry=mg.Box([voxel_size] * 3), material=material)
-        vis[f"{h}/voxel-{j}"].set_transform(mt.translation_matrix(xx))
+        p[f"{h}/voxel-{j}"].set_object(geometry=mg.Box([voxel_size] * 3), material=material)
+        p[f"{h}/voxel-{j}"].set_transform(mt.translation_matrix(xx))
 
     return h
 
 
-def delete(vis, handle):
+def delete(p, handle):
     if isinstance(handle, str):
-        vis[handle].delete()
+        p[handle].delete()
     elif isinstance(handle, list):
         for h in handle:
-            vis[h].delete()
+            p[h].delete()
 
 
 def plot_bimg_mesh(bimg, limits,
                    level=0, color=default_color, alpha=1.0,
                    p=None, h=None):
 
-    vis = ih_visualizer(p=p)
+    p = ih_visualizer(p=p)
     h = ih_handle(p=p, h=h, default="bimg")
 
     material = get_material(color=color, alpha=alpha)
@@ -222,7 +222,7 @@ def plot_bimg_mesh(bimg, limits,
 
     delete(p=p, handle=h)
 
-    vis[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=v, faces=f), material=material)
+    p[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=v, faces=f), material=material)
     return h
 
 
@@ -230,7 +230,7 @@ def plot_bimg(img, limits, mode="mesh",
               p=None, h=None,
               **kwargs):
 
-    vis = ih_visualizer(p=p)
+    p = ih_visualizer(p=p)
 
     if img is None:
         return
@@ -254,7 +254,7 @@ def get_default_color_alpha(**kwargs):
 def plot_arrow(x, v, length=1.0, color=default_color, alpha=1.0,
                p=None, h=None):
 
-    vis = ih_visualizer(p=p)
+    p = ih_visualizer(p=p)
 
     x, v = np2.squeeze_all(x, v)
 
@@ -283,8 +283,8 @@ def plot_arrow(x, v, length=1.0, color=default_color, alpha=1.0,
     cone = mg.Cylinder(height=length_cone, radiusBottom=radius_cone, radiusTop=0)
 
     material = get_material(color=color, alpha=alpha)
-    vis[h_cylinder].set_object(geometry=cylinder, material=material)
-    vis[h_cone].set_object(geometry=cone, material=material)
+    p[h_cylinder].set_object(geometry=cylinder, material=material)
+    p[h_cone].set_object(geometry=cone, material=material)
 
     vy = v.astype(float)
     vx = geometry.get_orthonormal(vy)
@@ -294,16 +294,18 @@ def plot_arrow(x, v, length=1.0, color=default_color, alpha=1.0,
     f_cylinder = spatial.trans_dcm2frame(trans=x, dcm=dcm) @ spatial.trans2frame(y=length_cylinder / 2)
     f_cone = spatial.trans_dcm2frame(trans=x, dcm=dcm) @ spatial.trans2frame(y=length_cylinder + length_cone / 2)
 
-    vis[h_cone].set_transform(f_cone)
-    vis[h_cylinder].set_transform(f_cylinder)
+    p[h_cone].set_transform(f_cone)
+    p[h_cylinder].set_transform(f_cylinder)
 
     return h
 
 
-def plot_coordinate_frames(f: np.ndarray, p=None, h=None, scale=1.0, **kwargs):
+def plot_coordinate_frames(f: np.ndarray,
+                           p: Visualizer = None, h=None,
+                           scale=1.0, **kwargs):
     xyz_str = "xyz"
 
-    vis = ih_visualizer(p=p)
+    p = ih_visualizer(p=p)
 
     if np.ndim(f) == 2:
         h = ih_handle(p=p, h=h, default="frame")
@@ -328,22 +330,22 @@ def plot_coordinate_frames(f: np.ndarray, p=None, h=None, scale=1.0, **kwargs):
                 for hh, ff, cc in zip(h, f, color)]
 
 
-def transform(f: np.ndarray, vis, h):
+def transform(f: np.ndarray, p, h):
     if f is None:
         return
     f = np.array(f)
 
     if isinstance(h, str) and f.ndim == 2:
-        vis[h].set_transform(f)
+        p[h].set_transform(f)
 
     elif isinstance(h, (list, tuple, np.ndarray)) and f.ndim == 2:
         for hh in zip(h):
-            vis[hh].set_transform(f)
+            p[hh].set_transform(f)
 
     elif f.ndim == 3:
         assert len(h) == len(f)
         for hh, ff in zip(h, f):
-            vis[hh].set_transform(ff)
+            p[hh].set_transform(ff)
 
     else:
         raise ValueError
@@ -357,13 +359,13 @@ def __load_mesh(mesh):
 def plot_meshes(meshes, f=None, p=None, h=None,
                 color="white", alpha=1., **kwargs):
 
-    vis = ih_visualizer(p=p)
+    p = ih_visualizer(p=p)
 
     material = get_material(color=color, alpha=alpha)
 
     h = ih_handle(p=p, h=h, default="mesh", n=len(meshes))
     for hh, mm in zip(h, meshes):
-        vis[hh].set_object(__load_mesh(mm), material)
+        p[hh].set_object(__load_mesh(mm), material)
 
     transform(p=p, h=h, f=f)
     return h
