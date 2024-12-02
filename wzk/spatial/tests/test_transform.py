@@ -26,8 +26,8 @@ def vis_rotvec():
     print(rv)
     f = spatial.trans_rotvec2frame(trans=x, rotvec=rv)
 
-    vis = mc2.Visualizer()
-    mc2.plot_coordinate_frames(vis=vis, f=f, h=None)
+    p = mc2.Visualizer()
+    mc2.plot_coordinate_frames(p=p, f=f, h=None)
 
 
 def vis_get_frames_between():
@@ -41,5 +41,5 @@ def vis_get_frames_between():
     assert np.allclose(f0, f[0])
     assert np.allclose(f1, f[-1])
 
-    vis = mc2.Visualizer()
-    mc2.plot_coordinate_frames(vis=vis, f=f, h=None, scale=0.2)
+    p = mc2.Visualizer()
+    mc2.plot_coordinate_frames(p=p, f=f, h=None, scale=0.2)

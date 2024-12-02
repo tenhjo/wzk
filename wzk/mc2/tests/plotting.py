@@ -6,44 +6,44 @@ from wzk import mc2, spatial
 # ----------------------------------------------------------------------------------------------------------------------
 def try_plot_points():
     n = 100000
-    vis = mc2.Visualizer()
-    h = mc2.plot_points(vis=vis, h=None, x=np.random.random((n, 3)), color="white", size=0.01)
+    p = mc2.Visualizer()
+    h = mc2.plot_points(p=p, h=None, x=np.random.random((n, 3)), color="white", size=0.01)
     input()
-    mc2.plot_points(vis=vis, h=h, x=np.random.random((n, 3)), color="blue", size=0.02)
+    mc2.plot_points(p=p, h=h, x=np.random.random((n, 3)), color="blue", size=0.02)
 
 
 def try_plot_lines():
     n = 100
-    vis = mc2.Visualizer()
-    mc2.plot_lines(vis=vis, h=None, x=np.random.random((n, 3)), color="blue", alpha=0.1, lines=None, )
+    p = mc2.Visualizer()
+    mc2.plot_lines(p=p, h=None, x=np.random.random((n, 3)), color="blue", alpha=0.1, lines=None, )
 
 
 def try_plot_faces():
     n = 10
     n1 = 20
-    vis = mc2.Visualizer()
-    mc2.plot_faces(vis=vis, h=None, x=np.random.random((n, 3)),
+    p = mc2.Visualizer()
+    mc2.plot_faces(p=p, h=None, x=np.random.random((n, 3)),
                    faces=np.random.choice(np.arange(n), (n1, 3)), color="blue", alpha=0.3)
 
 
 def try_plot_cube():
-    vis = mc2.Visualizer()
+    p = mc2.Visualizer()
     limits = np.zeros((3, 2))
     limits[:, 0] = 1
     limits[:, 1] = 2
 
-    mc2.plot_cube(vis=vis, h=None, limits=limits, mode="lines", color="red")
-    mc2.plot_cube(vis=vis, h=None, limits=limits+2, mode="lines", color="white", alpha=0.5)
-    mc2.plot_cube(vis=vis, h=None, limits=limits+4, mode="faces", color="blue", alpha=0.1)
+    mc2.plot_cube(p=p, h=None, limits=limits, mode="lines", color="red")
+    mc2.plot_cube(p=p, h=None, limits=limits+2, mode="lines", color="white", alpha=0.5)
+    mc2.plot_cube(p=p, h=None, limits=limits+4, mode="faces", color="blue", alpha=0.1)
 
 
 def try_plot_spheres():
 
     n = 10
-    vis = mc2.Visualizer()
+    p = mc2.Visualizer()
     x = np.random.random((n, 3))
     r = np.random.uniform(low=0.1, high=0.2, size=n)
-    mc2.plot_spheres(vis=vis, h=None, x=x, r=r, color="blue", alpha=0.1)
+    mc2.plot_spheres(p=p, h=None, x=x, r=r, color="blue", alpha=0.1)
 
 
 def try_plot_bimg():
@@ -54,37 +54,37 @@ def try_plot_bimg():
     limits[:, 1] = 3
     # limits += 0.5
 
-    vis = mc2.Visualizer()
-    mc2.plot_bimg(vis=vis, h=None, img=bimg, limits=limits, color="white")
+    p = mc2.Visualizer()
+    mc2.plot_bimg(p=p, h=None, img=bimg, limits=limits, color="white")
 
 
 def try_arrow():
-    vis = mc2.Visualizer()
+    p = mc2.Visualizer()
 
     vis["triad"].set_object(mc2.mg.triad())
     vis["triad1"].set_object(mc2.mg.triad())
 
     f = np.eye(4)
-    mc2.plot_arrow(vis=vis, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
+    mc2.plot_arrow(p=p, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
     f = mc2.spatial.sample_frames()
-    mc2.plot_arrow(vis=vis, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
+    mc2.plot_arrow(p=p, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
 
     vis["triad"].set_transform(f)
 
 
 def try_coordinate_frames(mode="A"):
-    vis = mc2.Visualizer()
+    p = mc2.Visualizer()
 
     if mode == "A":
-        mc2.plot_coordinate_frames(vis=vis, h=None, f=spatial.sample_frames(), color="red", scale=0.1)
-        mc2.plot_coordinate_frames(vis=vis, h=None, f=spatial.sample_frames(), color="green", scale=0.2)
-        mc2.plot_coordinate_frames(vis=vis, h=None, f=spatial.sample_frames(), color="blue", scale=0.3)
+        mc2.plot_coordinate_frames(p=p, h=None, f=spatial.sample_frames(), color="red", scale=0.1)
+        mc2.plot_coordinate_frames(p=p, h=None, f=spatial.sample_frames(), color="green", scale=0.2)
+        mc2.plot_coordinate_frames(p=p, h=None, f=spatial.sample_frames(), color="blue", scale=0.3)
 
     elif mode == "B":
-        mc2.plot_coordinate_frames(vis=vis, h=None, f=spatial.sample_frames(shape=5), color="blue", scale=0.1)
+        mc2.plot_coordinate_frames(p=p, h=None, f=spatial.sample_frames(shape=5), color="blue", scale=0.1)
 
     elif mode == "C":
-        mc2.plot_coordinate_frames(vis=vis, h=None, f=spatial.sample_frames(shape=2),
+        mc2.plot_coordinate_frames(p=p, h=None, f=spatial.sample_frames(shape=2),
                                    color=[["red", "green", "blue"], ["orange", "cyan", "magenta"]], scale=0.1)
 
 

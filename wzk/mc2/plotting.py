@@ -15,6 +15,36 @@ MeshGeometry_DICT = dict(stl=mg.StlMeshGeometry,
 default_color = "white"
 
 
+def ih_visualizer(vis: Visualizer):
+    if vis is None:
+        vis = Visualizer(vis)
+    return vis
+
+
+def ih_handle(vis: Visualizer, h=None, default="", n=None):
+    if h is None:
+        if n is None:
+            return f"{default}-{uuid4()}"
+        else:
+            return [ih_handle(p=p, h=h, default=default, n=None) for _ in range(n)]
+
+    elif isinstance(h, str):
+        pass
+
+    elif isinstance(h, list):
+        if len(h) == n:
+            pass
+
+        elif len(h) > n:
+            delete(p=p, handle=h[n:])
+            h = h[:n]
+
+        elif len(h) < n:
+            h += ih_handle(p=p, h=None, default=default, n=n - len(h))
+
+    return h
+
+
 def rgba2material(rgba, material=None):
     # TODO can I set linewidth etc. also here?
     if material is None:
@@ -32,7 +62,7 @@ def rgba2material(rgba, material=None):
     return material
 
 
-def get_material(color=default_color, alpha=1.0, wireframe=False):
+def get_material(color=default_color, alpha: float = 1.0, wireframe: bool = False):
     rgba = mpl2.colors.to_rgba(c=color, alpha=alpha)
 
     # material = mg.MeshPhongMaterial()
@@ -43,36 +73,12 @@ def get_material(color=default_color, alpha=1.0, wireframe=False):
     return material
 
 
-def wrapper_handle(vis, handle=None, default="", n=None):
-    if handle is None:
-        if n is None:
-            return f"{default}-{uuid4()}"
-        else:
-            return [wrapper_handle(vis=vis, handle=handle, default=default, n=None) for _ in range(n)]
-
-    elif isinstance(handle, str):
-        pass
-
-    elif isinstance(handle, list):
-        if len(handle) == n:
-            pass
-
-        elif len(handle) > n:
-            delete(vis=vis, handle=handle[n:])
-            handle = handle[:n]
-
-        elif len(handle) < n:
-            handle += wrapper_handle(vis=vis, handle=None, default=default, n=n-len(handle))
-
-    return handle
-
-
-def wrapper_x(x):
+def wrapper_x(x: np.ndarray):
     assert x.ndim == 2 and x.shape[1] == 3
     return x.astype(np.float32).T
 
 
-def wrapper_faces(faces):
+def wrapper_faces(faces: np.ndarray):
     assert faces.ndim == 2
     if faces.shape[1] == 4:
         faces = geometry.faces4_to_3(f4=faces)
@@ -86,10 +92,11 @@ def color2rgb_list(color, n):
     return rgb_list.astype(np.float32).T
 
 
-def plot_points(vis, h,
-                x, size=0.001, color=default_color):
+def plot_points(x, size=0.001, color=default_color,
+                vis: Visualizer = None, h=None):
 
-    h = wrapper_handle(vis=vis, handle=h, default="points")
+    vis = ih_visualizer(vis)
+    h = ih_handle(p=p, h=h, default="points")
     x = wrapper_x(x)
 
     material = mg.PointsMaterial(size=size)
@@ -100,8 +107,13 @@ def plot_points(vis, h,
     return h
 
 
-def plot_lines(vis, h, x, lines=None, color=default_color, alpha=1.):
-    h = wrapper_handle(vis=vis, handle=h, default="lines")
+def plot_lines(x, lines=None,
+               color=default_color, alpha=1.,
+               vis: Visualizer = None, h=None):
+
+    vis = ih_visualizer(vis)
+    h = ih_handle(p=p, h=h, default="lines")
+
     x = wrapper_x(x)
 
     material = get_material(color=color, alpha=alpha)
@@ -121,8 +133,12 @@ def plot_lines(vis, h, x, lines=None, color=default_color, alpha=1.):
     return h
 
 
-def plot_faces(vis, h, x, faces, color=default_color, alpha=1.0):
-    h = wrapper_handle(vis=vis, handle=h, default="faces")
+def plot_faces(x, faces, color=default_color, alpha=1.0,
+               vis: Visualizer = None, h=None):
+
+    vis = ih_visualizer(vis)
+    h = ih_handle(p=p, h=h, default="faces")
+
     faces = wrapper_faces(faces=faces)
 
     material = get_material(color=color, alpha=alpha)
@@ -130,12 +146,17 @@ def plot_faces(vis, h, x, faces, color=default_color, alpha=1.0):
     vis[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=x, faces=faces), material=material)
 
 
-def plot_spheres(vis, h, x, r, color=default_color, alpha=1.0, wireframe=False, **kwargs):  # noqa
+def plot_spheres(x, r, color=default_color, alpha=1.0, wireframe=False,
+                 vis: Visualizer = None, h=None,
+                 **kwargs):  # noqa
+
+    vis = ih_visualizer(vis)
+
     material = get_material(color=color, alpha=alpha, wireframe=wireframe)
     x = np.atleast_2d(x)
     r = np.atleast_1d(r)
 
-    h = wrapper_handle(vis=vis, handle=h, default="spheres", n=len(x))
+    h = ih_handle(p=p, h=h, default="spheres", n=len(x))
     assert len(x) == len(r) == len(h)
 
     for hh, xx, rr in zip(h, x, r):
@@ -145,22 +166,26 @@ def plot_spheres(vis, h, x, r, color=default_color, alpha=1.0, wireframe=False, 
     return h
 
 
-def plot_cube(vis, h, limits, mode="faces", **kwargs):
+def plot_cube(limits, mode="faces",
+              p=None, h=None,
+              **kwargs):
     if limits is None:
         return
     v, e, f = geometry.cube(limits=limits)
 
     if mode == "faces":
-        return plot_faces(vis=vis, h=h, x=v, faces=f, **kwargs)
+        return plot_faces(p=p, h=h, x=v, faces=f, **kwargs)
     elif mode == "lines":
-        return plot_lines(vis=vis, h=h, x=v, lines=e, **kwargs)
+        return plot_lines(p=p, h=h, x=v, lines=e, **kwargs)
     else:
         raise ValueError
 
 
-def plot_bimg_voxel(vis, h,
-                    bimg, limits, color=default_color, alpha=1.0):
-    h = wrapper_handle(vis=vis, handle=h, default="bimg")
+def plot_bimg_voxel(bimg, limits, color=default_color, alpha=1.0,
+                    p=None, h=None):
+
+    vis = ih_visualizer(p=p)
+    h = ih_handle(p=p, h=h, default="bimg")
 
     material = get_material(color=color, alpha=alpha)
     voxel_size = grid.limits2voxel_size(shape=bimg.shape, limits=limits)
@@ -182,8 +207,12 @@ def delete(vis, handle):
             vis[h].delete()
 
 
-def plot_bimg_mesh(vis, h, bimg, limits, level=0, color=default_color, alpha=1.0):
-    h = wrapper_handle(vis=vis, handle=h, default="bimg")
+def plot_bimg_mesh(bimg, limits,
+                   level=0, color=default_color, alpha=1.0,
+                   p=None, h=None):
+
+    vis = ih_visualizer(p=p)
+    h = ih_handle(p=p, h=h, default="bimg")
 
     material = get_material(color=color, alpha=alpha)
 
@@ -191,22 +220,26 @@ def plot_bimg_mesh(vis, h, bimg, limits, level=0, color=default_color, alpha=1.0
     v, f = bimage.bimg2surf(img=bimg, limits=limits + voxel_size / 2, level=level)
     print(np.sum(bimg))
 
-    delete(vis=vis, handle=h)
+    delete(p=p, handle=h)
 
     vis[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=v, faces=f), material=material)
     return h
 
 
-def plot_bimg(vis, h,
-              img, limits, mode="mesh", **kwargs):
+def plot_bimg(img, limits, mode="mesh",
+              p=None, h=None,
+              **kwargs):
+
+    vis = ih_visualizer(p=p)
+
     if img is None:
         return
 
     if mode == "mesh":
-        plot_bimg_mesh(vis=vis, h=h, bimg=img, limits=limits, **kwargs)
+        plot_bimg_mesh(p=p, h=h, bimg=img, limits=limits, **kwargs)
 
     elif mode == "voxel":
-        plot_bimg_voxel(vis=vis, h=h, bimg=img, limits=limits, **kwargs)
+        plot_bimg_voxel(p=p, h=h, bimg=img, limits=limits, **kwargs)
 
     else:
         raise ValueError(f"Unknown mode: '{mode}' | ['mesh', 'voxel']")
@@ -218,17 +251,21 @@ def get_default_color_alpha(**kwargs):
     return kwargs
 
 
-def plot_arrow(vis, h, x, v, length=1.0, color=default_color, alpha=1.0):
+def plot_arrow(x, v, length=1.0, color=default_color, alpha=1.0,
+               p=None, h=None):
+
+    vis = ih_visualizer(p=p)
+
     x, v = np2.squeeze_all(x, v)
 
     if np.ndim(x) == 2 or np.ndim(v) == 2:
         n = np2.max_size(x, v) // 3
         h, length, color, alpha = np2.scalar2array(h, length, color, alpha, shape=n)
         x, v = np2.scalar2array(x, v, shape=(n, 3))
-        return [plot_arrow(vis=vis, h=hh, x=xx, v=vv, length=ll, color=cc, alpha=aa)
+        return [plot_arrow(p=p, h=hh, x=xx, v=vv, length=ll, color=cc, alpha=aa)
                 for (hh, xx, vv, ll, cc, aa) in zip(h, x, v, length, color, alpha)]
 
-    h = wrapper_handle(vis=vis, handle=h, default="arrow")
+    h = ih_handle(p=p, h=h, default="arrow")
     h_cone = f"{h}-cone"
     h_cylinder = f"{h}-cylinder"
 
@@ -263,17 +300,19 @@ def plot_arrow(vis, h, x, v, length=1.0, color=default_color, alpha=1.0):
     return h
 
 
-def plot_coordinate_frames(vis, h, f, scale=1.0, **kwargs):
+def plot_coordinate_frames(f: np.ndarray, p=None, h=None, scale=1.0, **kwargs):
     xyz_str = "xyz"
 
+    vis = ih_visualizer(p=p)
+
     if np.ndim(f) == 2:
-        h = wrapper_handle(vis=vis, handle=h, default="frame")
+        h = ih_handle(p=p, h=h, default="frame")
 
         color = kwargs.pop("color", ("red", "green", "blue"))
         color = np2.scalar2array(color, shape=3)
 
         for i in range(3):
-            plot_arrow(vis=vis, h=f"{h}-{xyz_str[i]}", x=f[:3, -1], v=f[:3, i], length=scale, color=color[i], **kwargs)
+            plot_arrow(p=p, h=f"{h}-{xyz_str[i]}", x=f[:3, -1], v=f[:3, i], length=scale, color=color[i], **kwargs)
 
         return h
 
@@ -285,11 +324,11 @@ def plot_coordinate_frames(vis, h, f, scale=1.0, **kwargs):
         color = kwargs.pop("color", ("red", "green", "blue"))
         color = np2.scalar2array(color, shape=(n, 3))
 
-        return [plot_coordinate_frames(vis=vis, h=hh, f=ff, color=cc, scale=scale, **kwargs)
+        return [plot_coordinate_frames(p=p, h=hh, f=ff, color=cc, scale=scale, **kwargs)
                 for hh, ff, cc in zip(h, f, color)]
 
 
-def transform(vis, h, f: np.ndarray):
+def transform(f: np.ndarray, vis, h):
     if f is None:
         return
     f = np.array(f)
@@ -315,12 +354,16 @@ def __load_mesh(mesh):
     return MeshGeometry_DICT[ext].from_file(mesh)
 
 
-def plot_meshes(vis, h, meshes, f=None, color="white", alpha=1., **kwargs):  # noqa
+def plot_meshes(meshes, f=None, p=None, h=None,
+                color="white", alpha=1., **kwargs):
+
+    vis = ih_visualizer(p=p)
+
     material = get_material(color=color, alpha=alpha)
 
-    h = wrapper_handle(vis=vis, handle=h, default="mesh", n=len(meshes))
+    h = ih_handle(p=p, h=h, default="mesh", n=len(meshes))
     for hh, mm in zip(h, meshes):
         vis[hh].set_object(__load_mesh(mm), material)
 
-    transform(vis=vis, h=h, f=f)
+    transform(p=p, h=h, f=f)
     return h

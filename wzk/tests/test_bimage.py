@@ -45,8 +45,8 @@ def test_spheres2bimg():
     img = bimage.spheres2bimg(x=x, r=r, shape=shape, limits=limits)
 
     from wzk import mc2
-    vis = mc2.Visualizer()
-    mc2.plot_bimg(vis=vis, img=img, limits=limits, h=None)
+    p = mc2.Visualizer()
+    mc2.plot_bimg(p=p, img=img, limits=limits, h=None)
 
 
 if __name__ == "__main__":
