@@ -318,7 +318,7 @@ def hist_vlines(x, name, bins=100,
     return ax, perc_i
 
 
-def vis_cost_landscape(fun, x0, stepsize, n, n_contour=50):
+def vis_cost_landscape(fun, x0, stepsize, n, n_contour=50, mode="contour"):
     v0, v1 = np.random.random((2, len(x0)))
     v0 *= stepsize / np.linalg.norm(v0)
     v1 *= stepsize / np.linalg.norm(v1)
@@ -331,14 +331,27 @@ def vis_cost_landscape(fun, x0, stepsize, n, n_contour=50):
         for i1 in range(n):
             c[i0, i1] = fun(ll + v0*i0 + v1*i1)
 
+    print(c.min(), c.max())
+    i, j = np.where(c == c.min())
+    x_min = ll + i*v0 + j*v1
+
+    c = np.clip(c, a_min=0, a_max=np.percentile(c, 95))
     sn2 = stepsize*n/2
     x, y = np.meshgrid(np.linspace(-sn2, +sn2, n), np.linspace(-sn2, +sn2, n), indexing="ij")
 
-    fig, ax = new_fig(aspect=1)
-    imshow(img=c, ax=ax, limits=np.array([[-sn2, sn2], [-sn2, sn2]]), alpha=0.2)
-    ax.contour(x, y, c, np.linspace(np.min(c), np.max(c), n_contour))
-    ax.plot(0, 0, marker="x", color="black")
-    return ax
+    if mode == "contour":
+        fig, ax = new_fig(aspect=1)
+        imshow(img=c, ax=ax, limits=np.array([[-sn2, sn2], [-sn2, sn2]]), alpha=0.2)
+        ax.contour(x, y, c, np.linspace(np.min(c), np.max(c), n_contour))
+        ax.plot(0, 0, marker="x", color="black")
+
+    elif mode == "surface":
+        fig, ax = new_fig(aspect=1, n_dim=3)
+        ax.plot_surface(x, y, c, linewidth=0, antialiased=False)
+    else:
+        raise ValueError(f"Unknown mode {mode}")
+
+    return ax, x_min
 
 
 #

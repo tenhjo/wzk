@@ -179,9 +179,9 @@ def ensure_file_extension(file: str, ext: str):
     ext = ensure_extension_point(ext)
 
     if file[-len(ext)] != ext:
-        idx_dot = file.find(".")
+        idx_dot = file[::-1].find(".")
         if idx_dot != -1:
-            file = file[:idx_dot]
+            file = file[:-(idx_dot+1)]
         file += ext
 
     return file

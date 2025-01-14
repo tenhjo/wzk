@@ -2,7 +2,7 @@ import os
 from subprocess import call
 
 # GIT_USER = os.environ['GIT_USER']
-repository_list = ["wzk", "rokin", "rocal", "mopla", "mogen", "molea"]
+repository_list = ["wzk", "rokin", "rokin-meshes", "rocal", "jupla", "mopla"]
 
 
 def git_pull_all():

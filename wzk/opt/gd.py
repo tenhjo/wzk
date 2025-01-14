@@ -34,6 +34,7 @@ class OPTimizer(object2.CopyableObject):
                  "active_dims",                    # bool[n_var]         |
                  "staircase",                      # OPTStaircase        |
                  "return_x_list",                  # bool                |  is this a suitable parameter? not really
+                 "verbose"                         # int
                  )
 
     def __init__(self, n_samples=1, n_steps=100, stepsize=1, optimizer=Naive(), clip=0.1, n_processes=1,
@@ -66,6 +67,7 @@ class OPTimizer(object2.CopyableObject):
         # Logging
         self.return_x_list = False
 
+        self.verbose = 0
         
 class OPTStaircase(object):
     __slots__ = ("n_stairs",        # int
@@ -120,7 +122,6 @@ def gradient_descent(x, fun, grad, opt):
         if opt.hesse_inv is not None and opt.hesse_weighting[i] > 0:
             h = (opt.hesse_inv[np.newaxis, ...] @ j.reshape(-1, opt.hesse_inv.shape[-1], 1)).reshape(j.shape)
             j = j * (1 - opt.hesse_weighting[i]) + h * opt.hesse_weighting[i]
-            pass
 
         if opt.callback is not None:
             j = opt.callback(x=x.copy(), jac=j.copy())  # , count=o) -> callback function handles count
@@ -134,6 +135,9 @@ def gradient_descent(x, fun, grad, opt):
         if opt.return_x_list or __DEBUG:
             x_list[i] = x
             o_list[i] = fun(x)  # only for debugging, is inefficient to call separately
+
+        if opt.verbose > 0:
+            print(i, fun(x))
 
     o = fun(x)
 

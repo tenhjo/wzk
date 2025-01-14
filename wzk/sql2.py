@@ -10,7 +10,7 @@ import sqlite3
 
 from wzk import ltd, dtypes2, strings, files
 from wzk.np2 import object2numeric_array, numeric2object_array  # noqa
-from wzk.image import compressed2img  # noqa
+from wzk.image import compressed2img, img2compressed  # noqa
 
 
 _CMP = "_cmp"

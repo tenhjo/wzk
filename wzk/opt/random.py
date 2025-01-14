@@ -11,7 +11,7 @@ def random_ball_search(fun, n_outer, n_inner, x0, eps=1e-9, n_processes=1, verbo
     o_outer = np.zeros(n_outer+1)
     o_outer[0] = fun(x0)
 
-    n_termination = 5
+    n_termination = 20
     radius = 0.1
 
     def fun_loop(x_list):
@@ -39,6 +39,8 @@ def random_ball_search(fun, n_outer, n_inner, x0, eps=1e-9, n_processes=1, verbo
             radius = radius * 0.75
 
         if i > n_termination and np.mean(o_outer[i-n_termination:i] - o_outer[i+1]) < eps:
+            o_outer[-1] = o_outer[i]
+            x_outer[-1] = x_outer[i]
             break
 
         if verbose > 1:

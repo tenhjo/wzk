@@ -190,6 +190,9 @@ class BoxLimitsKeySlider:
         self.x = x
         if self.x is None:
             self.x = limits[:, 0] + (limits[:, 1] - limits[:, 0]) / 2
+        else:
+            self.x = np.ravel(self.x)
+
         self.n = len(self.x)
         self.j = 0
         self.limits = limits
@@ -199,6 +202,7 @@ class BoxLimitsKeySlider:
 
         self.slider_mode = "x"
 
+        assert self.n == np.shape(limits)[0]
         # Create KeyListeners
         key2callback = {str(i): lambda k: self.change_j(k) for i in range(self.n)}
         key2callback["p"] = lambda k: self.return_x()
