@@ -10,7 +10,7 @@ USERNAME = os.path.expanduser("~").split(sep="/")[-1]
 TENH_JO = "tenh_jo"
 F_JUSTIN = "f_justin"
 
-userstore = "/volume/USERSTORE"
+userdir = "USERDIR"
 homelocal = "/home_local"
 home = "/home"
 
@@ -47,9 +47,9 @@ def __wrapper_user(user=None):
     return user
 
 
-def get_userstore(user):
+def get_userdir(user):
     user = __wrapper_user(user=user)
-    return f"{userstore}/{user}"
+    return f"{home}/{user}/{userdir}"
 
 
 def get_home(user):
@@ -67,15 +67,15 @@ def get_homelocal(user, host=None):
 
 LOCATION = where_am_i()
 
-USERSTORE = get_userstore(user=USERNAME)  # Daily Back-up, relies on connection -> not for large Measurements
+USERDIR = get_userdir(user=USERNAME)  # Daily Back-up, relies on connection -> not for large Measurements
 HOMELOCAL = get_homelocal(user=USERNAME)  # No Back-up, but fastest drive -> use for calculation
 HOME = get_home(user=USERNAME)
 USB = f"/var/run/media/{TENH_JO}/DLR-MA"
 
-USERSTORE_TENH = get_userstore(user=TENH_JO)
-USERSTORE_JUSTIN = f"{get_userstore(user=F_JUSTIN)}/packages/motion_planning"
+USERDIR_TENH = get_userdir(user=TENH_JO)
+USERDIR_JUSTIN = f"{get_userdir(user=F_JUSTIN)}/packages/motion_planning"
 
-__DIR_BASE_DICT = {DLR: f"{USERSTORE_TENH}",
+__DIR_BASE_DICT = {DLR: f"{USERDIR_TENH}",
                    MAC: "/Users/jote/Documents/PhD",
                    GCP: "/home/johannes_tenhumberg_gmail_com",
                    GBK: "gs://tenh_jo"}
@@ -105,9 +105,9 @@ tum24_diss = DIR_PAPER + "/2024-tum-diss"
 # -- Projects ----------------------------------------------------------------------------------------------------------
 def get_dir_models(location, user):
     if user == "f_justin":
-        directory = f"{USERSTORE}/packages/motion_planning"
+        directory = f"{USERDIR}/packages/motion_planning"
     else:
-        __DIR_MODELS_DICT = {DLR: f"{USERSTORE_TENH}/data/models",
+        __DIR_MODELS_DICT = {DLR: f"{USERDIR_TENH}/data/models",
                              MAC: f"{__DIR_BASE_DICT[MAC]}/data/mogen/Automatica2022",
                              GCP: "/home/johannes_tenhumberg_gmail_com/sdb/Automatica2022"}
         directory = __DIR_MODELS_DICT[location]

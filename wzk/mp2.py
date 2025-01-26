@@ -26,6 +26,19 @@ def get_n_samples_per_process(n_samples, n_processes):
     return n_samples_per_core, n_samples_per_core_cs
 
 
+def vectorize(fun, *args, n_dimx=1):
+
+    def fun_vec(x_vec):
+        if np.ndim(x_vec) == n_dimx:
+            return fun(x_vec)
+        elif np.ndim(x_vec) == n_dimx + 1:
+            return np.array([fun(x, *args) for x in x_vec])
+        else:
+            raise ValueError
+
+    return fun_vec
+
+
 def mp_wrapper(*args, fun,
                n_processes=1, max_chunk_size=None, use_loop=False):
     """

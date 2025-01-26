@@ -6,8 +6,8 @@ file = os.path.abspath(os.path.dirname(__file__))
 print(file)
 
 if platform.system() == 'Linux':
-    CPP_BULLET_INC = '/volume/USERSTORE/tenh_jo/Software/vcpkg/packages/bullet3_x64-linux/include/bullet/'
-    CPP_BULLET_LIB = '/volume/USERSTORE/tenh_jo/Software/vcpkg/packages/bullet3_x64-linux/lib/'
+    CPP_BULLET_INC = '/home/tenh_jo/USERDIR/Software/vcpkg/packages/bullet3_x64-linux/include/bullet/'
+    CPP_BULLET_LIB = '/home/tenh_jo/USERDIR/Software/vcpkg/packages/bullet3_x64-linux/lib/'
 else:
     CPP_BULLET_INC = '/usr/local/Cellar/bullet/3.08_2/include/bullet/'
     CPP_BULLET_LIB = '/usr/local/Cellar/bullet/3.08_2/lib/'
