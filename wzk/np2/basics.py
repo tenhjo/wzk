@@ -73,6 +73,7 @@ def __fill_index_with(idx, axis, shape, mode="slice"):
 
     elif mode == "orange":
         idx_with_ = np.ogrid[*[range(s) for i, s in enumerate(shape) if i not in axis]]
+        idx_with_ = list(idx_with_)  # TODO numpy 2.0
 
     elif mode is None:
         return idx

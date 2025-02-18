@@ -8,7 +8,13 @@ from .basics import scalar2array
 
 
 def tile_offset(a, reps, offsets=None):
+    """
+    first tile array a via reps
+    than offset each repetition according to an increasing offset
+    """
+
     s = shape_wrapper(a.shape)
+
     b = np.tile(a, reps)
 
     if offsets is not None:
@@ -20,7 +26,7 @@ def tile_offset(a, reps, offsets=None):
 
         assert len(o) == len(s)
         offsets = [np.repeat(np.arange(rr), ss) * oo for ss, rr, oo in zip(s, r, o)]
-        b += sum(np.meshgrid(*offsets, indexing='ij') + [0])  # noqa
+        b += sum(np.meshgrid(*offsets, indexing='ij') + (0,))  # noqa
     return b
 
 
