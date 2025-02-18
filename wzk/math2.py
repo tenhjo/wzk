@@ -534,6 +534,9 @@ def vis_k_farthest_neighbors():
 def wls(x, y, w):
     """weighted least squares"""
 
+    if w is None:
+        w = np.ones_like(x)
+
     xw = np.swapaxes(x, -1, -2) @ w
     xwx = xw @ x
     xwy = xw @ y
@@ -541,14 +544,17 @@ def wls(x, y, w):
     return beta
 
 
-def wls_1d(x, y, w):
+def wls_1d(x, y, w=None):
     """
+    line interpolation
     weighted least squares - 1D
 
     find best fit for:
     beta_0 + x*beta_1 = y
 
     """
+    if w is None:
+        w = np.ones_like(x)
 
     w_sum = np.sum(w)
     xw_sum = np.sum(x * w) / w_sum

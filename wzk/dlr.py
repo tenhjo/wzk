@@ -49,7 +49,10 @@ def __wrapper_user(user=None):
 
 def get_userdir(user):
     user = __wrapper_user(user=user)
-    return f"{home}/{user}/{userdir}"
+    if user == F_JUSTIN:
+        return f"/volume/projects/{F_JUSTIN}"
+    else:
+        return f"{home}/{user}/{userdir}"
 
 
 def get_home(user):
