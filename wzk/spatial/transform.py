@@ -227,6 +227,7 @@ def is_rotation(r):
         r = r[np.newaxis, :, :]
         _squeeze = True
 
+    r[np.abs(r) < 1e-10] = 0
     b = np.sum(np.abs(r) > 2, axis=(-2, -1)) == 0
     b[b] = np.sum(np.abs(r[b]), axis=(-2, -1)) > _eps
     if np.any(b):
