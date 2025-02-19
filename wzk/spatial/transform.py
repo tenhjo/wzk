@@ -233,7 +233,9 @@ def is_rotation(r):
     if np.any(b):
         r2 = r[b]
         rtr = r2 @ np.swapaxes(r2, -2, -1)
-        b[b] = np.linalg.norm(dcm2rotvec(rtr), axis=(-1)) < _eps
+        b2 = np.linalg.det(rtr) > _eps
+        b[b] = b2
+        b[b] = np.linalg.norm(dcm2rotvec(rtr[b2]), axis=(-1)) < _eps
 
     if _squeeze:
         b = b[0]
@@ -404,3 +406,15 @@ def check_side_of_plane(o, u, v, x):
 
     side = x[:, 2] > 0
     return side
+
+
+if __name__ == '__main__':
+    import numpy as np
+
+    a = np.zeros((5, 3, 3))
+    a[0] = np.array([[0., 0., 0.],
+         [0., 0, 0.],
+         [0., 0., 0.13321902]])
+    a[1] = np.eye(3)
+
+    print(is_rotation(a))
