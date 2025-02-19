@@ -235,7 +235,8 @@ def is_rotation(r):
         rtr = r2 @ np.swapaxes(r2, -2, -1)
         b2 = np.linalg.det(rtr) > _eps
         b[b] = b2
-        b[b] = np.linalg.norm(dcm2rotvec(rtr[b2]), axis=(-1)) < _eps
+        if np.any(b):
+            b[b] = np.linalg.norm(dcm2rotvec(rtr[b2]), axis=(-1)) < _eps
 
     if _squeeze:
         b = b[0]
@@ -415,6 +416,11 @@ if __name__ == '__main__':
     a[0] = np.array([[0., 0., 0.],
          [0., 0, 0.],
          [0., 0., 0.13321902]])
-    a[1] = np.eye(3)
+    a[1] = a[0].copy()
+    a[2] = np.eye(3)
 
+
+    # a = np.array([[0., 0., 0.],
+    #      [0., 0, 0.],
+    #      [0., 0., 0.13321902]])
     print(is_rotation(a))
