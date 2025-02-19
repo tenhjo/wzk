@@ -17,7 +17,7 @@ from wzk.spatial.util import initialize_frames, fill_frames_trans
 # vectorized versions of scipy's Rotation.from_x().to_y()
 def euler2dcm(euler: np.ndarray, seq="ZXZ"):
     """ZXZ == roll pitch yaw"""
-    return Rotation.from_euler(seq, angles=euler.reshape((-1, 3)),
+    return Rotation.from_euler(seq=seq, angles=euler.reshape((-1, 3)),
                                ).as_matrix().reshape(euler.shape[:-1] + (3, 3))
 
 
@@ -228,7 +228,7 @@ def is_rotation(r):
         _squeeze = True
 
     b = np.sum(np.abs(r) > 2, axis=(-2, -1)) == 0
-
+    b[b] = np.sum(np.abs(r[b]), axis=(-2, -1)) > _eps
     if np.any(b):
         r2 = r[b]
         rtr = r2 @ np.swapaxes(r2, -2, -1)
