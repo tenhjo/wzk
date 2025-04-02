@@ -117,9 +117,9 @@ def plot_lines(x, lines=None,
     x = wrapper_x(x)
 
     material = get_material(color=color, alpha=alpha)
-    # material.linewidth = linewidth
-    # material.wireframe = True
-    # material.wireframeLinewidth = linewidth
+    material.linewidth = 10
+    material.wireframe = True
+    material.wireframeLinewidth = 10
 
     if lines is None:
         lines = mg.Line(geometry=mg.PointsGeometry(position=x, color=None), material=material)

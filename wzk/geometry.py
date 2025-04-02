@@ -24,8 +24,7 @@ def get_ortho_star_2d(x):
 
 def arccos2(c):
     c = np.clip(c, a_min=-1, a_max=+1)
-    angle = np.arccos(c)
-    return angle
+    return np.arccos(c)
 
 
 def get_arc(xy, radius, theta0=0., theta1=2 * np.pi, n=0.01):

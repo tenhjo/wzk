@@ -1,7 +1,7 @@
 import unittest
 from itertools import combinations
 import numpy as np
-from wzk import geometry, testing, printing
+from wzk import geometry, testing, printing, tic, toc
 
 
 class Test(unittest.TestCase):
@@ -74,9 +74,10 @@ class Test(unittest.TestCase):
 
             capsule_a, capsule_b = np.random.random((2, 2, 3))
             radius_a, radius_b = np.random.random(2)
-
+            # tic()
             self.__check_capsule_capsule(capsule_a=capsule_a, capsule_b=capsule_b,
                                          radius_a=radius_a, radius_b=radius_b)
+            # toc()
 
     def test_capsule_capsule_closest(self):
 
@@ -99,3 +100,8 @@ class Test(unittest.TestCase):
             d_true = 2 * offset - radius_a - radius_b
             self.__check_capsule_capsule(capsule_a=capsule_a, capsule_b=capsule_b,
                                          radius_a=radius_a, radius_b=radius_b, d_true=d_true)
+
+
+if __name__ == '__main__':
+    test = Test()
+    test.test_capsule_capsule_permutations()

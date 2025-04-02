@@ -212,6 +212,8 @@ def load_pickle(file: str):
                 obj = pickle.load(f)
             return obj
 
+    raise FileNotFoundError(f"{file} not found")
+
 
 # json
 def save_json(obj, file: str):

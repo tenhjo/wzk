@@ -15,7 +15,7 @@ def try_plot_points():
 def try_plot_lines():
     n = 100
     p = mc2.Visualizer()
-    mc2.plot_lines(p=p, h=None, x=np.random.random((n, 3)), color="blue", alpha=0.1, lines=None, )
+    mc2.plot_lines(p=p, h=None, x=np.random.random((n, 3)), color="blue", alpha=1.0, lines=None)
 
 
 def try_plot_faces():
@@ -92,12 +92,14 @@ if __name__ == "__main__":
     pass
 
     # try_plot_points()
-    # try_plot_lines()
+    try_plot_lines()
     # try_plot_cube()
-    try_plot_spheres()
+    # try_plot_spheres()
     # try_plot_faces()
     # try_arrow()
     # try_plot_bimg()
     # try_coordinate_frames(mode="A")
     # try_coordinate_frames(mode="B")
     # try_coordinate_frames(mode="C")
+
+    input()

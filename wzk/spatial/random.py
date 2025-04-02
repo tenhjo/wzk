@@ -29,7 +29,7 @@ def sample_dcm(shape=None):
 
 def sample_dcm_noise(shape=None, scale=0.01, mode="normal", n_dim=3):
     """
-    samples rotation dcm with the absolute value of the rotation relates to 'scale' in rad
+    samples rotation dcm where the absolute value of the rotation relates to 'scale' in rad
     """
 
     if n_dim == 3:

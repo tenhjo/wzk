@@ -86,5 +86,5 @@ def from_2d_to_3d(f_2d):
 def frame2trans_theta(f_2d):
     trans = f_2d[..., :-1, -1]
     #                 sin              cos
-    theta = np.arctan2(f_2d[..., 1, 0], f_2d[..., 0, 0])
+    theta = np.arctan2(f_2d[..., 1, 0], f_2d[..., 0, 0])[..., np.newaxis]
     return trans, theta
