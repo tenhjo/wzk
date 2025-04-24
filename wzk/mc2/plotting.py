@@ -192,9 +192,11 @@ def plot_bimg_voxel(bimg, limits, color=default_color, alpha=1.0,
 
     i = np.array(np.nonzero(bimg)).T
     x = grid.i2x(i=i, limits=limits, shape=bimg.shape, mode="c")
-    for j, xx in enumerate(x):
-        p[f"{h}/voxel-{j}"].set_object(geometry=mg.Box([voxel_size] * 3), material=material)
-        p[f"{h}/voxel-{j}"].set_transform(mt.translation_matrix(xx))
+    x = x[::5]
+    plot_spheres(x=x, p=p, r=np.ones(len(x))*voxel_size/2)
+    # for j, xx in enumerate(x):
+    #     p[f"{h}/voxel-{j}"].set_object(geometry=mg.Box([voxel_size] * 3), material=material)
+    #     p[f"{h}/voxel-{j}"].set_transform(mt.translation_matrix(xx))
 
     return h
 

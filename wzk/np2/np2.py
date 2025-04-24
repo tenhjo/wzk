@@ -1,6 +1,5 @@
 import numpy as np
 
-from scipy.sparse import csr_matrix
 
 from wzk import dtypes2
 
@@ -113,6 +112,8 @@ def digitize_group(x, bins, right=False):
     Similar to scipy.stats.binned_statistic but just return the indices corresponding to each bin.
     Same signature as numpy.digitize()
     """
+    from scipy.sparse import csr_matrix  # TODO
+
     idx_x = np.digitize(x=x, bins=bins, right=right)
     n, m = len(x), len(bins) + 1
     s = csr_matrix((np.arange(n), [idx_x, np.arange(n)]), shape=(m, n))
