@@ -14,3 +14,19 @@ def fill_between(x, y_lower, y_upper, color, **kwargs):
         **kwargs
     )
     return h
+
+
+def set_title_and_labels(fig, title="", x="", y=""):
+    fig.update_layout(
+        title=title,
+        xaxis=dict(
+            title=dict(
+                text=x
+            )
+        ),
+        yaxis=dict(
+            title=dict(
+                text=y
+            )
+        ),
+    )

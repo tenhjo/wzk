@@ -531,41 +531,6 @@ def vis_k_farthest_neighbors():
     ax.plot(*x[idx, :].T, ls="", marker="x", color="r", markersize=10)
 
 
-def wls(x, y, w):
-    """weighted least squares"""
-
-    if w is None:
-        w = np.ones_like(x)
-
-    xw = np.swapaxes(x, -1, -2) @ w
-    xwx = xw @ x
-    xwy = xw @ y
-    beta = np.linalg.inv(xwx) @ xwy
-    return beta
-
-
-def wls_1d(x, y, w=None):
-    """
-    line interpolation
-    weighted least squares - 1D
-
-    find best fit for:
-    beta_0 + x*beta_1 = y
-
-    """
-    if w is None:
-        w = np.ones_like(x)
-
-    w_sum = np.sum(w)
-    xw_sum = np.sum(x * w) / w_sum
-    yw_sum = np.sum(y * w) / w_sum
-
-    beta_1 = np.sum(w * (x - xw_sum) * (y - yw_sum)) / np.sum(w * (x - xw_sum)**2)
-    beta_0 = yw_sum - beta_1 * xw_sum
-
-    return beta_0, beta_1
-
-
 # Combinatorics
 def binomial(n, k):
     return math.factorial(n) // math.factorial(k) // math.factorial(n - k)
@@ -703,6 +668,21 @@ def solve_cho_damped(A, b, damping):
     x = AT @ solve_cho(AAT, b)[..., np.newaxis]
     x = x[..., 0]
     return x
+
+
+def matrix_sqrt(A):
+    """
+    Calculates the principal square root of a matrix.
+    """
+    if A.ndim == 1:  # A == diag
+        return np.sqrt(A)
+
+    e_val, e_vec = np.linalg.eig(A)
+    if (e_val < 0).any():
+        raise ValueError("Matrix does not have a real square root")
+    e_val_sqrt = np.sqrt(e_val)
+    sqrt_A = e_vec @ np.diag(e_val_sqrt) @ np.linalg.inv(e_vec)
+    return sqrt_A
 
 
 if __name__ == "__main__":

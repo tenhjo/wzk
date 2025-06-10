@@ -98,3 +98,8 @@ class Test(TestCase):
         grad_numeric = math2.numeric_derivative(fun=x54321, x=a, axis=-1)
 
         self.assertTrue(np.allclose(grad_analytic, grad_numeric))
+
+    def test_matrix_sqrt(self):
+        A = np.array([[1, 2], [2, 4]])
+        sqrt_A = math2.matrix_sqrt(A)
+        self.assertTrue(np.allclose(sqrt_A @ sqrt_A, A))

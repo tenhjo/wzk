@@ -43,7 +43,6 @@ def frame_logarithm(f0, f1, verbose=0):
 
     # combine 
     log = np.concatenate([dx, dr], axis=-1)
-
     return log
 
 

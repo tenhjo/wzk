@@ -1,5 +1,7 @@
 import datetime
+from typing import Literal
 import numpy as np
+
 from itertools import combinations
 from scipy.stats import linregress
 from matplotlib import collections, patches
@@ -14,7 +16,9 @@ from wzk import math2, np2, ltd, limits as limits2, printing
 
 def imshow(img: np.ndarray, ax: plt.Axes = None, h=None,
            cmap=None,
-           limits: np.ndarray = None, origin: str = "lower", axis_order: str = "ij->yx",
+           limits: np.ndarray = None,
+           origin: Literal["upper", "lower"] = "lower",
+           axis_order: Literal["ij->yx", "ij->xy"] = "ij->yx",
            mask: np.ndarray = None, vmin: float = None, vmax: float = None, **kwargs):
     """
 
@@ -46,8 +50,7 @@ def imshow(img: np.ndarray, ax: plt.Axes = None, h=None,
     """
 
     assert img.ndim == 2
-    assert origin in ("lower", "upper")
-    assert axis_order in ("ij->yx", "ij->xy")
+
     if limits is None:
         limits = img.shape
 
@@ -436,6 +439,14 @@ def plot_circles(x, r,
         return h
 
 
+def plot_points_and_connection(ax, a, b, kwargs_a, kwargs_b, kwargs_c):
+    ax.plot(*a.T, **kwargs_a)
+    ax.plot(*b.T, **kwargs_b)
+    ax.plot(np.concatenate([a[:, 0:1], b[:, 0:1]], axis=1).T,
+            np.concatenate([a[:, 1:2], b[:, 1:2]], axis=1).T,
+            **kwargs_c)
+
+
 def plot_colored_segments(ax, x, y, c, a, **kwargs):
     n = len(x)
     assert len(x)-1 == len(c)
@@ -445,7 +456,7 @@ def plot_colored_segments(ax, x, y, c, a, **kwargs):
         ax.plot(x[i:i+2], y[i:i+2], color=c[i], alpha=a[i], **kwargs)
 
 
-def test_plot_colored_segments():
+def try_plot_colored_segments():
     fig, ax = new_fig()
     y = np.random.random(20)
     b = np.array(y[1:] > y[:-1])

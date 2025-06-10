@@ -7,22 +7,22 @@ from wzk import mc2, spatial
 def try_plot_points():
     n = 100000
     p = mc2.Visualizer()
-    h = mc2.plot_points(p=p, h=None, x=np.random.random((n, 3)), color="white", size=0.01)
+    h = mc2.plot_points(vis=p, h=None, x=np.random.random((n, 3)), color="white", size=0.01)
     input()
-    mc2.plot_points(p=p, h=h, x=np.random.random((n, 3)), color="blue", size=0.02)
+    mc2.plot_points(vis=p, h=h, x=np.random.random((n, 3)), color="blue", size=0.02)
 
 
 def try_plot_lines():
     n = 100
     p = mc2.Visualizer()
-    mc2.plot_lines(p=p, h=None, x=np.random.random((n, 3)), color="blue", alpha=1.0, lines=None)
+    mc2.plot_lines(vis=p, h=None, x=np.random.random((n, 3)), color="blue", alpha=1.0, lines=None)
 
 
 def try_plot_faces():
     n = 10
     n1 = 20
     p = mc2.Visualizer()
-    mc2.plot_faces(p=p, h=None, x=np.random.random((n, 3)),
+    mc2.plot_faces(vis=p, h=None, x=np.random.random((n, 3)),
                    faces=np.random.choice(np.arange(n), (n1, 3)), color="blue", alpha=0.3)
 
 
@@ -32,9 +32,9 @@ def try_plot_cube():
     limits[:, 0] = 1
     limits[:, 1] = 2
 
-    mc2.plot_cube(p=p, h=None, limits=limits, mode="lines", color="red")
-    mc2.plot_cube(p=p, h=None, limits=limits+2, mode="lines", color="white", alpha=0.5)
-    mc2.plot_cube(p=p, h=None, limits=limits+4, mode="faces", color="blue", alpha=0.1)
+    mc2.plot_cube(vis=p, h=None, limits=limits, mode="lines", color="red")
+    mc2.plot_cube(vis=p, h=None, limits=limits + 2, mode="lines", color="white", alpha=0.5)
+    mc2.plot_cube(vis=p, h=None, limits=limits + 4, mode="faces", color="blue", alpha=0.1)
 
 
 def try_plot_spheres():
@@ -43,7 +43,7 @@ def try_plot_spheres():
     p = mc2.Visualizer()
     x = np.random.random((n, 3))
     r = np.random.uniform(low=0.1, high=0.2, size=n)
-    mc2.plot_spheres(p=p, h=None, x=x, r=r, color="blue", alpha=0.1)
+    mc2.plot_spheres(vis=p, h=None, x=x, r=r, color="blue", alpha=0.1)
 
 
 def try_plot_bimg():
@@ -55,7 +55,7 @@ def try_plot_bimg():
     # limits += 0.5
 
     p = mc2.Visualizer()
-    mc2.plot_bimg(p=p, h=None, img=bimg, limits=limits, color="white")
+    mc2.plot_bimg(vis=p, h=None, img=bimg, limits=limits, color="white")
 
 
 def try_arrow():
@@ -65,9 +65,9 @@ def try_arrow():
     p["triad1"].set_object(mc2.mg.triad())
 
     f = np.eye(4)
-    mc2.plot_arrow(p=p, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
+    mc2.plot_arrow(vis=p, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
     f = mc2.spatial.sample_frames()
-    mc2.plot_arrow(p=p, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
+    mc2.plot_arrow(vis=p, h=None, x=f[:3, 3], v=f[:3, 0], alpha=0.5)
 
     p["triad"].set_transform(f)
 

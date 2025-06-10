@@ -83,8 +83,29 @@ def from_2d_to_3d(f_2d):
     return frames_3d
 
 
+def dcm2theta(dcm):
+    #                  sin              cos
+    theta = np.arctan2(dcm[..., 1, 0], dcm[..., 0, 0])[..., np.newaxis]
+    return theta
+
+
 def frame2trans_theta(f_2d):
     trans = f_2d[..., :-1, -1]
-    #                 sin              cos
-    theta = np.arctan2(f_2d[..., 1, 0], f_2d[..., 0, 0])[..., np.newaxis]
+    theta = dcm2theta(dcm=f_2d[..., :-1, :-1])
     return trans, theta
+
+
+def frame_logarithm_2d(f0, f1):
+    x0, dcm0 = f0[..., :-1, -1], f0[..., :-1, :-1]
+    x1, dcm1 = f1[..., :-1, -1], f1[..., :-1, :-1]
+
+    # x
+    dx = x0 - x1
+
+    # r
+    ddcm = dcm0 @ np.swapaxes(dcm1, -2, -1)
+    dr = dcm2theta(ddcm)
+
+    # combine
+    log = np.concatenate([dx, dr], axis=-1)
+    return log

@@ -153,9 +153,9 @@ def get_interval_indices(bool_array, expand=False):
 
 def get_cropping_indices(pos, shape_small, shape_big, mode="lower_left"):
     """
-    Adjust the boundaries to fit small array in a larger image.
+    Adjust the boundaries to fit small array in a larger array.
     pos:  idx where the small image should be set in the bigger picture, option A
-    mode:  mode how to position theta smaller array in the larger:
+    mode:  mode how to position the smaller array in the larger:
                   "center": pos describes the center of the small array inside the big array (shape_small must be odd)
                   "lower_left":
                   "upper_right":

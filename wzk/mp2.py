@@ -40,7 +40,8 @@ def vectorize(fun, *args, n_dimx=1):
 
 
 def mp_wrapper(*args, fun,
-               n_processes=1, max_chunk_size=None, use_loop=False):
+               n_processes=1, max_chunk_size=None, use_loop=False,
+               start_method=None):
     """
     Multiprocessing Wrapper for a function with a single argument.
     arg must be an iterative and will be split along its first dimension and fed to the different processes
@@ -66,6 +67,8 @@ def mp_wrapper(*args, fun,
     - max_chunk_size is intended for cases where both a loop + parallelization is needed because of memory limitations
     """
 
+    if start_method is not None:
+        multiprocessing.set_start_method(start_method, force=True)
     time_sleep = 0.01  # s
 
     if len(args) == 0:
@@ -97,11 +100,13 @@ def mp_wrapper(*args, fun,
             if max_chunk_size is None:
                 def fun_i(i_process):
                     np.random.seed(None)
+
                     return fun(n_samples_pp[i_process])
 
             else:
                 def fun_i(i_process):
                     np.random.seed(None)
+
                     n_s = n_samples_pp[i_process]
                     ns_pp, ns_pp_cs = get_n_samples_per_process(n_samples=n_s, n_processes=n_s // max_chunk_size)
                     return combine_results([fun(ns_pp_i) for ns_pp_i in ns_pp])
@@ -110,6 +115,7 @@ def mp_wrapper(*args, fun,
             if max_chunk_size is not None:
                 def fun_i(i_process):
                     np.random.seed(None)
+
                     n_s = n_samples_pp[i_process]
                     ns_pp, ns_pp_cs = get_n_samples_per_process(n_samples=n_s, n_processes=n_s // max_chunk_size)
                     return combine_results([fun(*map(lambda a: a[ns_pp_cs[j]:ns_pp_cs[j+1]], args))

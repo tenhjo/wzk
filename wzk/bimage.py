@@ -3,7 +3,7 @@ from scipy.signal import convolve
 from skimage import measure
 from skimage.morphology import flood_fill
 
-from wzk import geometry, np2, printing, trajectory, grid
+from wzk import geometry, np2, printing, trajectory, grid, spatial
 
 
 __eps = 1e-9
@@ -256,3 +256,61 @@ def sample_spheres_bimg_x(x, r, shape, limits, n,):
     return x
 
 
+def rotate_bimg_3d(bimg: np.ndarray,
+                           dcm) -> np.ndarray:
+    # TODO IS WAY QUICKER
+    idx = np.array(np.nonzero(bimg)).T
+    idx -= np.array(bimg.shape)
+    idx = (dcm[np.newaxis, :, :] @ idx[:, :, np.newaxis])[:, :, 0]
+
+    idx -= idx.min(axis=0)
+    idx = idx.astype(int)
+    bimg = np.zeros(idx.max(axis=0)+1)
+    bimg[idx[:, 0], idx[:, 1], idx[:, 2]] = 1
+    return bimg
+
+
+def rotate_bimg_3d_old(bimg: np.ndarray, dcm) -> np.ndarray:
+    # from jax.scipy import ndimage
+    # TODO replace with pytorch / cupy or own binary rotate function
+    from scipy import ndimage
+    assert bimg.ndim == 3
+    assert np.all(np.shape(dcm) == (3, 3))
+
+    if np.allclose(dcm, np.eye(3)):
+        return bimg
+
+    euler = spatial.dcm2euler(dcm=dcm, seq="zxz")  # extrinsic rotations
+    euler = np.rad2deg(euler)
+
+    def _rot(bi, angle, axes):
+        threshold = 0.1
+        order = 0
+
+        bi = bi.astype(np.float32).copy()
+        if angle % 90 == 0:
+            bi = np.rot90(bi, k=angle // 90, axes=axes)
+        else:
+            bi = ndimage.rotate(bi, angle=angle, order=order, axes=axes)
+        # bi = crop_bimg_to_fit(bimg)
+        bi = np.array(bi > threshold, dtype=np.float32)
+        return bi
+
+    bimg = _rot(bi=bimg, angle=euler[0], axes=(0, 1))  # z
+    bimg = _rot(bi=bimg, angle=euler[1], axes=(1, 2))  # x
+    bimg = _rot(bi=bimg, angle=euler[2], axes=(0, 1))  # z
+
+    return bimg.astype(bool)
+
+
+def crop_bimg_to_fit(bimg: np.ndarray, pad: int = 1):
+    idx = np.array(np.nonzero(bimg))
+    i_min = np.min(idx, axis=1)
+    i_min = np.maximum(np.zeros(3), i_min - pad).astype(int)
+
+    i_max = np.max(idx, axis=1)
+    i_max = np.minimum(np.array(bimg.shape), i_max + pad + 1).astype(int)
+    print("a", bimg.shape)
+    bimg = bimg[np2.slicen(i_min, i_max)]
+    print("b", bimg.shape)
+    return bimg

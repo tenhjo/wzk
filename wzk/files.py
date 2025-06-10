@@ -51,6 +51,7 @@ def mv(src, dst):
         print(f"mv: src == dst | {src}")
         return
 
+    print(f"mv {src} {dst}")
     subprocess.call(f"mv {src} {dst}", shell=True)
 
 

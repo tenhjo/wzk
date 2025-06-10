@@ -126,7 +126,7 @@ def sort_args(idx, *args):
 
 def add_small2big(idx, small, big, mode_crop="center", mode_add="add"):
     """
-    Insert a small picture into the complete picture at the position 'idx'
+    Insert a small array into a bigger array at the position 'idx'
     Assumption: all dimension of the small_img are odd, and idx indicates the center of the image,
     if this is not the case, there are zeros added at the end of each dimension to make the image shape odd
     """

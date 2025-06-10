@@ -603,10 +603,11 @@ def hyper_sphere_volume(n_dim: int, r: float = 1.):
         return 2*(math.factorial(n2)*(4*np.pi)**n2) / math.factorial(n_dim) * r**n_dim
 
 
-def get_points_on_circle(x: np.ndarray,
-                         r: np.ndarray,
+def get_points_on_circle(x: (np.ndarray, list, tuple),
+                         r: (np.ndarray, float, int),
                          n: int = 10,
                          endpoint: bool = False):
+    x = np.array(x)
     r = np.atleast_1d(r)
     theta = np.linspace(0, 2*np.pi, num=n, endpoint=endpoint)
     sc = np.stack((np.sin(theta), np.cos(theta))).T
