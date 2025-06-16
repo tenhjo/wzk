@@ -220,8 +220,8 @@ def compressed2img(img_cmp, shape, n_dim=None, n_channels=None, dtype=None):
         img_arr = initialize_image_array(shape=shape, n_dim=n_dim, n_samples=n_samples, n_channels=n_channels,
                                          dtype=dtype)
         for i in range(n_samples):
-            img_arr[i, ...] = np.frombuffer(zlib.decompress(img_cmp[i]), dtype=dtype).reshape(shape2)
+            img_arr[i, ...] = np.frombuffer(bytearray(zlib.decompress(img_cmp[i])), dtype=dtype).reshape(shape2)
         return img_arr
 
     else:
-        return np.frombuffer(zlib.decompress(img_cmp), dtype=dtype).reshape(shape2)
+        return np.frombuffer(bytearray(zlib.decompress(img_cmp)), dtype=dtype).reshape(shape2)

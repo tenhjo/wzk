@@ -7,6 +7,10 @@ def limits2size(limits):
     return limits[:, 1] - limits[:, 0]
 
 
+def limits2center(limits):
+    return limits[:, 0] + limits2size(limits) / 2
+
+
 def limits2voxel_size(shape, limits, unify=True):
     voxel_size = limits2size(limits) / np.array(shape)
     if unify:

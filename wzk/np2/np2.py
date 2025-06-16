@@ -124,6 +124,27 @@ def sort_args(idx, *args):
     return [a[idx] for a in args]
 
 
+def make_odd(arr):
+    mo = (np.array(arr.shape) + 1) % 2
+    arr_new = np.zeros(np.array(arr.shape) + mo, dtype=bool)
+    arr_new[slicen(end=arr.shape)] = arr
+    return arr_new
+
+
+def convolve_2d(img, kernel):
+    s = np.array(img.shape)
+    ks = np.array(kernel.shape)
+    assert np.all (ks % 2 == 1)
+    ks2 = ks // 2
+
+    out = np.zeros(s, float)
+    for i0 in range(ks2[0], s[0] - ks2[0]):
+        for i1 in range(ks2[1], s[1] - ks2[1]):
+            out[i0, i1] = np.sum(img[i0-ks2[0]:i0+ks2[0]+1, i1-ks2[1]:i1+ks2[1]+1] * kernel)
+
+    return out
+
+
 def add_small2big(idx, small, big, mode_crop="center", mode_add="add"):
     """
     Insert a small array into a bigger array at the position 'idx'
@@ -150,10 +171,10 @@ def add_small2big(idx, small, big, mode_crop="center", mode_add="add"):
                     big[slicen(ll_b, ur_b)] = small[slicen(ll_s, ur_s)]
             except ValueError:
                 print("idx", idx)
-                print("big", ll_b, ur_b)  # TODO sometimes this fails, check
-                print("big", big[slicen(ll_b, ur_b)].shape)
-                print("small", ll_s, ur_s)
-                print("small", small[slicen(ll_s, ur_s)].shape)
+                print("big ll-ur", ll_b, ur_b)  # TODO sometimes this fails, check
+                print("big slice shape", big[slicen(ll_b, ur_b)].shape)
+                print("small ll-ur", ll_s, ur_s)
+                print("small slice shape", small[slicen(ll_s, ur_s)].shape)
 
 
 def get_exclusion_mask(a, exclude_values):

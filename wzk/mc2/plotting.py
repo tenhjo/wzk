@@ -14,7 +14,8 @@ MeshGeometry_DICT = dict(stl=mg.StlMeshGeometry,
 
 default_color = "white"
 
-# TODO linewidth can apparantly not be changed
+# TODO linewidth can apparently not be changed
+
 
 def ih_visualizer(vis: Visualizer):
     if vis is None:
@@ -72,6 +73,19 @@ def get_material(color=default_color, alpha: float = 1.0, wireframe: bool = Fals
     material = rgba2material(rgba=rgba, material=material)
     material.wireframe = wireframe
     return material
+
+
+def set_camera(vis: Visualizer, x, zoom: float = None):
+    """camera is always oriented at the center"""
+
+    # weird shift is necessary for meshcat
+    x = np.array([x[0], +x[2], -x[1]])
+    vis["/Cameras/default/rotated/<object>"].set_property("position", x.tolist())
+
+    if zoom is not None:
+        vis["/Cameras/default/rotated/<object>"].set_property("zoom", zoom)
+
+
 
 
 def wrapper_x(x: np.ndarray):
@@ -144,7 +158,23 @@ def plot_faces(x, faces, color=default_color, alpha=1.0,
     vis[h].set_object(geometry=mg.TriangularMeshGeometry(vertices=x, faces=faces), material=material)
 
 
-def plot_spheres(x, r, color=default_color, alpha=1.0, wireframe=False,
+class SphereCustom(mg.Geometry):
+    def __init__(self, radius: float, whSegments: int = 20):
+        super(SphereCustom, self).__init__()
+        self.radius: float = radius
+        self.whSegments: int = whSegments
+
+    def lower(self, object_data):
+        return {
+            u"uuid": self.uuid,
+            u"type": u"SphereGeometry",
+            u"radius": self.radius,
+            u"widthSegments" : self.whSegments,
+            u"heightSegments" : self.whSegments
+        }
+
+
+def plot_spheres(x, r, color=default_color, alpha=1.0, wireframe=False, whSegments=20,
                  vis: Visualizer = None, h=None,
                  **kwargs):  # noqa
 
@@ -158,7 +188,7 @@ def plot_spheres(x, r, color=default_color, alpha=1.0, wireframe=False,
     assert len(x) == len(r) == len(h)
 
     for hh, xx, rr in zip(h, x, r):
-        vis[hh].set_object(geometry=mg.Sphere(radius=rr), material=material)
+        vis[hh].set_object(geometry=SphereCustom(radius=rr, whSegments=whSegments), material=material)
         vis[hh].set_transform(mt.translation_matrix(xx))
 
     return h
@@ -190,9 +220,9 @@ def plot_bimg_voxel(bimg, limits, color=default_color, alpha=1.0,
 
     i = np.array(np.nonzero(bimg)).T
     x = grid.i2x(i=i, limits=limits, shape=bimg.shape, mode="c")
-    plot_points(x=x, vis=vis, size=voxel_size/2)
+    # plot_points(x=x, vis=vis, size=voxel_size/2)
 
-    # plot_spheres(x=x, vis=vis, r=np.ones(len(x)) * voxel_size / 2)
+    plot_spheres(x=x, vis=vis, r=np.ones(len(x)) * voxel_size / 2, alpha=alpha, color=color, whSegments=5)
     # for j, xx in enumerate(x):
     #     p[f"{h}/voxel-{j}"].set_object(geometry=mg.Box([voxel_size] * 3), material=material)
     #     p[f"{h}/voxel-{j}"].set_transform(mt.translation_matrix(xx))
@@ -209,7 +239,7 @@ def delete(p, handle):
 
 
 def plot_bimg_mesh(bimg, limits,
-                   level=0, color=default_color, alpha=1.0,
+                   level: float = 0, color=default_color, alpha=1.0,
                    vis: Visualizer = None, h=None):
 
     vis = ih_visualizer(vis=vis)
@@ -218,7 +248,7 @@ def plot_bimg_mesh(bimg, limits,
     material = get_material(color=color, alpha=alpha)
 
     voxel_size = grid.limits2voxel_size(shape=bimg.shape, limits=limits)
-    v, f = bimage.bimg2surf(img=bimg, limits=limits + voxel_size / 2, level=level)
+    v, f = bimage.bimg2surf(img=bimg.astype(int), limits=limits + voxel_size / 2, level=level)
 
     delete(p=vis, handle=h)
 
@@ -236,7 +266,7 @@ def plot_bimg(img, limits, mode="mesh",
         return
 
     if mode == "mesh":
-        plot_bimg_mesh(vis=vis, h=h, bimg=img, limits=limits, **kwargs)
+        plot_bimg_mesh(vis=vis, h=h, bimg=img, limits=limits, level=+0.55, **kwargs)
 
     elif mode == "voxel":
         plot_bimg_voxel(vis=vis, h=h, bimg=img, limits=limits, **kwargs)

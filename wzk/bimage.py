@@ -1,5 +1,7 @@
 import numpy as np
+
 from scipy.signal import convolve
+from scipy import ndimage
 from skimage import measure
 from skimage.morphology import flood_fill
 
@@ -256,8 +258,7 @@ def sample_spheres_bimg_x(x, r, shape, limits, n,):
     return x
 
 
-def rotate_bimg_3d(bimg: np.ndarray,
-                           dcm) -> np.ndarray:
+def rotate_bimg_3d(bimg: np.ndarray, dcm) -> np.ndarray:
     # TODO IS WAY QUICKER
     idx = np.array(np.nonzero(bimg)).T
     idx -= np.array(bimg.shape)
@@ -270,35 +271,35 @@ def rotate_bimg_3d(bimg: np.ndarray,
     return bimg
 
 
-def rotate_bimg_3d_old(bimg: np.ndarray, dcm) -> np.ndarray:
-    # from jax.scipy import ndimage
-    # TODO replace with pytorch / cupy or own binary rotate function
-    from scipy import ndimage
-    assert bimg.ndim == 3
-    assert np.all(np.shape(dcm) == (3, 3))
+def rotate(bimg, angle, axes):
+    __eps2 = 1e-6
+    angle = np.rad2deg(angle)
+    threshold = 0.1
 
-    if np.allclose(dcm, np.eye(3)):
+    if np.allclose(angle, 0):
         return bimg
 
+    if np.allclose(angle % 90, 0) or np.allclose(angle % 90, 90):
+        bimg = np.rot90(bimg, k=(angle + __eps2) // 90, axes=axes)
+
+    else:
+        bimg = bimg.astype(np.float32)
+        bimg = ndimage.rotate(bimg, angle=angle, order=0, axes=axes)
+        bimg = np.array(bimg > threshold)
+
+    return bimg.astype(bool)
+
+
+def rotate_bimg_3d_old(bimg: np.ndarray, dcm) -> np.ndarray:
+    # TODO replace with pytorch / cupy or own binary rotate function
+    assert bimg.ndim == 3
+
+    assert np.all(np.shape(dcm) == (3, 3))
     euler = spatial.dcm2euler(dcm=dcm, seq="zxz")  # extrinsic rotations
-    euler = np.rad2deg(euler)
 
-    def _rot(bi, angle, axes):
-        threshold = 0.1
-        order = 0
-
-        bi = bi.astype(np.float32).copy()
-        if angle % 90 == 0:
-            bi = np.rot90(bi, k=angle // 90, axes=axes)
-        else:
-            bi = ndimage.rotate(bi, angle=angle, order=order, axes=axes)
-        # bi = crop_bimg_to_fit(bimg)
-        bi = np.array(bi > threshold, dtype=np.float32)
-        return bi
-
-    bimg = _rot(bi=bimg, angle=euler[0], axes=(0, 1))  # z
-    bimg = _rot(bi=bimg, angle=euler[1], axes=(1, 2))  # x
-    bimg = _rot(bi=bimg, angle=euler[2], axes=(0, 1))  # z
+    bimg = rotate(bimg=bimg, angle=euler[0], axes=(0, 1))  # z
+    bimg = rotate(bimg=bimg, angle=euler[1], axes=(1, 2))  # x
+    bimg = rotate(bimg=bimg, angle=euler[2], axes=(0, 1))  # z
 
     return bimg.astype(bool)
 
