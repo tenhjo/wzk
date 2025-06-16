@@ -1,9 +1,9 @@
 import os
 import numpy as np
 
-from wzk.files import dir_dir2file_array
-from wzk.strings import uuid4
 import fire
+
+from wzk import files, strings
 
 
 def stack_videos(videos=None, file=None):
@@ -11,7 +11,7 @@ def stack_videos(videos=None, file=None):
     https://stackoverflow.com/questions/11552565/vertically-or-horizontally-stack-mosaic-several-videos-using-ffmpeg/33764934#33764934
     """
     if isinstance(videos, str):
-        videos = dir_dir2file_array(videos)
+        videos = files.dir_dir2file_array(videos)
 
     _format = "mp4"
     kwargs = ""
@@ -19,9 +19,9 @@ def stack_videos(videos=None, file=None):
     s = np.shape(videos)
 
     if file is None:
-        file = f"stacked_video__{s[0]}x{s[1]}__{uuid4()}.{_format}"
+        file = f"stacked_video__{s[0]}x{s[1]}__{strings.uuid4()}.{_format}"
 
-    uuid_list = [f"{uuid4()}.{_format}" for _ in range(s[0])]
+    uuid_list = [f"{strings.uuid4()}.{_format}" for _ in range(s[0])]
 
     for i, in_i in enumerate(videos):
         in_i_str = " -i ".join(in_i)
