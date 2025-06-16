@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 
 from scipy.signal import convolve
@@ -295,7 +296,9 @@ def rotate_bimg_3d_old(bimg: np.ndarray, dcm) -> np.ndarray:
     assert bimg.ndim == 3
 
     assert np.all(np.shape(dcm) == (3, 3))
-    euler = spatial.dcm2euler(dcm=dcm, seq="zxz")  # extrinsic rotations
+
+    with warnings.catch_warnings(action="ignore"):  # ignore gimbal lock warning
+        euler = spatial.dcm2euler(dcm=dcm, seq="zxz")  # extrinsic rotations
 
     bimg = rotate(bimg=bimg, angle=euler[0], axes=(0, 1))  # z
     bimg = rotate(bimg=bimg, angle=euler[1], axes=(1, 2))  # x
