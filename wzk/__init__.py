@@ -6,13 +6,12 @@ try:  # must be imported before skimage / did not find out why yet
 except ImportError:
     pass
 
-from . import limits, files
-from .strings import uuid4
 
 from .mpl2.figure import new_fig  # must be imported before matplotlib
 from .printing import print2, print_dict, print_stats, print_table, check_verbosity, print_array_3d  # noqa
 from .time2 import tic, toc, tictoc, get_timestamp  # noqa
 
+from . import limits, files, obj, strings, image, bimage, grid
 
 # modules which require additional repositories
 # from .pyOpt2 import *

@@ -46,7 +46,7 @@ def cp(src, dst, a=False):
         subprocess.call(f"cp {src} {dst}", shell=True)
 
 
-def mv(src, dst):
+def mv(src: str, dst: str):
     if src == dst:
         print(f"mv: src == dst | {src}")
         return
@@ -55,7 +55,7 @@ def mv(src, dst):
     subprocess.call(f"mv {src} {dst}", shell=True)
 
 
-def rm(file):
+def rm(file: str):
     try:
         os.remove(file)
     except FileNotFoundError:
@@ -84,14 +84,14 @@ def rm_files_in_dir(directory: str, file_list: list = None):
         rm(os.path.join(directory, file))
 
 
-def rm_empty_folders(directory):
+def rm_empty_folders(directory: str):
     for d, _, _ in os.walk(directory, topdown=False):
         if len(os.listdir(d)) == 0:
             print(d)
             os.rmdir(d)
 
 
-def rm_files_for_each(directory, file_list):
+def rm_files_for_each(directory: str, file_list: list = None):
     directory_list = helper__get_sub_directory_list(directory=directory)
     for d in directory_list:
         rm_files_in_dir(directory=d, file_list=file_list)
@@ -108,7 +108,7 @@ def mkdirs(directory: Union[str, list]):
         os.makedirs(directory, exist_ok=True)
 
 
-def mkdir_for_each(directory, new_sub_directory):
+def mkdir_for_each(directory: str, new_sub_directory: str):
     new_sub_directory = os.path.normpath(new_sub_directory)
     directory_list = helper__get_sub_directory_list(directory=directory)
 
@@ -116,7 +116,7 @@ def mkdir_for_each(directory, new_sub_directory):
     mkdirs(directory_list)
 
 
-def replace_with_link(src, file_list):
+def replace_with_link(src: str, file_list: str):
     """
     remove all files in the list and link them to src
     """
@@ -147,8 +147,9 @@ def read_tail(file: str, n: int = 1, squeeze: bool = True):
     return __read_head_tail(file=file, n=n, squeeze=squeeze, head_or_tail="tail")
 
 
-def listdir(directory: str, only_files=False, sort=True,
-            ignore_files=(".DS_Store",), ignore_patterns=None):
+# --- Directories ------------------------------------------------------------------------------------------------------
+def listdir(directory: str, only_files: bool = False, sort: bool = True,
+            ignore_files=(".DS_Store",), ignore_patterns=None) -> list:
 
     fl = os.listdir(directory)
     if only_files:
@@ -170,14 +171,15 @@ def list_directories(directory: str):
     return [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
 
 
-def ensure_extension_point(ext: str):
+# --- File-Extensions -------------------------------------------------------------------------------------------------------
+def __ensure_extension_point(ext: str):
     if ext[0] != ".":
         ext = "." + ext
     return ext
 
 
-def ensure_file_extension(file: str, ext: str):
-    ext = ensure_extension_point(ext)
+def ensure_file_extension(file: str, ext: str) -> str:
+    ext = __ensure_extension_point(ext)
 
     if file[-len(ext)] != ext:
         idx_dot = file[::-1].find(".")
@@ -188,14 +190,21 @@ def ensure_file_extension(file: str, ext: str):
     return file
 
 
-def remove_extension(file: str, ext: str):
-    ext = ensure_extension_point(ext)
+def remove_file_extension(file: str, ext: str) -> str:
+    ext = __ensure_extension_point(ext)
     file = ensure_file_extension(file=file, ext=ext)
     file = file[:-len(ext)]
     return file
 
 
-# –-- pickle -----------------------------------------------------------------------------------------------------------
+def change_file_extension(file: str, ext_old: str, ext_new: str) -> str:
+    file = remove_file_extension(file=file, ext=ext_old)
+    file = ensure_file_extension(file=file, ext=ext_new)
+    return file
+
+
+# –-- IO --- -----------------------------------------------------------------------------------------------------------
+# - pickle
 def save_pickle(obj, file: str):
     file = ensure_file_extension(file=file, ext=EXT_DICT["pkl"])
     mkdirs(directory=os.path.split(file)[0])
@@ -232,13 +241,13 @@ def load_json(file: str):
 
 
 # msgpack
-def load_msgpack(file):
+def load_msgpack(file: str):
     with open(file, "rb") as f:
         b = f.read()
     return msgpack.unpackb(b)
 
 
-def save_msgpack(file, nested_list):
+def save_msgpack(file: str, nested_list):
     arr_bin = msgpack.packb(nested_list, use_bin_type=True)
     mkdirs(directory=os.path.split(file)[0])
     with open(file, "wb") as f:
@@ -246,7 +255,7 @@ def save_msgpack(file, nested_list):
 
 
 # txt
-def save_object2txt(obj, file: str):
+def save_object2txt(file: str, obj):
     file = ensure_file_extension(file=file, ext="txt")
     mkdirs(directory=os.path.split(file)[0])
     with open(file, "w") as f:

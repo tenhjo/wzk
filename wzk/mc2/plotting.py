@@ -5,7 +5,7 @@ import numpy as np
 import meshcat
 from meshcat import geometry as mg, transformations as mt
 
-from wzk import grid, bimage, mpl2, spatial, geometry, np2, uuid4
+from wzk import grid, bimage, mpl2, spatial, geometry, np2, strings
 
 Visualizer = meshcat.Visualizer
 MeshGeometry_DICT = dict(stl=mg.StlMeshGeometry,
@@ -26,7 +26,7 @@ def ih_visualizer(vis: Visualizer):
 def ih_handle(p: Visualizer, h=None, default="", n=None):
     if h is None:
         if n is None:
-            return f"{default}-{uuid4()}"
+            return f"{default}-{strings.uuid4()}"
         else:
             return [ih_handle(p=p, h=h, default=default, n=None) for _ in range(n)]
 
@@ -84,8 +84,6 @@ def set_camera(vis: Visualizer, x, zoom: float = None):
 
     if zoom is not None:
         vis["/Cameras/default/rotated/<object>"].set_property("zoom", zoom)
-
-
 
 
 def wrapper_x(x: np.ndarray):
@@ -406,3 +404,10 @@ def plot_meshes(meshes, f: np.ndarray = None,
 
     transform(p=vis, h=h, f=f)
     return h
+
+
+def save_png(vis, x_camera, file):
+    if x_camera is not None:
+        set_camera(vis=vis, x=x_camera)
+    png = vis.get_image()
+    png.save(file)
