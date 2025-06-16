@@ -1,8 +1,9 @@
 import zlib
 import numpy as np
 from skimage.io import imread, imsave  # noqa
+from PIL import Image
 
-from wzk import np2, math2
+from wzk import np2, math2, files
 from wzk.bimage import sample_bimg_i
 
 
@@ -179,7 +180,6 @@ def check_overlap(a, b, return_arr=False):
         return np.logical_and(a, b).any()
 
 
-
 def sample_from_img(img, range, n, replace=False):   # noqa
     bimg = np.logical_and(range[0] < img, img < range[1])
     return sample_bimg_i(img=bimg, n=n, replace=replace)
@@ -225,3 +225,18 @@ def compressed2img(img_cmp, shape, n_dim=None, n_channels=None, dtype=None):
 
     else:
         return np.frombuffer(bytearray(zlib.decompress(img_cmp)), dtype=dtype).reshape(shape2)
+
+
+def volume_slice_gif(volume, file, axis=2,
+                     duration=50, loop=0, optimize=True):
+    # duration = 50  # ms, duration per frame
+
+    file = files.ensure_file_extension(file, "gif")
+
+    axis_time = np2.axis_wrapper(axis=axis, n_dim=3)
+    axis_img = np2.axis_wrapper(axis=axis, n_dim=3, invert=True)
+
+    volume = volume.transpose(axis_time + axis_img)
+    img_list = [Image.fromarray(volume[i, :, :]).convert('P') for i in range(volume.shape[0])]
+    img_list[0].save(file, save_all=True, append_images=img_list[1:],
+                     optimize=optimize, duration=duration, loop=loop)
