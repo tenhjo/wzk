@@ -1,13 +1,13 @@
 import math
-import numpy as np
 from itertools import product
 
+import numpy as np
 from scipy.linalg import cho_factor, cho_solve
 
 from wzk import np2, ltd
 
 # a/b = (a+b) / a -> a / b =
-golden_ratio = (np.sqrt(5.0) + 1) / 2
+GOLDEN_RATIO = (np.sqrt(5.0) + 1) / 2
 
 
 def make_monotonous_descending(x):

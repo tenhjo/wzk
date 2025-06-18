@@ -110,7 +110,7 @@ class CurlyBrace(patches.PathPatch):
                                p + d1pp,
                                x1])  #
 
-        codes = [patches.Path.MOVETO] + 6 * [patches.Path.CURVE4]
+        codes = [path.Path.MOVETO] + 6 * [path.Path.CURVE4]
         super().__init__(patches.Path(self.verts, codes), **kwargs)  # noqa
 
 

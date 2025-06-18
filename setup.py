@@ -19,7 +19,6 @@ setup(
 
                       "setuptools",
                       "msgpack",
-                      # 'pyOpt @ git+https://github.com/madebr/pyOpt@master',
                       ],
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -126,10 +126,7 @@ def icp(A, B, init_pose=None, max_iterations=100, tolerance=1e-10):
 
         return T, s, distances
 
-    except ValueError as e:
-        print(e)
-        return np.eye(n_dim+1), 1, np.array([np.inf])
-    except np.linalg.linalg.LinAlgError as e:
+    except (ValueError, np.linalg.LinAlgError) as e:
         print(e)
         return np.eye(n_dim+1), 1, np.array([np.inf])
 

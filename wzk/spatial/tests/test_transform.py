@@ -13,6 +13,21 @@ class Test(unittest.TestCase):
         r1 = spatial.AxBxC(a, b, c)
         self.assertTrue(np.allclose(r0, r1))
 
+    def test_is_rotation(self):
+        a = np.zeros((5, 3, 3))
+        a[0] = np.array([[0., 0., 0.],
+                         [0., 0, 0.],
+                         [0., 0., 0.13321902]])
+        a[1] = a[0].copy()
+        a[2] = np.eye(3)
+
+        # a = np.array([[0., 0., 0.],
+        #      [0., 0, 0.],
+        #      [0., 0., 0.13321902]])
+        b = spatial.is_rotation(a)
+        b_true = np.array([0, 0, 1, 0, 0], dtype=bool)
+        self.assertTrue(np.allclose(b, b_true))
+
 
 def vis_rotvec():
     x = np.zeros((5, 3))

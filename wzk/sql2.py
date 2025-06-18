@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 # from threading import Lock  # lock = Lock()
 import os
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -506,7 +507,8 @@ def set_values(file: str, table: str,
     executemany(file=file, query=query, args=values_rows_sql, lock=lock)
 
 
-def df2sql(df, file, table, dtype=None, if_exists="fail"):
+def df2sql(df, file, table, dtype=None,
+           if_exists: Literal["fail", "replace", "append"] = "fail"):
     """
     From DataFrame.to_sql():
         if_exists : {'fail', 'replace', 'append'}, default 'fail'

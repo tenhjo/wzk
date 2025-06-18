@@ -22,8 +22,6 @@ def binary_table(a, b):
     x[2, 1] = np.count_nonzero(b)
     x[2, 2] = b.size
 
-
-
     return x
 
 

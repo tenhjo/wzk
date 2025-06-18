@@ -1,10 +1,6 @@
 import numpy as np
 
 
-def hull_hull(xa, xb, ra, rb, na, nb, ab, c):
-    pass
-
-
 def get_abc():
     ab = np.zeros((2, 3), dtype='f4', order='c')
     c = np.zeros((1,), dtype='f4', order='c')

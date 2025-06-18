@@ -61,8 +61,6 @@ def get_n_in2(n_in, n_out,
         n_in2 = n_in*2
     else:
         n_in2 = (n_total - n_current) * n_in / n_out
-    # n_in2 = int(n_in2)
-    # print(f"total:{n_total} | current:{n_current} | new:{n_out}/{n_in} -> {n_in2}")
 
     n_in2 = min(n_total * max_factor, n_in2)  # otherwise it can grow up to 2**maxiter
     n_in2 = max(int(np.ceil(safety_factor * n_in2)), 1)
@@ -71,7 +69,13 @@ def get_n_in2(n_in, n_out,
 
 def fun2n(fun, n,
           max_iter=100, max_factor=128, verbose=0):
+    """
+    Wrapper to repeatedly call a function fun(n_i) -> x and concatenate its outputs until len(x) >= n
+    Useful for function which sample randomly
+    n_i is adjusted to get close to the optimal ratio
 
+    fun(n) -> x
+    """
     x = x_new = fun(n)
 
     n_in = n

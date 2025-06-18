@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
-
 from wzk import ltd, np2, geometry, trajectory
 
 from wzk.math2 import angle2minuspi_pluspi  # noqa
@@ -9,6 +8,7 @@ from wzk.spatial.util import initialize_frames, fill_frames_trans
 # Nomenclature
 # dcm ~ SE3 matrix (3x3)
 # frame ~ (4x4) homogeneous matrix, SE3 + translation
+
 
 # vectorized versions of scipy's Rotation.from_x().to_y()
 def euler2dcm(euler: np.ndarray, seq="ZXZ"):
@@ -406,20 +406,7 @@ def check_side_of_plane(o, u, v, x):
 
 
 if __name__ == '__main__':
-    import numpy as np
-
-    a = np.zeros((5, 3, 3))
-    a[0] = np.array([[0., 0., 0.],
-         [0., 0, 0.],
-         [0., 0., 0.13321902]])
-    a[1] = a[0].copy()
-    a[2] = np.eye(3)
-
-
-    # a = np.array([[0., 0., 0.],
-    #      [0., 0, 0.],
-    #      [0., 0., 0.13321902]])
-    print(is_rotation(a))
+    pass
 
 
 # FINDING angle axis representation is like an onion, the singularity is the boarder to the next 360 shell

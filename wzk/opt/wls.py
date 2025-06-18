@@ -1,3 +1,6 @@
+"""
+Weighted Least Squares
+"""
 import numpy as np
 from scipy.optimize import least_squares
 from joblib import Parallel, delayed

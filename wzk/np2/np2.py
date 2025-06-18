@@ -134,9 +134,9 @@ def make_odd(arr):
 def convolve_2d(img, kernel):
     s = np.array(img.shape)
     ks = np.array(kernel.shape)
-    assert np.all (ks % 2 == 1)
-    ks2 = ks // 2
+    assert np.all(ks % 2 == 1)
 
+    ks2 = ks // 2
     out = np.zeros(s, float)
     for i0 in range(ks2[0], s[0] - ks2[0]):
         for i1 in range(ks2[1], s[1] - ks2[1]):

@@ -1,3 +1,6 @@
+"""
+Gradient Descent
+"""
 import numpy as np
 
 

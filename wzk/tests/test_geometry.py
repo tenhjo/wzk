@@ -1,7 +1,7 @@
 import unittest
 from itertools import combinations
 import numpy as np
-from wzk import geometry, testing, printing, tic, toc
+from wzk import geometry, testing, printing
 
 
 class Test(unittest.TestCase):

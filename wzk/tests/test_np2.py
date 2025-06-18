@@ -196,6 +196,10 @@ class Test(TestCase):
         self.assertTrue(np.allclose(np2.diag_wrapper(n=4, x=a), a))
         self.assertTrue(np.allclose(np2.diag_wrapper(n=3, x=b), b))
 
+    def test_slicen(self):
+        sl = np2.slicen([1], [2])
+        self.assertTrue(sl == (slice(1, 2),))
+
 
 if __name__ == "__main__":
     pass

@@ -1,6 +1,7 @@
 import numpy as np  # noqa
 
-from wzk import np2, mp2, object2, strings, time2, files
+from wzk import np2, mp2, time2, ltd, strings, files
+
 from wzk.opt.optimizer import Naive
 
 
@@ -8,7 +9,7 @@ __DEBUG = False
 __debug_directory = "/Users/jote/Documents/PhD/data/mopla/GD/debug"
 
 
-class OPTimizer(object2.CopyableObject):
+class OPTimizer(ltd.CopyableObject):
     __slots__ = ("type",                           # str                 | type of the optimizer: gd, sqp, ...
                  "type_root",                      # str                 | type of the root search algorithm
                  
@@ -69,6 +70,7 @@ class OPTimizer(object2.CopyableObject):
 
         self.verbose = 0
         
+
 class OPTStaircase(object):
     __slots__ = ("n_stairs",        # int
                  "n_var",           # int[n_stairs]

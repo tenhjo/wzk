@@ -14,8 +14,8 @@ import matplotlib as mpl
 from matplotlib import axes  # noqa
 from matplotlib import figure  # noqa
 
-shape_1c_ieee = [3 + 1 / 2, (3 + 1 / 2) / math2.golden_ratio]
-shape_2c_ieee = [7 + 1 / 16, (7 + 1 / 16) / math2.golden_ratio]
+shape_1c_ieee = [3 + 1 / 2, (3 + 1 / 2) / math2.GOLDEN_RATIO]
+shape_2c_ieee = [7 + 1 / 16, (7 + 1 / 16) / math2.GOLDEN_RATIO]
 
 axes_type = mpl.axes.Axes
 
@@ -34,7 +34,7 @@ def ax_wrapper(ax: Union[dict, mpl.axes.Axes]):
         raise ValueError
 
 
-def figsize_wrapper(width, height=None, height_ratio=1/math2.golden_ratio):
+def figsize_wrapper(width, height=None, height_ratio=1/math2.GOLDEN_RATIO):
     # https://www.ieee.org/content/dam/ieee-org/ieee/web/org/pubs/eic-guide.pdf
     if isinstance(width, str):
         if width.lower() == "ieee1c":
@@ -54,7 +54,7 @@ def figsize_wrapper(width, height=None, height_ratio=1/math2.golden_ratio):
     return width, height
 
 
-def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.golden_ratio,
+def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
             n_dim=2,
             n_rows=1, n_cols=1,
             share_x="none", share_y="none",  # : bool or {'none', 'all', 'row', 'col'},

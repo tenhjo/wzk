@@ -8,15 +8,9 @@ def get_pip(ax, x, y, width, height, **kwargs):
     """Picture in Picture.
     Positions of the new axes as fractions from the parent axis.
     """
-    # from wzk import tic, toc
-    #
-    # plt.draw()  # Necessary so
-    # tic()
-    # plt.pause(0.01)  # Necessary so
-    # toc()
     p = ax.get_position()
-    return plt.axes([p.x_2d + x * p.width, p.y0 + y * p.height,
-                     width * p.width, height * p.height], **kwargs)
+    return plt.axes((p.x_2d + x * p.width, p.y0 + y * p.height,
+                     width * p.width, height * p.height), **kwargs)
 
 
 # Axes
@@ -34,7 +28,7 @@ def get_xaligned_axes(ax, y_distance=0.05, height=0.03, factor=1., **kwargs):
     x0 += (1 - factor) * width0 / 2
     width0 *= factor
 
-    return plt.axes([x0, y0 - y_distance, width0, height], **kwargs)
+    return plt.axes((x0, y0 - y_distance, width0, height), **kwargs)
 
 
 # Limits

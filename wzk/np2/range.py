@@ -31,11 +31,6 @@ def slicen(start=None, end=None, step=None):
     return tuple(map(slice, start, end, step))
 
 
-def test_slicen():
-    sl = slicen([1], [2])
-    assert sl == (slice(1, 2),)
-
-
 def range2slice(r):
     return slice(r.start, r.stop, r.step)
 

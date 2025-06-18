@@ -9,7 +9,7 @@ if directory0 == "":
     directory0 = "."
 directory0 = f"{directory0}/wzk/cpp2py"
 
-directory_list = [f"{directory0}/MinSphere",
+directory_list = [f"{directory0}/MinSphere",  # TODO move gjkepa and minsphere to mopla
                   f"{directory0}/gjkepa"]
 
 
