@@ -1,1 +1,1 @@
-from .optimal_sets import greedy, detmax, random
+from . import tsp, optimal_sets

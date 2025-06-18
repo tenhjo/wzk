@@ -10,6 +10,8 @@ USERNAME = os.path.expanduser("~").split(sep="/")[-1]
 TENH_JO = "tenh_jo"
 F_JUSTIN = "f_justin"
 
+GITHUB_USER = "tenhjo"
+
 userdir = "USERDIR"
 homelocal = "/home_local"
 home = "/home"
