@@ -5,7 +5,7 @@ from scipy.spatial import ConvexHull
 from wzk import printing, np2, math2, random2
 
 
-def get_ortho_star_2d(x):
+def get_ortho_star_2d(x: np.ndarray):
     assert x.shape[-1] == 2
     x4 = np.zeros(x.shape[:-1] + (4, 2))
     x4[..., 0, :] = x.copy()
@@ -77,7 +77,7 @@ def get_triangle_center(x):
     return x.mean(axis=-2)
 
 
-def cube(limits: np.ndarray = None) -> (np.ndarray, np.ndarray, np.ndarray):
+def cube(limits: np.ndarray = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     v = np.array([[0, 0, 0],
                   [0, 0, 1],
                   [0, 1, 0],
@@ -157,7 +157,7 @@ def fit_plane(x):
     return centroid, normal
 
 
-def get_parallel_orthogonal(p: np.ndarray, v: np.ndarray) -> (np.ndarray, np.ndarray):
+def get_parallel_orthogonal(p: np.ndarray, v: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     parallel = p * (p * v).sum(axis=-1, keepdims=True) / (p * p).sum(axis=-1, keepdims=True)
     orthogonal = v - parallel
     return parallel, orthogonal
@@ -174,7 +174,7 @@ def get_orthonormal(v: np.ndarray) -> np.ndarray:
 
     else:
         v_o1 = np.array([1.0, 1.0, 0.0])
-        v_o1[-1] = -np.sum(v * v_o1) / v[-1]
+        v_o1[-1] = -1 * np.sum(v * v_o1) / v[-1]
 
     v_o1 /= np.linalg.norm(v_o1)
     return v_o1
@@ -242,7 +242,7 @@ def __clip_ppp(o: np.ndarray,
                u: np.ndarray,
                v: np.ndarray,
                uu: np.ndarray,
-               vv: np.ndarray) -> (np.ndarray, np.ndarray):
+               vv: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     n = np.cross(u, v)
     if u.shape[-1] == 2:
@@ -295,13 +295,13 @@ def projection_point_plane(p: np.ndarray,
 
 def __line_line(x1: np.ndarray, x3: np.ndarray,
                 o: np.ndarray, u: np.ndarray, v: np.ndarray, uu: np.ndarray, vv: np.ndarray,
-                __return_mu: bool) -> (np.ndarray, np.ndarray):
+                _return_mu: bool):
 
     mua, mub = __clip_ppp(o=o, u=u, v=-v, uu=uu, vv=vv)  # attention sign change for v
 
     xa = x1 + mua[..., np.newaxis] * u
     xb = x3 + mub[..., np.newaxis] * v
-    if __return_mu:
+    if _return_mu:
         return (xa, xb), (mua, mub)
     else:
         return xa, xb
@@ -316,8 +316,9 @@ def two_to_three(*args):
     return res
 
 
-def line_line(line_a: np.ndarray, line_b: np.ndarray, __return_mu: bool = False) -> (np.ndarray, np.ndarray):
+def line_line(line_a: np.ndarray, line_b: np.ndarray, _return_mu: bool = False) -> tuple[np.ndarray, np.ndarray]:
     """
+    line_a, line_b: first dimension is 2, the two endpoints of the lines. last dimension are xyz
     (x1-x3) --- (x1-x4)
        |           |
        |           |
@@ -347,10 +348,10 @@ def line_line(line_a: np.ndarray, line_b: np.ndarray, __return_mu: bool = False)
     vv = (v*v).sum(axis=-1)
     return __line_line(x1=x1, x3=x3,
                        o=o, u=u, v=v, uu=uu, vv=vv,
-                       __return_mu=__return_mu)
+                       _return_mu=_return_mu)
 
 
-def line_line_pairs(lines: np.ndarray, pairs: np.ndarray, __return_mu: bool = False) -> (np.ndarray, np.ndarray):
+def line_line_pairs(lines: np.ndarray, pairs: np.ndarray, _return_mu: bool = False) -> tuple[np.ndarray, np.ndarray]:
     a, b = pairs.T
     x1, x3 = lines[..., a, 0, :], lines[..., b, 0, :]
     uv = lines[..., :, 1, :] - lines[..., :, 0, :]
@@ -361,11 +362,11 @@ def line_line_pairs(lines: np.ndarray, pairs: np.ndarray, __return_mu: bool = Fa
     uuvv = (uv * uv).sum(axis=-1)
     return __line_line(x1=x1, x3=x3,
                        o=o, u=u, v=v, uu=uuvv[..., a], vv=uuvv[..., b],
-                       __return_mu=__return_mu)
+                       _return_mu=_return_mu)
 
 
-def line_line_pairs_d2_jac(lines: np.ndarray, pairs: np.ndarray) -> (np.ndarray, np.ndarray):
-    (xa, xb), (mua, mub) = line_line_pairs(lines, pairs, __return_mu=False)
+def line_line_pairs_d2_jac(lines: np.ndarray, pairs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    (xa, xb), (mua, mub) = line_line_pairs(lines, pairs, _return_mu=False)
 
     dxaxb_dx = np.zeros(mua.shape + (2, 2))
     dxaxb_dx[..., 0, 0] = +mua - 1
@@ -382,7 +383,7 @@ def line_line_pairs_d2_jac(lines: np.ndarray, pairs: np.ndarray) -> (np.ndarray,
 def __line2capsule(xa: np.ndarray,
                    xb: np.ndarray,
                    ra: np.ndarray,
-                   rb: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
+                   rb: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     ra, rb = np.atleast_1d(ra, rb)
     d = xb - xa
     n = np.linalg.norm(d, axis=-1)
@@ -397,15 +398,15 @@ def __line2capsule(xa: np.ndarray,
 def capsule_capsule(line_a: np.ndarray,
                     line_b: np.ndarray,
                     radius_a: np.ndarray,
-                    radius_b: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
+                    radius_b: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     xa, xb = line_line(line_a=line_a, line_b=line_b)
-    xa, xb, n = __line2capsule(xa=xa, xb=xb, ra=radius_a, rb=radius_b)
-    return xa, xb, n
+    xa, xb, d = __line2capsule(xa=xa, xb=xb, ra=radius_a, rb=radius_b)
+    return xa, xb, d
 
 
 def capsule_capsule_pairs(lines: np.ndarray,
                           pairs: np.ndarray,
-                          radii: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
+                          radii: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     xa, xb = line_line_pairs(lines=lines, pairs=pairs)
     xa, xb, n = __line2capsule(xa=xa, xb=xb, ra=radii[pairs[:, 0]], rb=radii[pairs[:, 1]])
     return xa, xb, n
@@ -603,8 +604,8 @@ def hyper_sphere_volume(n_dim: int, r: float = 1.):
         return 2*(math.factorial(n2)*(4*np.pi)**n2) / math.factorial(n_dim) * r**n_dim
 
 
-def get_points_on_circle(x: (np.ndarray, list, tuple),
-                         r: (np.ndarray, float, int),
+def get_points_on_circle(x: np.ndarray | list | tuple,
+                         r: np.ndarray | float | int,
                          n: int = 10,
                          endpoint: bool = False):
     x = np.array(x)
@@ -811,27 +812,36 @@ def discretize_triangle(x=None,
     return x2.reshape(shape + [i.sum(), n_dim])
 
 
-def get_x_intersections(x_a, x_b, threshold=0.001, verbose=0):
+def get_x_intersections(x_a, x_b, threshold=0.001,
+                        map_i_ab=True, verbose=0):
     if len(x_a) * len(x_b) < 1000000:
         dn_ab = np.linalg.norm(x_a[:, np.newaxis, :] - x_b[np.newaxis, :, :], axis=-1)
 
         intersection = dn_ab < threshold
-        b_a = np.any(intersection, axis=1)
-        b_b = np.any(intersection, axis=0)
-        return b_a, b_b
+        i_ab = np.array(np.nonzero(intersection)).T
 
     else:
-        b_a = np.zeros(len(x_a), dtype=bool)
-        b_b = np.zeros(len(x_b), dtype=bool)
-        for i in range(len(x_a)):
+        i_ab = np.zeros((0, 2), dtype=int)
+        for i_a in range(len(x_a)):
             if verbose > 0:
-                printing.progress_bar(i=i, n=len(x_a), )
-            dn_ab = np.linalg.norm(x_a[i, :] - x_b[np.newaxis, :, :], axis=-1)
+                printing.progress_bar(i=i_a, n=len(x_a), )
+            dn_ab = np.linalg.norm(x_a[i_a, :] - x_b[:, :], axis=-1)
             intersection = dn_ab < threshold
-            b_a[i] = np.any(intersection)
-            b_b = np.logical_or(b_b, intersection)
 
-        return b_a, b_b[0]
+            if np.any(intersection):
+                ib_b = np.nonzero(intersection)[0]
+                ib_a = np.full(len(ib_b), i_a, int)
+                i_ab = np.concatenate((i_ab, np.vstack((ib_a, ib_b)).T), axis=0, dtype=int)
+
+    i_a = np.unique(i_ab[:, 0])
+    i_b = np.unique(i_ab[:, 1])
+
+    if map_i_ab:
+        # map indices to new arrays where all none intersecting elements are removed
+        _, i_ab[:, 0] = np.unique(i_ab[:, 0], return_inverse=True)
+        _, i_ab[:, 1] = np.unique(i_ab[:, 1], return_inverse=True)
+
+    return i_a, i_b, i_ab
     
 
 def string_of_pearls2surface(x, r):

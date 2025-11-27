@@ -84,7 +84,11 @@ def __tlbr2positions(top, left, bottom, right):
 
 
 def set_ticks_position(ax, position):
-
+    """
+    position: none, both,
+           x: bottom, top
+           y: left, right
+    """
     position_x, position_y = __tlbr2positions(*__position2tlbr(position=position))
 
     ax.axes.xaxis.set_ticks_position(position=position_x)

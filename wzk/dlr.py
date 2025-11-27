@@ -97,12 +97,12 @@ DIR_PAPER = f"{__DIR_BASE}/paper"
 humanoids21_elastic = DIR_PAPER + "/2021-humanoids-elastic"
 humanoids22_rgb = DIR_PAPER + "/2022-humanoids-rgb"
 humanoids23_contact = DIR_PAPER + "/2023-humanoids-contact"
-tro24_calibration = DIR_PAPER + "/2024-tro-calibration"
+tro25_calibration = DIR_PAPER + "/2025-tro-calibration"
 
 iros22_planning = DIR_PAPER + "/2022-iros-planning"
 humanoids23_ik = DIR_PAPER + "/2023-humanoids-ik"
 
-tum24_diss = DIR_PAPER + "/2024-tum-diss"
+tum24_diss = DIR_PAPER + "/2025-tum-phd"
 
 # TRO23_Planning = "/23tro_Planning"
 

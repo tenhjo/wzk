@@ -69,6 +69,7 @@ def plot_img_patch_w_outlines(ax, img, limits,
                       **kwargs)
     plot_img_patch(img=img, limits=limits, ax=ax, lw=0, hatch=hatch, facecolor=facecolor, edgecolor=hatchcolor,
                    alpha=alpha_patch, **kwargs)
+    return None
 
 
 def initialize_pixel_grid(img, limits, ax, **kwargs):

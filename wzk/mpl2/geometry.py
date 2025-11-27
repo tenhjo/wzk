@@ -23,13 +23,18 @@ def fill_circle_intersection(xy0, r0, xy1, r1, ax=None, **kwargs):
 
     int01 = _geometry.circle_circle_intersection(xy0=xy0, r0=r0, xy1=xy1, r1=r1)
     if int01 is None:
-        return
+        return None
     else:
         int0, int1 = int01
-    aa00 = np.arctan2(*(int0 - xy0)[::-1])
-    aa01 = np.arctan2(*(int1 - xy0)[::-1])
-    aa10 = np.arctan2(*(int0 - xy1)[::-1])
-    aa11 = np.arctan2(*(int1 - xy1)[::-1])
+
+    d00 = int0 - xy0
+    d10 = int1 - xy0
+    d01 = int0 - xy1
+    d11 = int1 - xy1
+    aa00 = np.arctan2(d00[1], d00[0])
+    aa01 = np.arctan2(d10[1], d10[0])
+    aa10 = np.arctan2(d01[1], d01[0])
+    aa11 = np.arctan2(d11[1], d11[0])
 
     arc0, _ = draw_arc(xy=xy0, radius=r0, theta0=aa00, theta1=aa01, alpha=0)
     arc1, _ = draw_arc(xy=xy1, radius=r1, theta0=aa11, theta1=aa10, alpha=0)

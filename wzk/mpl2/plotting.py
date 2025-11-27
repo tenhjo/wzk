@@ -72,12 +72,12 @@ def imshow(img: np.ndarray, ax: plt.Axes = None, h=None,
     return ax.imshow(img, extent=extent, origin=origin, **kwargs)
 
 
-def plot_projections_2d(x, dim_labels=None, ax=None, limits=None, aspect=1, title=None, **kwargs):
+def plot_projections_2d(x, dim_labels=None, ax=None, limits=None, aspect=1, width=10, title=None, **kwargs):
     n = x.shape[-1]
 
     n_comb = math2.binomial(n, 2)
     if ax is None:
-        ax = subplot_grid(n=n_comb, squeeze=False, aspect=aspect, title=title)
+        ax = subplot_grid(n=n_comb, squeeze=False, aspect=aspect, title=title, width=width)
     else:
         ax = np.atleast_2d(ax)
 
@@ -149,7 +149,7 @@ def line_2colored(x, y, colors, ax=None, **kwargs):
     y:
         y-Measurements, 2 points
     colors:
-        2 colors. First is for the first half of the line and the second color for the second part of the line
+        2 colors. The first is for the first half of the line and the second color for the second part of the line
     **d:
         Additional keyword-arguments for plt.plot()
     """
@@ -343,13 +343,13 @@ def vis_cost_landscape(fun, x0, stepsize, n, n_contour=50, mode="contour"):
     x, y = np.meshgrid(np.linspace(-sn2, +sn2, n), np.linspace(-sn2, +sn2, n), indexing="ij")
 
     if mode == "contour":
-        fig, ax = new_fig(aspect=1)
+        fig, ax = new_fig(aspect="equal")
         imshow(img=c, ax=ax, limits=np.array([[-sn2, sn2], [-sn2, sn2]]), alpha=0.2)
         ax.contour(x, y, c, np.linspace(np.min(c), np.max(c), n_contour))
         ax.plot(0, 0, marker="x", color="black")
 
     elif mode == "surface":
-        fig, ax = new_fig(aspect=1, n_dim=3)
+        fig, ax = new_fig(aspect="equal", n_dim=3)
         ax.plot_surface(x, y, c, linewidth=0, antialiased=False)
     else:
         raise ValueError(f"Unknown mode {mode}")

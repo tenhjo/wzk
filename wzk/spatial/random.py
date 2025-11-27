@@ -3,23 +3,40 @@ from wzk import spatial, geometry, random2, np2
 from wzk.spatial.transform_2d import theta2dcm
 
 
+def grid_quaternions(n3, flatten=False):
+    s = np.linspace(0, 1, n3)
+    theta1 = np.linspace(0, 2 * np.pi, n3, endpoint=False)
+    theta2 = np.linspace(0, 2 * np.pi, n3, endpoint=False)
+
+    s, theta1, theta2 = np.meshgrid(s, theta1, theta2)
+    res = _sigma_theta2quaternions(s=s, theta1=theta1, theta2=theta2)
+    if flatten:
+        res = res.reshape(-1, 4)
+
+    return res
+
+
+def _sigma_theta2quaternions(s, theta1, theta2):
+    sigma1 = np.sqrt(1 - s)
+    sigma2 = np.sqrt(s)
+    w = np.cos(theta2) * sigma2
+    x = np.sin(theta1) * sigma1
+    y = np.cos(theta1) * sigma1
+    z = np.sin(theta2) * sigma2
+    return np.stack([w, x, y, z], axis=-1)
+
+
 def sample_quaternions(shape=None):
     """
     Effective Sampling and Distance Metrics for 3D Rigid Body Path Planning, James J. Kuffner (2004)
     https://ri.cmu.edu/pub_files/pub4/kuffner_james_2004_1/kuffner_james_2004_1.pdf
     """
     s = np.random.random(shape)
-    sigma1 = np.sqrt(1 - s)
-    sigma2 = np.sqrt(s)
-
     theta1 = np.random.uniform(0, 2 * np.pi, shape)
     theta2 = np.random.uniform(0, 2 * np.pi, shape)
 
-    w = np.cos(theta2) * sigma2
-    x = np.sin(theta1) * sigma1
-    y = np.cos(theta1) * sigma1
-    z = np.sin(theta2) * sigma2
-    return np.stack([w, x, y, z], axis=-1)
+    return _sigma_theta2quaternions(s=s, theta1=theta1, theta2=theta2)
+
 
 
 def sample_dcm(shape=None):

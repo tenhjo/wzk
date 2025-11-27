@@ -40,8 +40,7 @@ def x2i(x, limits, shape):
 
     if x is None:
         return None
-    # voxel_size = limits2voxel_size(shape=shape, limits=limits)
-    voxel_size = np.diff(limits, axis=-1)[:, 0] / np.array(shape)
+    voxel_size = limits2voxel_size(shape=shape, limits=limits, unify=False)
     lower_left = limits[:, 0]
 
     return np.asarray((x - lower_left) / voxel_size, dtype=int)
@@ -56,19 +55,19 @@ def i2x(i, limits, shape, mode="c"):
 
     if i is None:
         return None
-    voxel_size = limits2voxel_size(shape=shape, limits=limits)
+    voxel_size = limits2voxel_size(shape=shape, limits=limits, unify=False)
     lower_left = limits[:, 0]
 
     offset = __mode2offset(voxel_size=voxel_size, mode=mode)
     return np.asarray(lower_left + offset + i * voxel_size, dtype=float)
 
 
-def create_grid(limits, shape, flatten=False):
+def create_grid(limits, shape, mode="c", flatten=False):
     n_dim = len(limits)
     # voxel_size = limits2voxel_size(shape=shape, limits=limits)
 
-    ll = i2x(i=np.zeros(n_dim), limits=limits, shape=shape)
-    ur = i2x(i=np.array(shape)-1, limits=limits, shape=shape)
+    ll = i2x(i=np.zeros(n_dim), limits=limits, mode=mode, shape=shape)
+    ur = i2x(i=np.array(shape)-1, limits=limits, mode=mode, shape=shape)
 
     x = np.array(np.meshgrid(*[np.linspace(start=ll[i], stop=ur[i], num=shape[i]) for i in range(n_dim)],
                              indexing="ij"))

@@ -74,6 +74,10 @@ def get_material(color=default_color, alpha: float = 1.0, wireframe: bool = Fals
     material.wireframe = wireframe
     return material
 
+def get_camera(vis):
+    pass
+
+
 
 def set_camera(vis: Visualizer, x, zoom: float = None):
     """camera is always oriented at the center"""
@@ -84,6 +88,24 @@ def set_camera(vis: Visualizer, x, zoom: float = None):
 
     if zoom is not None:
         vis["/Cameras/default/rotated/<object>"].set_property("zoom", zoom)
+
+
+def turn_grid_on_off(vis: Visualizer, on=False):
+    vis["/Grid"].set_property("visible", on)
+
+
+def turn_axes_on_off(vis: Visualizer, on=False):
+    vis["/Axes"].set_property("visible", False)
+
+
+def turn_background_on_off(vis: Visualizer, on=False):
+    vis["/Background"].set_property("visible", False)
+
+
+def turn_all_on_off(vis: Visualizer, on=False):
+    turn_grid_on_off(vis=vis, on=on)
+    turn_axes_on_off(vis=vis, on=on)
+    turn_background_on_off(vis=vis, on=on)
 
 
 def wrapper_x(x: np.ndarray):
@@ -99,13 +121,13 @@ def wrapper_faces(faces: np.ndarray):
     return faces.astype(int)
 
 
-def color2rgb_list(color, n):
-    rgb = mpl2.colors.to_rgba(c=color, alpha=1)
+def color2rgb_list(color, n, alpha=1.0):
+    rgb = mpl2.colors.to_rgba(c=color, alpha=alpha)
     rgb_list = np.repeat(np.array(rgb)[np.newaxis, :], repeats=n, axis=0)
     return rgb_list.astype(np.float32).T
 
 
-def plot_points(x, size=0.001, color=default_color,
+def plot_points(x, size=0.001, color=default_color, alpha=1.0,
                 vis: Visualizer = None, h=None):
 
     vis = ih_visualizer(vis)
@@ -113,7 +135,7 @@ def plot_points(x, size=0.001, color=default_color,
     x = wrapper_x(x)
 
     material = mg.PointsMaterial(size=size)
-    rgb_list = color2rgb_list(color=color, n=x.shape[1])
+    rgb_list = color2rgb_list(color=color, n=x.shape[1], alpha=alpha)
 
     vis[h].set_object(geometry=mg.PointsGeometry(position=x, color=rgb_list), material=material)
 
@@ -181,6 +203,7 @@ def plot_spheres(x, r, color=default_color, alpha=1.0, wireframe=False, whSegmen
     material = get_material(color=color, alpha=alpha, wireframe=wireframe)
     x = np.atleast_2d(x)
     r = np.atleast_1d(r)
+    r = np2.scalar2array(r, shape=len(x))
 
     h = ih_handle(p=vis, h=h, default="spheres", n=len(x))
     assert len(x) == len(r) == len(h)
@@ -196,7 +219,8 @@ def plot_cube(limits, mode="faces",
               vis: Visualizer = None, h=None,
               **kwargs):
     if limits is None:
-        return
+        return None
+
     v, e, f = geometry.cube(limits=limits)
 
     if mode == "faces":
@@ -330,7 +354,7 @@ def plot_arrow(x, v, length=1.0, color=default_color, alpha=1.0,
 
 def plot_coordinate_frames(f: np.ndarray,
                            p: Visualizer = None, h=None,
-                           scale=1.0, **kwargs):
+                           scale=1.0, color=("red", "green", "blue"), alpha=1.0):
     xyz_str = "xyz"
 
     p = ih_visualizer(vis=p)
@@ -338,11 +362,11 @@ def plot_coordinate_frames(f: np.ndarray,
     if np.ndim(f) == 2:
         h = ih_handle(p=p, h=h, default="frame")
 
-        color = kwargs.pop("color", ("red", "green", "blue"))
-        color = np2.scalar2array(color, shape=3)
+        color, alpha = np2.scalar2array(color, alpha, shape=3)
 
         for i in range(3):
-            plot_arrow(vis=p, h=f"{h}-{xyz_str[i]}", x=f[:3, -1], v=f[:3, i], length=scale, color=color[i], **kwargs)
+            plot_arrow(vis=p, h=f"{h}-{xyz_str[i]}", x=f[:3, -1], v=f[:3, i], length=scale,
+                       color=color[i], alpha=alpha[i])
 
         return h
 
@@ -351,11 +375,10 @@ def plot_coordinate_frames(f: np.ndarray,
         n = len(f)
         h = np2.scalar2array(h, shape=n)
 
-        color = kwargs.pop("color", ("red", "green", "blue"))
-        color = np2.scalar2array(color, shape=(n, 3))
+        color, alpha = np2.scalar2array(color, alpha, shape=(n, 3))
 
-        return [plot_coordinate_frames(p=p, h=hh, f=ff, color=cc, scale=scale, **kwargs)
-                for hh, ff, cc in zip(h, f, color)]
+        return [plot_coordinate_frames(p=p, h=hh, f=ff, color=cc, alpha=aa, scale=scale)
+                for hh, ff, cc, aa in zip(h, f, color, alpha)]
 
 
 def transform(p: Visualizer, f: np.ndarray, h):

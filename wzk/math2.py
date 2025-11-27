@@ -184,7 +184,7 @@ def dxnorm_dx(x, return_norm=False):
 def smooth_step(x):
     """
     https://en.wikipedia.org/wiki/Smoothstep
-    Interpolation which has zero 1st-order derivatives at x = 0 and x = 1,
+    Interpolation, which has zero 1st-order derivatives at x = 0 and x = 1,
      ~ cubic Hermite interpolation with clamping.
     """
     res = -2 * x**3 + 3 * x**2
@@ -223,7 +223,7 @@ def divisors(n, with_1_and_n=False):
 
     primes = list(factors.keys())
 
-    # Generate factors from primes[k:] subset
+    # Generate factors from primes [k:] subset
     def generate(k):
         if k == len(primes):
             yield 1
@@ -246,7 +246,7 @@ def divisors(n, with_1_and_n=False):
 def get_mean_divisor_pair(n):
     """
     Calculate the 'mean' pair of divisors. The two divisors should be as close as possible to the sqrt(n).
-    The smaller divisor is the first value of the output pair
+    The smaller divisor is the first value of output pair
     10 -> 2, 5
     20 -> 4, 5
     24 -> 4, 6
@@ -263,7 +263,7 @@ def get_mean_divisor_pair(n):
 
     div.sort()
 
-    # if numbers of divisors is odd -> n = o * o : power number
+    # if the number of divisors is odd -> n = o * o: power number
     if len(div) % 2 == 1:
         idx_center = len(div) // 2
         return div[idx_center], div[idx_center]
@@ -293,8 +293,8 @@ def modulo(x, low, high):
 
 def angle2minuspi_pluspi(x):
     return modulo(x=x, low=-np.pi, high=+np.pi)
-    # modulo is faster for larger arrays, for small ones they are similar but arctan is faster in this region
-    #  -> as always you have to make a trade-off
+    # modulo is faster for larger arrays, for small ones they are similar, but arctan is faster in this region
+    #  -> as always, you have to make a trade-off
     # return np.arctan2(np.sin(x), np.cos(x))
 
 
@@ -306,7 +306,6 @@ def log_b(x, base=np.e):
 def assimilate_orders_of_magnitude(a, b, base=10):
     a_mean = np.abs(a).mean()
     b_mean = np.abs(b).mean()
-    np.log1p()
     a_mean_log = np.log(a_mean)
     b_mean_log = np.log(b_mean)
 
@@ -335,7 +334,7 @@ def d_rosenbrock2d(xy, a=1, b=100):
     return np.concatenate([dx[..., np.newaxis], dy[..., np.newaxis]], axis=-1)
 
 
-def bisection(f, a, b, tol, max_depth=50, verbose=0, __depth=0,):
+def bisection(f, a, b, tol, max_depth=50, verbose=0, _depth=0, ):
     """
     aka binary search
 
@@ -358,9 +357,9 @@ def bisection(f, a, b, tol, max_depth=50, verbose=0, __depth=0,):
               f"Check the limits again manually!.")
 
         if (np.sign(fa) == +1 and fa < fb) or (np.sign(fa) == -1 and fa > fb):
-            return bisection(f=f, a=a/2, b=a, tol=tol, verbose=verbose, __depth=__depth + 1)
+            return bisection(f=f, a=a/2, b=a, tol=tol, verbose=verbose, _depth=_depth + 1)
         else:
-            return bisection(f=f, a=b, b=2*b, tol=tol, verbose=verbose, __depth=__depth + 1)
+            return bisection(f=f, a=b, b=2*b, tol=tol, verbose=verbose, _depth=_depth + 1)
 
         # else:
         #     if fa < fb:
@@ -373,16 +372,19 @@ def bisection(f, a, b, tol, max_depth=50, verbose=0, __depth=0,):
     fm = f(m)
 
     if verbose > 0:
-        print(f"depth {__depth}: a {a}, b {b}, m {m}, f(m) {fm}")
+        print(f"depth {_depth}: a {a}, b {b}, m {m}, f(m) {fm}")
 
-    if np.abs(fm) <= tol or __depth > max_depth:  # stopping condition, report m as root
+    if np.abs(fm) <= tol or _depth > max_depth:  # stopping condition, report m as root
         return m
 
     elif np.sign(fa) == np.sign(fm):  # m is an improvement on a
-        return bisection(f=f, a=m, b=b, tol=tol, verbose=verbose, __depth=__depth+1)
+        return bisection(f=f, a=m, b=b, tol=tol, verbose=verbose, _depth=_depth + 1)
 
     elif np.sign(fb) == np.sign(fm):  # m is an improvement on b
-        return bisection(f=f, a=a, b=m, tol=tol, verbose=verbose, __depth=__depth + 1)
+        return bisection(f=f, a=a, b=m, tol=tol, verbose=verbose, _depth=_depth + 1)
+
+    else:
+        raise ValueError("Should not happen!")
 
 
 # Derivative
@@ -390,8 +392,7 @@ def numeric_derivative(fun, x, eps=1e-5, axis=-1, mode="central",
                        diff=None,
                        **kwargs_fun):
     """
-    Use central, forward or backward difference scheme to calculate the
-    numeric derivative of function at point x.
+    Use the central, forward or backward difference scheme to calculate the numeric derivative of function at point x.
     'axis' indicates the dimensions of the free variables.
     The result has the shape f(x).shape + x.shape[axis]
     """
@@ -432,10 +433,10 @@ def numeric_derivative(fun, x, eps=1e-5, axis=-1, mode="central",
 def magic(n, m=None):
     """
     Equivalent of the MATLAB function:
-    M = magic(n) returns an n-by-n matrix constructed from the integers 1 through n2 with equal row and column sums.
+    M = magic(n) returns an n-by-n matrix constructed from integers 1 through n2 with equal row and column sums.
     https://stackoverflow.com/questions/47834140/numpy-equivalent-of-matlabs-magic
 
-    when a rectangle shape is given, the function returns just the sub-matrix. here the original properties do no
+    When a rectangle shape is given, the function returns just the submatrix. Here the original properties do no
     longer hold.
     """
 
@@ -580,7 +581,7 @@ def get_lower(n):
     return get_upper(n=n).T
 
 
-def project2null(A, x, clip=None, clip_mode=None, __rcond=__RCOND):
+def project2null(A, x, clip=None, clip_mode=None, _rcond=__RCOND):
     """
     Clipping happens before and after the projection step.
     If the determinant of the projection is not larger than 1, the second clipping has no effect.
@@ -589,7 +590,7 @@ def project2null(A, x, clip=None, clip_mode=None, __rcond=__RCOND):
     
     AT = np.swapaxes(A, -2, -1)
 
-    A0 = np.eye(A.shape[-1]) - (AT @  np.linalg.pinv(AT, rcond=__rcond))
+    A0 = np.eye(A.shape[-1]) - (AT @ np.linalg.pinv(AT, rcond=_rcond))
     x0 = (A0 @ x[..., np.newaxis])[..., 0]
 
     # same as:
@@ -603,9 +604,9 @@ def project2null(A, x, clip=None, clip_mode=None, __rcond=__RCOND):
     return x0
 
 
-def solve_pinv(A, b, __rcond=__RCOND):
+def solve_pinv(A, b, _rcond=__RCOND):
     try:
-        x = (np.linalg.pinv(A, rcond=__rcond) @ b[..., np.newaxis])[..., 0]
+        x = (np.linalg.pinv(A, rcond=_rcond) @ b[..., np.newaxis])[..., 0]
 
     except np.linalg.LinAlgError:
         print("solve_pinv: np.linalg.LinAlgError")

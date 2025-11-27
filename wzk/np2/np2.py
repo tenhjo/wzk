@@ -1,6 +1,6 @@
+from typing import Literal
+
 import numpy as np
-
-
 from wzk import dtypes2
 
 from . import basics
@@ -50,7 +50,10 @@ class DummyArray:
         return self.arr
 
 
-def initialize_array(shape, mode="zeros", dtype=None, order="c"):
+def initialize_array(shape: tuple | list | np.ndarray,
+                     mode: str = "zeros",
+                     dtype=None,
+                     order: Literal["C", "F"] = "C"):
     if mode == "zeros":
         return np.zeros(shape, dtype=dtype, order=order)
     elif mode == "ones":
@@ -261,7 +264,7 @@ def construct_array(shape, val, idx, init_mode="zeros", dtype=None,
     return a
 
 
-# Block lists
+# Blocklists
 def block_view(a, shape, aslist=False, require_aligned_blocks=True):
     """
     Return a 2N-D view of the given N-D array, rearranged so each ND block (tile)
@@ -311,8 +314,8 @@ def block_view(a, shape, aslist=False, require_aligned_blocks=True):
     view_shape = outershape + shape
 
     if require_aligned_blocks:
-        assert (np.mod(a.shape, shape) == 0
-                ).all(), "blockshape {} must divide evenly into array shape {}".format(shape, a.shape)
+        assert np.all(np.mod(a.shape, shape) == 0), (
+            "blockshape {} must divide evenly into array shape {}".format(shape, a.shape))
 
     # inner strides: strides within each block (same as original array)
     intra_block_strides = a.strides
@@ -370,6 +373,7 @@ def replace(arr, r_dict, copy=True, dtype=None):
     else:
         for key in r_dict:
             arr[arr == key] = r_dict[key]
+        return None
 
 
 def replace_tail_roll(a, b):

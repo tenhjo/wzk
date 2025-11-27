@@ -53,33 +53,21 @@ docs/_build/
 # PyBuilder
 target/
 
+# Pixi
+.pixi/*
+!.pixi/config.toml
+
 # Jupyter Notebook
 .ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# mkdocs documentation
-/site
-
 
 # MacOS
 *.DS_Store
 
-
 # Custom Additions
-
 *.so
 *.db
 /.idea/
 *.pt
-*.h5
+*.h5# pixi environments
+.pixi/*
+!.pixi/config.toml

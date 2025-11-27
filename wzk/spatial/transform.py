@@ -16,6 +16,9 @@ def euler2dcm(euler: np.ndarray, seq="ZXZ"):
     return Rotation.from_euler(seq=seq, angles=euler.reshape((-1, 3)),
                                ).as_matrix().reshape(euler.shape[:-1] + (3, 3))
 
+def rpy2dcm(rpy: np.ndarray):
+    return euler2dcm(euler=rpy, seq="ZXZ")
+
 
 def quaternions2dcm(quat):
     return Rotation.from_quat(quat.reshape((-1, 4))

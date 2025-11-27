@@ -77,23 +77,23 @@ def wls(x, y, w=None):
     return beta
 
 
-def wls_1d(x, y, w=None):
+def wls_1d(x: np.ndarray, y: np.ndarray, w: np.ndarray = None):
     """
     linear weighted least squares - 1D
 
     == line interpolation
-    == find best fit for:
+    == find the best fit for:
     beta_0 + x*beta_1 = y
 
     """
     if w is None:
         w = np.ones_like(x)
 
-    w_sum = np.sum(w)
+    w_sum = float(np.sum(w))
     xw_sum = np.sum(x * w) / w_sum
     yw_sum = np.sum(y * w) / w_sum
 
-    beta_1 = np.sum(w * (x - xw_sum) * (y - yw_sum)) / np.sum(w * (x - xw_sum)**2)
+    beta_1 = np.sum(w * (x - xw_sum) * (y - yw_sum)) / float(np.sum(w * (x - xw_sum)**2))
     beta_0 = yw_sum - beta_1 * xw_sum
 
     return beta_0, beta_1

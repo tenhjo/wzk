@@ -23,7 +23,7 @@ TYPE_REAL = "REAL"
 TYPE_BLOB = "BLOB"
 
 
-def rows2sql(rows: (int, list, np.ndarray), dtype: object = str, values=None) -> object:
+def rows2sql(rows: int | list | np.ndarray, dtype: object = str, values=None) -> object:
     if isinstance(rows, (int, np.int8, np.int16, np.int32, np.int64,
                          np.uint, np.uint8, np.uint16, np.uint32, np.uint64)):
         if rows == -1 or rows == [-1]:
@@ -102,7 +102,7 @@ def open_db_connection(file: str,
     Safety wrapper for the database call.
     """
     check_same_thread = False
-    isolation_level = "DEFERRED"
+    isolation_level: Literal["DEFERRED"] = "DEFERRED"
 
     if lock is not None:
         lock.acquire()
@@ -170,8 +170,8 @@ def set_page_size(file, page_size=4096):
 def vacuum(file):
     # https://stackoverflow.com/a/23251896/7570817
     # To allow the VACUUM command to run, change the directory for temporary files to one that has enough free space.
-    # assumption, that this is the case for the directory where the file itself leads
-    # temp_store_directory is deprecated, but hte alternatives did not work
+    # assumption: that this is the case for the directory where the file itself leads
+    # temp_store_directory is deprecated, but the alternatives did not work
     print(f"vacuum {file}")
     execute(file=file, query=f"PRAGMA temp_store_directory = '{os.path.dirname(file)}'")
     execute(file=file, query="VACUUM")
@@ -185,7 +185,7 @@ def get_tables(file: str) -> list:
     return t.tolist()
 
 
-def get_columns(file, table, mode: object = None):
+def get_columns(file: str, table: str, mode: object = None) -> list | pd.DataFrame:
     with open_db_connection(file=file, close=True, lock=None) as con:
         c = pd.read_sql_query(con=con, sql=f"pragma table_info({table})")
 
@@ -236,6 +236,8 @@ def rename_tables(file: str, tables: dict) -> None:
 
 def rename_columns(file: str, table: str, columns: dict) -> None:
     old_list = get_columns(file=file, table=table, mode="name")
+    assert isinstance(old_list, list)
+
     print(f"rename_columns file:'{file}' table:'{table}' {columns}")
     with open_db_connection(file=file, close=True, lock=None) as con:
         cur = con.cursor()
@@ -247,7 +249,7 @@ def rename_columns(file: str, table: str, columns: dict) -> None:
 
 def get_n_rows(file, table):
     """
-    Only works if the rowid's are [0, ....i_max]
+    Only works if the rowid's are [0, ...,i_max]
     """
     with open_db_connection(file=file, close=True, lock=None) as con:
         return pd.read_sql_query(con=con, sql=f"SELECT COALESCE(MAX(rowid), 0) FROM {table}").values[0, 0]
@@ -345,6 +347,7 @@ def delete_rows(file: str, table: str, rows, lock=None):
 def delete_columns(file: str, table: str, columns, lock=None):
     columns = columns2sql(columns, dtype=list)
     old_columns = get_columns(file=file, table=table, mode="name")
+    assert isinstance(old_columns, list)
 
     for col in columns:
         if col in old_columns or col == "*":
@@ -354,6 +357,8 @@ def delete_columns(file: str, table: str, columns, lock=None):
 
 def add_column(file, table, column, dtype, lock=None):
     columns = get_columns(file=file, table=table, mode="name")
+    assert isinstance(columns, list)
+
     if column in columns:
         print(f"columns {column} already exists")
     else:
@@ -362,6 +367,7 @@ def add_column(file, table, column, dtype, lock=None):
 
 def copy_column(file, table, column_src, column_dst, dtype, lock=None):
     column_list = get_columns(file, table, mode="name")
+    assert isinstance(column_list, list)
     assert column_src in column_list
     if column_dst not in column_list:
         add_column(file=file, table=table, column=column_dst, dtype=dtype, lock=lock)
@@ -551,7 +557,7 @@ class Col:
         self.name: str = name
         self.type_sql: str = type_sql
         self.type_np: str = type_np
-        self.shape: (int, tuple) = shape
+        self.shape: int | tuple = shape
 
     def __call__(self):
         return self.name

@@ -244,15 +244,15 @@ def depth_tuple(tpl):
     return isinstance(tpl, tuple) and max(map(depth_tuple, tpl)) + 1
 
 
-def flatten_gen(lst, __cur_depth=0, max_depth=100):
+def flatten_gen(lst, _cur_depth=0, max_depth=100):
     for el in lst:
         if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
-            __cur_depth += 1
-            if __cur_depth <= max_depth:
-                yield from flatten_gen(el, __cur_depth=__cur_depth, max_depth=max_depth)
+            _cur_depth += 1
+            if _cur_depth <= max_depth:
+                yield from flatten_gen(el, _cur_depth=_cur_depth, max_depth=max_depth)
             else:
                 yield el
-            __cur_depth -= 1
+            _cur_depth -= 1
 
         else:
             yield el
@@ -262,7 +262,7 @@ def flatten(lst, max_depth=100):
     return list(flatten_gen(lst=lst, max_depth=max_depth))
 
 
-def element_at_depth_gen(lst, d=0, with_index=False, __cur_d=0):
+def element_at_depth_gen(lst, d=0, with_index=False, _cur_d=0):
 
     def __yield1(ii, ele):
         if with_index:
@@ -279,18 +279,18 @@ def element_at_depth_gen(lst, d=0, with_index=False, __cur_d=0):
     for i, el in enumerate(lst):
 
         if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
-            __cur_d += 1
-            if __cur_d < d:
+            _cur_d += 1
+            if _cur_d < d:
                 # better yield from ...
-                for el2 in element_at_depth_gen(el, d=d, with_index=with_index, __cur_d=__cur_d):
+                for el2 in element_at_depth_gen(el, d=d, with_index=with_index, _cur_d=_cur_d):
                     yield __yield2(i, el2)
 
             else:  # __cur_depth == depth
                 yield __yield1(i, el)
-            __cur_d -= 1
+            _cur_d -= 1
 
         else:
-            if __cur_d == depth:
+            if _cur_d == depth:
                 yield __yield1(i, el)
 
 
@@ -318,6 +318,7 @@ def get_first_non_empty(lst):
     for element in lst:
         if element:
             return element
+    return None
 
 
 def repeat_dict(d, n):

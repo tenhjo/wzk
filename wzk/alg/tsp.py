@@ -34,6 +34,7 @@ def solve_tsp(x, dist_mat=None, time_limit=10,
         min_dist = dist_mat[dist_mat != 0].min()
         if min_dist < 1:
             dist_mat /= min_dist
+    dist_mat = np.round(dist_mat).astype(np.int32)
 
     # Create the routing index manager. num_cities, num_vehicles, depot
     manager = pywrapcp.RoutingIndexManager(n, 1, 0)
@@ -50,7 +51,7 @@ def solve_tsp(x, dist_mat=None, time_limit=10,
 
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
 
-    # Define cost of each arc.
+    # Define the cost of each arc.
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
     # Setting first solution heuristic.
@@ -62,7 +63,7 @@ def solve_tsp(x, dist_mat=None, time_limit=10,
     search_parameters.time_limit.seconds = time_limit
 
     # Solve the problem.
-    assignment = routing.SolveWithParameters(search_parameters)
+    assignment = routing.SolveWithParameters(search_parameters=search_parameters)
     route = get_route(manager=manager, routing=routing, assignment=assignment)
 
     if verbose:

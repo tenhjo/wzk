@@ -1,3 +1,5 @@
+from typing import Literal
+
 import os
 import shutil
 from typing import Union, Optional
@@ -55,31 +57,30 @@ def figsize_wrapper(width, height=None, height_ratio=1/math2.GOLDEN_RATIO):
 
 
 def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
-            n_dim=2,
-            n_rows=1, n_cols=1,
+            n_rows: int = 1, n_cols: int = 1,
             share_x="none", share_y="none",  # : bool or {'none', 'all', 'row', 'col'},
-            aspect="auto", limits=None,
+            aspect: Literal["auto", "equal"] = "auto",
+            limits=None,
             title=None,
             position=None, monitor=-1,
+            kwargs_subplots=None,
             **kwargs):
 
     fig = plt.figure(figsize=figsize_wrapper(width=width, height=height, height_ratio=h_ratio), **kwargs)
 
-    if n_dim == 2:
-        ax = fig.subplots(nrows=n_rows, ncols=n_cols, sharex=share_x, sharey=share_y)
+    if kwargs_subplots is None:
+        kwargs_subplots = {}
 
-        if isinstance(ax, np.ndarray):
-            for i in np.ndindex(*np.shape(ax)):
-                ax[i].set_aspect(aspect)  # Not implemented for 3D
-                set_ax_limits(ax=ax, limits=limits)
+    ax = fig.subplots(nrows=n_rows, ncols=n_cols, sharex=share_x, sharey=share_y, **kwargs_subplots)
 
-        else:
-            ax.set_aspect(aspect)
+    if isinstance(ax, np.ndarray):
+        for i in np.ndindex(*np.shape(ax)):
+            assert isinstance(ax[i], mpl.axes.Axes)
+            ax[i].set_aspect(aspect)
             set_ax_limits(ax=ax, limits=limits)
 
     else:
-        import mpl_toolkits.mplot3d.art3d as art3d  # noqa
-        ax = plt.axes(projection="3d")
+        ax.set_aspect(aspect)
         set_ax_limits(ax=ax, limits=limits)
 
     if title is not None:
@@ -91,7 +92,7 @@ def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
 
 def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: Union[str, tuple] = None,
              dpi: int = 600, bbox: Optional[str] = "tight", pad: float = 0.1,
-             save: bool = True, replace: bool = True, view: bool = False, copy2cb: bool = False,
+             save: bool = True, replace: bool = True, show: bool = False, copy2cb: bool = False,
              verbose: int = 1, **kwargs: object) -> object:
     """
     Adaption of the matplotlib 'savefig' function with some added convenience.
@@ -135,7 +136,7 @@ def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: Union[str
         else:
             print(f"{file_f} already exists")
 
-    if view:
+    if show:
         files.start_open(file=f"{file}.{formats[0]}")
 
     if copy2cb:

@@ -2,12 +2,14 @@ from unittest import TestCase
 
 import numpy as np
 
-from wzk import tsp, mpl2
+from wzk import mpl2
+from wzk.alg import tsp
 
 
 def test_solve_tsp(mode="random"):
     if mode == "random":
         points = np.random.random((100, 2))
+
     elif mode == "circuit":
         points = np.array([
             (288, 149), (288, 129), (270, 133), (256, 141), (256, 157), (246, 157),
@@ -60,8 +62,9 @@ def test_solve_tsp(mode="random"):
     else:
         raise NotImplementedError
 
-    _ = tsp.solve_tsp(x=points, time_limit=1, verbose=1)
-    # plot_solution_2d(points=points, route=route)
+    route = tsp.solve_tsp(x=points, time_limit=1, verbose=1)
+    plot_solution_2d(points=points, route=route)
+    return route
 
 
 def plot_solution_2d(points, route, title="Traveling Salesman Problem"):

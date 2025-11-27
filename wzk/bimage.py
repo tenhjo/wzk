@@ -6,7 +6,7 @@ from scipy import ndimage
 from skimage import measure
 from skimage.morphology import flood_fill
 
-from wzk import geometry, np2, printing, trajectory, grid, spatial
+from wzk import geometry, np2, printing, trajectory, grid, spatial, math2
 
 
 __eps = 1e-9
@@ -103,7 +103,7 @@ def get_outer_edge(img):
     return np.logical_xor(edge_img, img)
 
 
-def get_sphere_stencil(r: float, voxel_size: float, n_dim: int = 2) -> (np.ndarray, np.ndarray):
+def get_sphere_stencil(r: float, voxel_size: float, n_dim: int = 2) -> tuple[np.ndarray, np.ndarray]:
     half_side = get_max_occupied_cells(length=r, voxel_size=voxel_size) - 1
 
     if half_side == 0:
@@ -259,6 +259,7 @@ def sample_spheres_bimg_x(x, r, shape, limits, n,):
     return x
 
 
+# Rotate
 def rotate_bimg_3d(bimg: np.ndarray, dcm) -> np.ndarray:
     # TODO IS WAY QUICKER
     idx = np.array(np.nonzero(bimg)).T
@@ -318,3 +319,21 @@ def crop_bimg_to_fit(bimg: np.ndarray, pad: int = 1):
     bimg = bimg[np2.slicen(i_min, i_max)]
     print("b", bimg.shape)
     return bimg
+
+
+def get_occupied_volume(bimg, voxel_size: float):
+    return bimg.sum() * (voxel_size**3)
+
+
+# Conversions
+def dense_point_cloud2bimg(x, voxel_size: float):
+    limits = np.vstack([x.min(axis=0) - 1.5*voxel_size, x.max(axis=0) + 1.5*voxel_size]).T
+    limits = math2.discretize(x=limits, step=voxel_size)
+    shape = ((grid.limits2size(limits=limits) + voxel_size / 100) // voxel_size).astype(int)
+
+    i_ws = grid.x2i(x=x, limits=limits, shape=shape)
+    i_ws = np.unique(i_ws, axis=0).astype(int)
+
+    bimg = np.zeros(shape, dtype=bool)
+    bimg[i_ws[:, 0], i_ws[:, 1], i_ws[:, 2]] = True
+    return bimg, limits

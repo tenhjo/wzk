@@ -115,9 +115,9 @@ def progress_bar(i, n, prefix="", suffix="", bar_length=None, verbose=1,
     sys.stdout.flush()
 
 
-def print_table(rows, columns, data, min_voxel_size=10, cell_format=".5f", padding=0):
-    max_voxel_size_c = max([len(c) for c in columns] + [min_voxel_size])
-    max_voxel_size_r = max([len(r) for r in rows] + [min_voxel_size])
+def print_table(rows, columns, data, min_cell_size=10, cell_format=".5f", padding=0):
+    max_voxel_size_c = max([len(c) for c in columns] + [min_cell_size])
+    max_voxel_size_r = max([len(r) for r in rows] + [min_cell_size])
 
     max_voxel_size_c += padding
     max_voxel_size_r += padding

@@ -16,7 +16,7 @@ class Test(TestCase):
 
     def test_print_table(self):
         printing.print_table(rows=["A", "BB", "CCC"], columns=["Some", "Random", "Words", "Foo"],
-                             data=np.arange(12).reshape(3, 4), min_voxel_size=10, cell_format=".4f")
+                             data=np.arange(12).reshape(3, 4), min_cell_size=10, cell_format=".4f")
 
     def test_print2(self):
         printing.print2("aaa", 1, 2, verbose=(1, 0))
