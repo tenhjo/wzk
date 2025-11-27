@@ -121,7 +121,7 @@ def get_sphere_stencil(r: float, voxel_size: float, n_dim: int = 2) -> tuple[np.
         x_closest_i = np.array(np.meshgrid(*x_closest[i].T, indexing="ij")).T
         img[i, ...] = __compare_dist_against_radius(x_a=x_center[i], x_b=x_closest_i, r=r)
 
-    inner = img.sum(axis=0) == img.shape[0]
+    inner = np.array(img.sum(axis=0) == img.shape[0], dtype=bool)
     outer = get_outer_edge(inner)
 
     return inner, outer
@@ -141,14 +141,16 @@ def get_stencil_list(r, n,
     return r_unique, stencil_list, stencil_idx
 
 
-def create_stencil_dict(voxel_size, n_dim):
+def create_stencil_dict(voxel_size: float, n_dim: int):
     stencil_dict = dict()
-    n = int(5*(1//voxel_size))
-    for i, r in enumerate(np.linspace(voxel_size/10, 2, num=n)):
+    n = int(5*(1 // voxel_size))
+    for (i, r) in enumerate(np.linspace(voxel_size/10, 2, num=n)):
+        assert isinstance(r, float)
         printing.progress_bar(i=i, n=n, prefix="create_stencil_dict")
         d = int((r // voxel_size) * 2 + 3)
         if d not in stencil_dict.keys():
-            stencil = np.logical_or(*get_sphere_stencil(r=r, voxel_size=voxel_size, n_dim=n_dim))
+            inner, outer = get_sphere_stencil(r=r, voxel_size=voxel_size, n_dim=n_dim)
+            stencil = np.logical_or(inner, outer)
             assert d == stencil.shape[0]
             stencil_dict[d] = stencil
     return stencil_dict
@@ -177,8 +179,8 @@ def mesh2bimg(p, shape, limits, f=None):
         p2 = np.concatenate([p, p[:1]], axis=0)
         p2 = trajectory.get_substeps_adjusted(x=p2, n=2 * len(p) * max(shape))
         i2 = grid.x2i(x=p2, limits=limits, shape=shape)
-        img[np.clip(i2[:, 0], a_min=0, a_max=img.shape[0]-1),
-            np.clip(i2[:, 1], a_min=0, a_max=img.shape[1]-1)] = 1
+        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),
+            np.clip(i2[:, 1], a_min=0, a_max=shape[1]-1)] = 1
 
     elif img.ndim == 3:
         if f is None:
@@ -187,9 +189,9 @@ def mesh2bimg(p, shape, limits, f=None):
             f = ch.simplices  # noqa
         p2 = geometry.discretize_triangle_mesh(p=p, f=f, voxel_size=voxel_size)
         i2 = grid.x2i(x=p2, limits=limits, shape=shape)
-        img[np.clip(i2[:, 0], a_min=0, a_max=img.shape[0]-1),
-            np.clip(i2[:, 1], a_min=0, a_max=img.shape[1]-1),
-            np.clip(i2[:, 2], a_min=0, a_max=img.shape[2]-1)] = 1
+        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),
+            np.clip(i2[:, 1], a_min=0, a_max=shape[1]-1),
+            np.clip(i2[:, 2], a_min=0, a_max=shape[2]-1)] = 1
 
     else:
         raise ValueError
@@ -216,7 +218,8 @@ def spheres2bimg(x, r, shape, limits,
         if stencil_dict:
             stencil = stencil_dict[d]
         else:
-            stencil = np.logical_or(*get_sphere_stencil(r=r[i], voxel_size=voxel_size, n_dim=n_dim))
+            inner, outer = get_sphere_stencil(r=r[i], voxel_size=voxel_size, n_dim=n_dim)
+            stencil = np.logical_or(inner, outer)
         np2.add_small2big(idx=j, small=stencil, big=img)
 
     return img

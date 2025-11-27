@@ -73,18 +73,18 @@ def combine_edges(ij_edges, clean=True):
     """
     Connect all edges defined by 'ij_edges' (result from the function 'get_edges()')
     to closed boundaries around an object.
-    If not all edges are part of the surface of one object a list of closed boundaries is returned (one for every
+    If not all edges are part of the surface of one object, a list of closed boundaries is returned (one for every
     object).
     """
 
     combined_edges_list = []
     while ij_edges.size != 0:
         # Current obstacle
-        xy_cl = [ij_edges[0, 0], ij_edges[0, 1]]  # Start with first edge
+        xy_cl = [ij_edges[0, 0], ij_edges[0, 1]]  # Start with the first edge
         ij_edges = np.delete(ij_edges, 0, axis=0)
 
         while ij_edges.size != 0:
-            # Get next boundary edge (edge with common node)
+            # Get the next boundary edge (edge with common node)
             ij = np.nonzero(np.all(ij_edges == xy_cl[-1], axis=2))
             if ij[0].size > 0:
                 i = ij[0][0]
@@ -160,7 +160,7 @@ def get_faces(img):
 def face_ll_ur2vertices(ijk_faces):
     """
     Convert the representation of a regular rectangle via the 'lower left' and 'upper right' coordinate to
-    representation consisting of a tuple of all 4 vertices.
+     a representation consisting of a tuple of all 4 vertices.
     """
 
     n_faces = ijk_faces.shape[0]
@@ -168,7 +168,7 @@ def face_ll_ur2vertices(ijk_faces):
     xyz_faces[:, 2, :] = ijk_faces[:, 1, :]
 
     for i in range(n_faces):
-        plane = np.nonzero(xyz_faces[i, 2, :]-xyz_faces[i, 0, :] == 0)[0][0]
+        plane = np.nonzero(np.array(xyz_faces[i, 2, :] - xyz_faces[i, 0, :] == 0, bool))[0][0]
         changing_indices = np.sort(list({0, 1, 2}.difference({plane})))
         xyz_faces[i, 1, changing_indices[0]] = xyz_faces[i, 2, changing_indices[0]]
         xyz_faces[i, 3, changing_indices[1]] = xyz_faces[i, 2, changing_indices[1]]
@@ -188,8 +188,8 @@ def __get_plane(face):
 
 def __is_neighbor(face_plane_1, face_plane_2):
     """
-    Check if two surfaces are next to each other (have a common edge) and lay in the same plane.
-    -> Use this information, to combine such faces to a bigger connected surface. This makes mpl easier,
+    Check if two surfaces are next to each other (have a common edge) and lie on the same plane.
+    -> Use this information to combine such faces to a bigger connected surface. This makes mpl easier.
 
     """
 
@@ -215,7 +215,7 @@ def __is_neighbor(face_plane_1, face_plane_2):
 
 def combine_faces(face_vtx, verbose=0):
     """
-    Combine neighbouring surfaces to bigger surfaces to compress the representation of the object.
+    Combine neighboring surfaces with bigger surfaces to compress the representation of the object.
     """
 
     n_faces = face_vtx.shape[0]
@@ -245,7 +245,7 @@ def combine_faces(face_vtx, verbose=0):
                     raise IndexError
 
                 if free_direction != -1:
-                    # Replace the coordinates of one edge by the edge of the other face to get the combined face
+                    # Replace the coordinates of one edge with the edge of the other face to get the combined face
                     fd_coord_set_1 = set(face_vtx[i, :, free_direction])
                     fd_coord_set_2 = set(face_vtx[j, :, free_direction])
                     old_value = list(fd_coord_set_1.difference(fd_coord_set_2))[0]
@@ -286,18 +286,18 @@ def get_combined_faces(img):
 def cubes2face_vertices(pos, size):
     """
     Get the faces of the obstacles in 3D. It's cheaper to plot the faces instead of the whole volumes
-    Returns a list of faces for all obstacles (6 per obstacle * n_obstacles)
+    Returns a list of faces for all obstacles (6 per-obstacle * n_obstacles)
 
     The used indices are:
-       o j k
-    0  0 0 0
-    1  0 0 1
-    2  0 1 0
-    3  0 1 1
-    4  1 0 0
-    5  1 0 1
-    6  1 1 0
-    7  1 1 1
+        o j k
+    0 | 0 0 0
+    1 | 0 0 1
+    2 | 0 1 0
+    3 | 0 1 1
+    4 | 1 0 0
+    5 | 1 0 1
+    6 | 1 1 0
+    7 | 1 1 1
     """
 
     n_obstacles = pos.shape[0]

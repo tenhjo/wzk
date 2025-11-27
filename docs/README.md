@@ -24,7 +24,7 @@ This should not interfere with anything else but be aware of it.
   os.environ['OMP_NUM_THREADS'] = '1'
   ```
 
-make sure you import wzk before matplotlib / numpy to get the expected behaviour
+make sure you import wzk before matplotlib / numpy to get the expected behavior
 
 ---
 This repo has nothing to do with [Werkzeug](https://pypi.org/project/Werkzeug/). 

@@ -22,5 +22,5 @@ class Test(TestCase):
 
         self.assertTrue(len(y) == nn)
 
-        # fig, ax = mpl2.new_fig(aspect=1)
+        # fig, ax = mpl2.new_fig(aspect="equal")
         # ax.plot(*y.T, 'ro')

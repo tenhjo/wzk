@@ -249,7 +249,7 @@ def rename_columns(file: str, table: str, columns: dict) -> None:
 
 def get_n_rows(file, table):
     """
-    Only works if the rowid's are [0, ...,i_max]
+    Only works if the rowid's are [0, ..., i_max]
     """
     with open_db_connection(file=file, close=True, lock=None) as con:
         return pd.read_sql_query(con=con, sql=f"SELECT COALESCE(MAX(rowid), 0) FROM {table}").values[0, 0]
@@ -518,9 +518,9 @@ def df2sql(df, file, table, dtype=None,
     """
     From DataFrame.to_sql():
         if_exists : {'fail', 'replace', 'append'}, default 'fail'
-                   - fail: If table exists, do nothing.
-                   - replace: If table exists, drop it, recreate it, and insert Measurements.
-                   - append: If table exists, insert Measurements. Create if does not exist.
+                   - fail: If 'table' exists, do nothing.
+                   - replace: If 'table' exists, drop it, recreate it, and insert Measurements.
+                   - append: If 'table' exists, insert Measurements. Create it if it does not exist.
     """
     file = files.ensure_file_extension(file=file, ext=".db")
     if df is None:

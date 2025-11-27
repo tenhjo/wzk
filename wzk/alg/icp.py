@@ -106,7 +106,7 @@ def icp(A, B, init_pose=None, max_iterations=100, tolerance=1e-10):
         distances = np.inf
 
         for i in range(max_iterations):
-            # find the nearest neighbours between the current source and destination points
+            # find the nearest neighbors between the current source and destination points
             distances, indices = nearest_neighbor(src[:-1, :].T, dst[:-1, :].T)
 
             # compute the transformation between the current source and nearest destination points

@@ -29,7 +29,7 @@ class Test(TestCase):
 
     def test_RelativeArrowPatch(self):
 
-        fig, ax = new_fig(aspect=1)
+        fig, ax = new_fig(aspect="equal")
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         arrow1 = Patches2.RelativeFancyArrow(0.5, 0.5, 0.0, 0.5, width=1, head_length=0.5, head_width=2)
@@ -41,7 +41,7 @@ class Test(TestCase):
         self.assertTrue(True)
 
     def test_AbsoluteFancyBboxPatch(self):
-        fig, ax = new_fig(aspect=1)
+        fig, ax = new_fig(aspect="equal")
         ax.add_patch(FancyBbox(xy=(0.1, 0.1), boxstyle='Round4',  # noqa
                                height=0.5, width=0.5, pad=0.1, corner_size=0))
 
@@ -52,7 +52,7 @@ class Test(TestCase):
                        (0, 1), (0, 0.75), (-0.25, 0.5), (0, 0.25)])
         rp = Patches2.RoundedPolygon(xy=xy, pad=0.1, facecolor="red", edgecolor="magenta", lw=3)
 
-        fig, ax = new_fig(aspect=1)
+        fig, ax = new_fig(aspect="equal")
 
         ax.add_patch(rp)
         ax.set_xlim(-1, 2)

@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from typing import Literal
 import numpy as np
 from wzk import np2, testing
 
@@ -19,11 +20,13 @@ class Test(TestCase):
 
         shape = [4, (4,), (1, 2, 3, 4)]
         dtype = [float, int, bool]
-        order = ["c", "f"]
+        order = ["C", "F"]
 
         for s in shape:
             for d in dtype:
                 for o in order:
+                    o: Literal["C", "F"]
+
                     self.assertTrue(testing.compare_arrays(a=np2.initialize_array(shape=s, dtype=d, order=o,
                                                                                   mode="zeros"),
                                                            b=np.zeros(shape=s, dtype=d, order=o)))

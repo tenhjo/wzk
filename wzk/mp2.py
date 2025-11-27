@@ -3,7 +3,7 @@ import numpy as np
 import multiprocessing
 from wzk import ltd
 
-# Error under Python3.8 /macOS -> AttributeError: Can't pickle local object 'mp_wrapper.<locals>.__fun_wrapper'
+# Error under Python3.8 /macOS -> AttributeError: Can't pickle a local object 'mp_wrapper.<locals>.__fun_wrapper'
 # https://stackoverflow.com/questions/60518386/error-with-module-multiprocessing-under-python3-8
 try:
     multiprocessing.set_start_method("fork", force=True)
@@ -50,21 +50,21 @@ def mp_wrapper(*args, fun,
     if this is not the case, write a wrapper function so that fun expects no arguments
 
     Caveats:
-    - The function breaks if the data passed through the pipe is to large
+    - The function breaks if the data passed through the pipe is too large,
       so make sure that the data size does not exceed ~100Mb per process
       https://stackoverflow.com/questions/31552716/multiprocessing-queue-full
 
     - Numpy's random number generator starts with the same seed for each process, so if your calculations depend on
-      those random values, all processes will work with the same numbers. Default behaviour is to call
-      np.random.seed() in each process, to make sure the random numbers of each process are different. If you want
-      them to be the same use np.random.seed(42) in the function directly
+      those random values, all processes will work with the same numbers. The default behavior is to call
+      np.random.seed() in each process to make sure the random numbers of each process are different. If you want
+      them to be the same, use np.random.seed(42) in the function directly
       https://stackoverflow.com/a/12915206/7570817
 
-    - Be careful with functions that only return a value which shape does not depend on the input,
-      In such cases different number of process lead to different results, especially the keyword max_chunk_size
+    - Be careful with functions that only return a value whose shape does not depend on the input,
+      In such cases different number of processes leads to different results; especially the keyword max_chunk_size
       might cause trouble
 
-    - max_chunk_size is intended for cases where both a loop + parallelization is needed because of memory limitations
+    - max_chunk_size is intended for cases where both a loop and parallelization is needed because of memory limitations
     """
 
     if start_method is not None:
@@ -142,7 +142,7 @@ def mp_wrapper(*args, fun,
         process_list.append(p)
 
     # Make sure the queue is full before joining the processes with a small timeout, otherwise there occurred
-    # errors, because a process filled the queue but was still alive
+    #  errors because a process filled the queue but was still alive
     while True:
         sleep(time_sleep)
         if result_queue.full():

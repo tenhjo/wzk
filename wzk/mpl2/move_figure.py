@@ -22,7 +22,7 @@ def move_fig(fig, position=None, monitor=-1):
     """
     FROM
     https://stackoverflow.com/questions/7449585/how-do-you-set-the-absolute-position-of-figure-windows-with-matplotlib#19943546
-    With small change regarding the display resolution
+    With a small change regarding the display resolution
     Move and resize a window to a set of standard positions on the screen.
     Possible positions are:
     top, bottom, left, right, top left, top right, bottom left, bottom right
@@ -107,7 +107,7 @@ def __position_string_wrapper(position_str="top right"):
 def __move_fig(fig, width=None, height=None, offset_x=None, offset_y=None):
     """
     Move figure's upper left corner to pixel (x, y)
-    Coordinate system starts in upper left corner of the monitor
+    Coordinate system starts in the upper-left corner of the monitor
     """
 
     # Get the current position of the figure 'fig_width_inch'x'height'+'offset_x'+'offset_y'

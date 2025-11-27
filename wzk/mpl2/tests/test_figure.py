@@ -12,6 +12,6 @@ class Test(TestCase):
     def test_save_fig(self):
         file = f"{_dir}{_file}"
         fig, ax = new_fig()
-        save_fig(file=file, fig=fig, formats=("png",), view=False)
+        save_fig(file=file, fig=fig, formats=("png",), show=False)
         rmdirs(file)
         self.assertTrue(True)

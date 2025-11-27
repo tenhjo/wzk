@@ -527,7 +527,7 @@ def vis_k_farthest_neighbors():
     idx = k_farthest_neighbors(x=x, k=k)
 
     from wzk import new_fig
-    fig, ax = new_fig(aspect=1)
+    fig, ax = new_fig(aspect="equal")
     ax.plot(*x.T, ls="", marker="o", color="b", markersize=5, alpha=0.5)
     ax.plot(*x[idx, :].T, ls="", marker="x", color="r", markersize=10)
 

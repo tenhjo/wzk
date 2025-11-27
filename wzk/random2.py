@@ -71,7 +71,7 @@ def fun2n(fun, n,
           max_iter=100, max_factor=128, verbose=0):
     """
     Wrapper to repeatedly call a function fun(n_i) -> x and concatenate its outputs until len(x) >= n
-    Useful for function which sample randomly
+    Useful for function which samples randomly
     n_i is adjusted to get close to the optimal ratio
 
     fun(n) -> x
@@ -126,7 +126,7 @@ def choose_from_uniform_grid(x, n):
     u, inv = np.unique(ix, axis=0, return_inverse=True)
     iu = np.random.choice(np.arange(len(u)), n, replace=False)
 
-    i = [np.random.choice(np.nonzero(inv == j)[0]) for j in iu]
+    i = [np.random.choice(np.nonzero(np.array(inv == j, bool))[0]) for j in iu]
     return np.array(i, dtype=int)
 
 

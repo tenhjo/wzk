@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
         r1 = 2
         r2 = 4
 
-        fig, ax = mpl2.new_fig(aspect=1)
+        fig, ax = mpl2.new_fig(aspect="equal")
         ax.plot(*np.array([xy0, xy1, xy2]).T, "xk")
 
         # Check switching of theta0 <-> theta1
@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
 
     def test_mpl_fill_circle_intersection(self):
 
-        fig, ax = mpl2.new_fig(aspect=1)
+        fig, ax = mpl2.new_fig(aspect="equal")
         ax.set_xlim(-1, 1)
         ax.set_ylim(-1, 1)
 
@@ -59,7 +59,7 @@ class Test(unittest.TestCase):
 
     def test_mpl_eye_pov(self):
 
-        mpl2.new_fig(aspect=1)
+        mpl2.new_fig(aspect="equal")
         for x in np.arange(5):
             for y in np.arange(5):
                 mpl2.eye_pov(xy=(x, y), angle=np.random.uniform(0, 2 * np.pi),
@@ -70,7 +70,7 @@ class Test(unittest.TestCase):
     def test_plot_coordinate_frame(self):
 
         # 2D
-        fig, ax = mpl2.new_fig(aspect=1, title="2D Coordinate Frames")
+        fig, ax = mpl2.new_fig(aspect="equal", title="2D Coordinate Frames")
 
         h1 = mpl2.plot_coordinate_frames(ax=ax, x=[1, 1], dcm=spatial.twod.trans_theta2frame(theta=1)[:-1, :-1],
                                          color="bb")
@@ -79,7 +79,7 @@ class Test(unittest.TestCase):
         mpl2.plot_coordinate_frames(h=h1, dcm=np.eye(3), x=np.ones(3) * 0.1)
 
         # 3D
-        fig, ax = mpl2.new_fig(aspect=1, title="3D Coordinate Frames")
+        fig, ax = mpl2.new_fig(aspect="equal", title="3D Coordinate Frames")
 
         mpl2.axes.set_ax_limits(ax=ax, limits=np.array([[-1, 1],
                                                         [-1, 1],

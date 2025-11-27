@@ -23,8 +23,8 @@ def xy2cube24(x: int, y: int):
     (-y, +x) (-y, +z) (-y, -y) (-y, -z)
     (-z, +x) (-z, +y) (-z, -x) (-z, -y)
 
-    short hand notation for the 24 cube orientations
-    (direction of x axis, direction of y axis) -> third axis is then inferred by rhs
+    shorthand notation for the 24 cube orientations
+    (direction of x-axis, direction of y-axis) -> third axis is then inferred by rhs
     """
 
     xyz = np.eye(3)

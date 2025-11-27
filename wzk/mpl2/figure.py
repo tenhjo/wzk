@@ -71,12 +71,13 @@ def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
     if kwargs_subplots is None:
         kwargs_subplots = {}
 
-    ax = fig.subplots(nrows=n_rows, ncols=n_cols, sharex=share_x, sharey=share_y, **kwargs_subplots)
+    ax = fig.subplots(nrows=n_rows, ncols=n_cols, sharex=share_x, sharey=share_y, **kwargs_subplots)  # noqa
 
     if isinstance(ax, np.ndarray):
         for i in np.ndindex(*np.shape(ax)):
-            assert isinstance(ax[i], mpl.axes.Axes)
-            ax[i].set_aspect(aspect)
+            ax_i = ax[i]
+            assert isinstance(ax_i, mpl.axes.Axes)
+            ax_i.set_aspect(aspect)
             set_ax_limits(ax=ax, limits=limits)
 
     else:
@@ -95,7 +96,7 @@ def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: Union[str
              save: bool = True, replace: bool = True, show: bool = False, copy2cb: bool = False,
              verbose: int = 1, **kwargs: object) -> object:
     """
-    Adaption of the matplotlib 'savefig' function with some added convenience.
+    adaption of the matplotlib 'savefig' function with some added convenience.
     bbox = tight / standard (standard does not crop but saves the whole figure)
     pad: padding applied to the thigh bounding box in inches
     """
@@ -183,7 +184,7 @@ def save_all(directory: str = None, close: bool = False, **kwargs):
 # noinspection PyProtectedMember
 def get_fig_suptitle(fig: mpl.figure.Figure):
     try:
-        return fig._suptitle._text
+        return fig._suptitle._text  # type: ignore
     except AttributeError:
         return ""
 

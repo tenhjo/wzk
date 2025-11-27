@@ -14,7 +14,7 @@ verbose = 1
 class TestDraggableCircle(TestCase):
 
     def test_circles(self):
-        fig, ax = new_fig(aspect=1, title="Circles")
+        fig, ax = new_fig(aspect="equal", title="Circles")
 
         c1 = DraggableCircle(xy=(.2, .4), radius=.1, ax=ax, color="y", alpha=0.5, hatch="///")
         c2 = DraggableCircle(xy=(.2, .4), radius=.1, ax=ax, color="r")
@@ -32,7 +32,7 @@ class TestDraggableCircle(TestCase):
 
 class TestDraggableEllipse(TestCase):
     def test_ellipses2spheres(self):
-        fig, ax = new_fig(aspect=0.2, title="Ellipses -> Spheres")
+        fig, ax = new_fig(aspect="auto", title="Ellipses -> Spheres")
         ax.set_xlim(0, 100)
         ax.set_ylim(0, 200)
         DraggableEllipse(ax=ax, xy=(25, 25), width=10, height=-1, color="b")
@@ -46,7 +46,7 @@ class TestDraggableEllipse(TestCase):
 class TestDraggablePatchList(TestCase):
 
     def test_ellipses(self):
-        fig, ax = new_fig(aspect=1, title="Ellipses + Rectangles")
+        fig, ax = new_fig(aspect="equal", title="Ellipses + Rectangles")
         DraggableEllipse(ax=ax, xy=(0.5, 0.6), width=0.1, height=0.2, vary_xy=(False, True), color="k")
         DraggableRectangle(ax=ax, xy=(0.6, 0.5), width=0.2, height=0.1, vary_xy=(True, False), color="k")
 
@@ -64,7 +64,7 @@ class TestDraggablePatchList(TestCase):
 class TestDraggableFrame(TestCase):
 
     def test_frame(self):
-        fig, ax = new_fig(aspect=1)
+        fig, ax = new_fig(aspect="equal")
         df = DraggableFrame(ax=ax, xy=np.zeros(2), scale=0.4, color="red")
         df.update_x(None)
         ax.set_xlim(-1, 1)

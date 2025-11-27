@@ -12,14 +12,14 @@ def find_subarray(a, b):
     # b = np.array((3, 4, 3))
 
     # a = np.array((27, 3))
-    # b = np.array((3,))
+    # b = np.array((3, ))
     # -> array([1])
     """
     a, b = np.atleast_1d(a, b)
 
     window = len(b)
     a_window = rolling_window(a=a, window=window)
-    idx = np.nonzero(np.sum(a_window == b, axis=-1) == window)[0]
+    idx = np.nonzero(np.array(np.sum(a_window == b, axis=-1) == window, bool))[0]
     return idx
 
 
@@ -50,7 +50,7 @@ def find_array_occurrences(a, o):
     if a.ndim == 2:
         b = a[:, np.newaxis, :] == o[np.newaxis, :, :]
         b = np.sum(b, axis=-1) == o.shape[-1]
-        i = np.array(np.nonzero(b)).T
+        i = np.array(np.nonzero(np.array(b))).T
 
     else:
         raise ValueError
@@ -62,7 +62,7 @@ def get_element_overlap(arr1, arr2=None, verbose=0):
     """
     arr1 is a 2D array (n, m)
     arr2 is a 2D array (l, k)
-    along the first dimension are different samples and the second dimension are different features of one sample
+    along the first dimension are different samples and the second dimension is different features of one sample
 
     return a 2D int array (n, l) where each element o, j shows how many of the elements
     of arr1[o] are also present in arr2[j], without regard of specific position in the arrays
@@ -123,7 +123,7 @@ def fill_interval_indices(interval_list, n):
 
 def get_interval_indices(bool_array, expand=False):
     """
-    Get list of start and end indices, which indicate the sections of True values in the array.
+    Get a list of start and end indices, which indicate the sections of True values in the array.
 
     Array is converted to bool first
 
@@ -153,7 +153,7 @@ def get_interval_indices(bool_array, expand=False):
 
 def get_cropping_indices(pos, shape_small, shape_big, mode="lower_left"):
     """
-    Adjust the boundaries to fit small array in a larger array.
+    Adjust the boundaries to fit a small array in a larger array.
     pos:  idx where the small image should be set in the bigger picture, option A
     mode:  mode how to position the smaller array in the larger:
                   "center": pos describes the center of the small array inside the big array (shape_small must be odd)
@@ -208,11 +208,13 @@ def find_consecutives(x, n):
     if n == 1:
         return np.arange(len(x))
     assert n > 1
-    return np.nonzero(np.convolve(np.abs(np.diff(x)), v=np.ones(n - 1), mode="valid") == 0)[0]
+    c = np.convolve(np.abs(np.diff(x)), v=np.ones(n - 1), mode="valid")
+    return np.nonzero(np.equal(c, 0))[0]
 
 
 def find_largest_consecutives(x):
-    i2 = np.nonzero(np.convolve(np.abs(np.diff(x)), v=np.ones(2 - 1), mode="valid") == 0)[0]
+    c = np.convolve(np.abs(np.diff(x)), v=np.ones(2 - 1), mode="valid")
+    i2 = np.nonzero(np.equal(c, 0))[0]
     i2 -= np.arange(len(i2))
     _, c2 = np.unique(i2, return_counts=True)
     if c2.size == 0:

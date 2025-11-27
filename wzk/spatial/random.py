@@ -38,7 +38,6 @@ def sample_quaternions(shape=None):
     return _sigma_theta2quaternions(s=s, theta1=theta1, theta2=theta2)
 
 
-
 def sample_dcm(shape=None):
     quat = sample_quaternions(shape=shape)
     return spatial.quaternions2dcm(quat=quat)

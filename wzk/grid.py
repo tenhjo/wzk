@@ -48,7 +48,7 @@ def x2i(x, limits, shape):
 
 def i2x(i, limits, shape, mode="c"):
     """
-    Get the coordinates of the grid at the index "i" in a grid with symmetric cells.
+    get the coordinates of the grid at the index "i" in a grid with symmetric cells.
     borders: 0 | 2 | 4 | 6 | 8 | 10
     centers: | 1 | 3 | 5 | 7 | 9 |
     """

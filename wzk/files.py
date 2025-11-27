@@ -37,7 +37,7 @@ def get_pythonpath():
 
 # --- shell ------------------------------------------------------------------------------------------------------------
 def cp(src, dst, a=False):
-    """-a (improved recursive copy, including all files, sub-folders and symlinks)"""
+    """-a (improved recursive copy, including all files, subfolders and symlinks)"""
     if a:
         if not src.endswith("/."):
             src += "/."
@@ -205,11 +205,12 @@ def change_file_extension(file: str, ext_old: str, ext_new: str) -> str:
 
 # –-- IO --- -----------------------------------------------------------------------------------------------------------
 # - pickle
+
 def save_pickle(obj, file: str):
     file = ensure_file_extension(file=file, ext=EXT_DICT["pkl"])
     mkdirs(directory=os.path.split(file)[0])
     with open(file, "wb") as f:
-        pickle.dump(obj, f)
+        pickle.dump(obj, f)  # noqa
 
 
 def load_pickle(file: str):

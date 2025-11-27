@@ -18,7 +18,7 @@ class Test(TestCase):
         self.assertTrue(True)
 
     def test_make_legend_arrow_wrapper(self):
-        fig, ax = new_fig(aspect=1)
+        fig, ax = new_fig(aspect="equal")
         arrow_a = ax.arrow(0, 0, np.cos(0.3), np.sin(0.3), head_width=0.1, color="r", label="A")
         arrow_b = ax.arrow(0, 0, np.cos(0.5), np.sin(0.5), head_width=0.05, color="b", label="B")
         arrow_c = ax.arrow(0, 0, np.cos(0.9), np.sin(0.9), head_width=0.05, color="m", label="C")

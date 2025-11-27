@@ -28,7 +28,7 @@ def slicen(start=None, end=None, step=None):
     """n dimensional slice"""
     n = max_size(start, end, step)
     start, end, step = scalar2array(start, end, step, shape=n)
-    return tuple(map(slice, start, end, step))
+    return tuple(map(slice, start, end, step))  # noqa
 
 
 def range2slice(r):

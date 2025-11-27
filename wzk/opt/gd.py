@@ -34,7 +34,7 @@ class OPTimizer(ltd.CopyableObject):
                  "hesse_weighting",                # float[n_steps]      |
                  "active_dims",                    # bool[n_var]         |
                  "staircase",                      # OPTStaircase        |
-                 "return_x_list",                  # bool                |  is this a suitable parameter? not really
+                 "return_x_list",                  # bool                | s this a suitable parameter? not really
                  "verbose"                         # int
                  )
 

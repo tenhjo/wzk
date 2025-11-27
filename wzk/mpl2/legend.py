@@ -8,7 +8,7 @@ from wzk.np2 import flatten_without_last
 
 class HandlerMultiPathCollection(HandlerPathCollection):
     """
-    Handler for PathCollections, which are used by scatter
+    Handler for PathCollections, which scatter uses
     """
     def __init__(self, offsets_x=None, **kwargs):
         super().__init__(**kwargs)
@@ -17,10 +17,10 @@ class HandlerMultiPathCollection(HandlerPathCollection):
     def create_collection(self, orig_handle, sizes, offsets, offset_transform):
 
         if offsets is not None:
-            center = np.mean([(o[0]) for o in offsets])
-            offsets = [(center, o[1]) for o in offsets]
+            center = np.mean([(o[0]) for o in offsets])  # noqa
+            offsets = [(center, o[1]) for o in offsets]  # noqa
 
-        p = type(orig_handle)(orig_handle.get_paths(), sizes=sizes,
+        p = type(orig_handle)(orig_handle.get_paths(), sizes=sizes,  # noqa
                               offsets=offsets,
                               offset_transform=offset_transform,
                               )

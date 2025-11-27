@@ -43,10 +43,8 @@ def test_spheres2bimg():
     x = np.random.random((n, 3))
     r = np.random.uniform(low=0.1, high=0.2, size=n)
     img = bimage.spheres2bimg(x=x, r=r, shape=shape, limits=limits)
-
-    from wzk import mc2
-    p = mc2.Visualizer()
-    mc2.plot_bimg(vis=p, img=img, limits=limits, h=None)
+    print(img)
+    raise ValueError("TODO how to do visual debugging")
 
 
 if __name__ == "__main__":

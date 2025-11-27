@@ -42,8 +42,8 @@ class FancyBbox(patches.FancyBboxPatch):
         else:
             bs = patches.BoxStyle(boxstyle, pad=pad)
 
-        xy = np.array(xy)
-        super().__init__(xy=xy+pad, width=width - 2*pad, height=height - 2*pad, boxstyle=bs, **kwargs)
+        xy_pad = np.array(xy) + pad
+        super().__init__(xy=(xy_pad[0], xy_pad[1]), width=width - 2*pad, height=height - 2*pad, boxstyle=bs, **kwargs)
 
 
 class RoundedPolygon(patches.PathPatch):
@@ -79,7 +79,7 @@ class RoundedPolygon(patches.PathPatch):
 
 class CurlyBrace(patches.PathPatch):
     """
-    Create a matplotlib patch corresponding to a curly brace (i.e. these things: { / } )
+    Create a matplotlib patch corresponding to a curly brace | i.e., these things: { / }
 
     Adopted from
     https://github.com/bensondaled/curly_brace/blob/master/curly_brace_patch.py
@@ -127,7 +127,7 @@ def get_aff_trafo(xy0=None, xy1=None, theta=0, por=(0, 0), ax=None, patch=None):
     xy0: current position of the object, if not provided patch.get_xy() is used
     xy1: desired position of the object
     theta: rotation in degrees
-    por: point of rotation relative to the objects coordinates
+    por: point of rotation relative to the object coordinates
     ax:
     patch:
     :return:

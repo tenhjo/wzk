@@ -89,6 +89,6 @@ class Test(TestCase):
 
         from wzk.mpl2 import new_fig
 
-        fig, ax = new_fig(aspect=1)
+        fig, ax = new_fig(aspect="equal")
         ax.plot(*x0.T, marker="o")
         ax.plot(*x1.T, marker="s")

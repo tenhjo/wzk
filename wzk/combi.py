@@ -2,7 +2,7 @@ import numpy as np
 from itertools import combinations, permutations
 
 
-def get_tuples(n: (np.ndarray, list, tuple, int), m: int):
+def get_tuples(n: np.ndarray | list | tuple | int, m: int):
     if isinstance(n, (list, tuple, np.ndarray)):
         x = np.array(n)
         n = len(x)

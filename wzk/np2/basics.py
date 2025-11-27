@@ -65,7 +65,7 @@ def unify(x):
 def __fill_index_with(idx, axis, shape, mode="slice"):
     """
     orange <-> orth-range
-    sorry but 'orange', 'slice' was just to delicious
+    sorry but 'orange', 'slice' was just too delicious
     """
     axis = sh.axis_wrapper(axis=axis, n_dim=len(shape))
     if mode == "slice":
@@ -82,7 +82,7 @@ def __fill_index_with(idx, axis, shape, mode="slice"):
 
     idx = np.array(idx)
     for i, ax in enumerate(axis):
-        idx_with_.insert(ax, idx[..., i])
+        idx_with_.insert(ax, idx[..., i])  # noqa
 
     return tuple(idx_with_)
 

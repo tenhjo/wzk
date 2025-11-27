@@ -67,7 +67,7 @@ def test_random_jac():
         hx.set_data(*x.T)
         hp.set_data(*nurbs.p.T)
         mpl2.plt.pause(0.1)
-        # input('press key for next gradient step')
+        # input ('press key for next gradient step')
 
 
 def test_unit_circle():
@@ -98,7 +98,7 @@ def test_gui():
 
     uv = trajectory.to_spline(x_spline, n_c=5)
     mpl2.close_all()
-    fig, ax = mpl2.new_fig(aspect=1)
+    fig, ax = mpl2.new_fig(aspect="equal")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     dcl = mpl2.DraggableCircleList(ax=ax, xy=p, radius=0.02, color="r")

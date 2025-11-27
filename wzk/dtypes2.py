@@ -41,5 +41,3 @@ c2np = {bool: np.bool_,
         str: np.str_,
         int: np.integer,
         float: np.floating}
-
-

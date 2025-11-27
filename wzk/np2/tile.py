@@ -9,7 +9,7 @@ from .basics import scalar2array
 
 def tile_offset(a, reps, offsets=None):
     """
-    first tile array a via reps
+    the first tile array a via reps
     than offset each repetition according to an increasing offset
     """
 

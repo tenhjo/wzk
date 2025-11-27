@@ -1,6 +1,5 @@
 import numpy as np
 from matplotlib import transforms
-# from matplotlib import ticker
 
 from wzk.ltd import atleast_list
 from wzk.np2 import np_isinstance
@@ -35,7 +34,7 @@ def set_spine_width(ax, lw):
 
 
 def __position2tlbr(position="default"):
-    """map keywords to booleans indicating which axis are active"""
+    """map keywords to booleans indicating which axis is active"""
     bottom = top = left = right = False
     if position == "all":
         bottom = top = left = right = True
@@ -117,6 +116,8 @@ def get_ticks(ax, axis="x"):
         return ticks2arr(ax.get_yticks())
     elif axis == "xy" or "both":
         return ticks2arr(ax.get_xticks()), ticks2arr(ax.get_yticks())
+    else:
+        raise ValueError
 
 
 def get_labels(ax, axis="x"):
@@ -130,6 +131,8 @@ def get_labels(ax, axis="x"):
         return labels2arr(ax.get_yticklabels())
     elif axis == "xy" or "both":
         return labels2arr(ax.get_xticklabels()), labels2arr(ax.get_yticklabels())
+    else:
+        raise ValueError
 
 
 def get_ticks_index(ax, axis, v, squeeze=True):
@@ -158,7 +161,7 @@ def get_ticks_index(ax, axis, v, squeeze=True):
 def remove_ticks(ax, v, axis="x"):
     """
     Remove the ticks corresponding to the values in v from the axis.
-    If the values are not found they are ignored.
+    If the values are not found, they are ignored.
     """
 
     assert axis in ("x", "y", "xy", "both")
@@ -305,10 +308,11 @@ def handle_newline(newline, n):
     newline2 = [False] * n
 
     if newline is None:
-        pass
+        return None
 
     elif isinstance(newline, int):
         newline2[newline] = True
+        return None
 
     elif isinstance(newline, (list, tuple, np.ndarray)):
         if len(newline) == n:

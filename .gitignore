@@ -68,6 +68,4 @@ target/
 *.db
 /.idea/
 *.pt
-*.h5# pixi environments
-.pixi/*
-!.pixi/config.toml
+*.h5

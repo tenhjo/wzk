@@ -41,13 +41,15 @@ class KeyListener:
             self.start_listening()
 
     def start_listening(self, on_press=True, on_release=False):
+
         if self.is_listening:
             self.stop_listening()
 
         if on_press and not on_release:
-            self.listener = keyboard.Listener(on_press=self.on_press)
+            # assert hasattr(keyboard, "Listener")
+            self.listener = keyboard.Listener(on_press=self.on_press)  # noqa
         elif on_release and not on_press:
-            self.listener = keyboard.Listener(on_release=self.on_press)
+            self.listener = keyboard.Listener(on_release=self.on_press)  # noqa
         else:
 
             raise NotImplementedError
@@ -205,7 +207,7 @@ class BoxLimitsKeySlider:
         assert self.n == np.shape(limits)[0]
         # Create KeyListeners
         key2callback = {str(i): lambda k: self.change_j(k) for i in range(self.n)}
-        key2callback["p"] = lambda k: self.return_x()
+        key2callback["p"] = lambda k: self.print_x()
         key2callback["j"] = lambda k: self.change_slider_mode("j")
         key2callback["x"] = lambda k: self.change_slider_mode("x")
 
@@ -224,10 +226,9 @@ class BoxLimitsKeySlider:
     def stop_listening(self):
         self.ks_x.stop_listening()
 
-    def return_x(self, verbose=1):
+    def print_x(self, verbose=1):
         if verbose > 0:
             print(repr(self.x), end="")
-        return self.x
 
     def get_x_discrete(self):
         x = (self.x[self.j] - self.limits[self.j, 0]) / (self.limits[self.j, 1] - self.limits[self.j, 0])
@@ -302,7 +303,7 @@ def __get_samples_x_limits(n):
 
 def try_x_and_limits2txt():
     x, limits = __get_samples_x_limits(n=4)
-    s = printing.x_and_limits2txt(x=x, limits=x.limits)
+    s = printing.x_and_limits2txt(x=x, limits=limits)
     print(s)
 
 

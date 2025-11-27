@@ -325,10 +325,10 @@ def block_view(a, shape, aslist=False, require_aligned_blocks=True):
 
     # This is where the magic happens.
     # Generate a view with our new strides (outer+inner).
-    view = np.lib.stride_tricks.as_strided(a, shape=view_shape, strides=(inter_block_strides + intra_block_strides))
+    view = np.lib.stride_tricks.as_strided(a, shape=view_shape, strides=(inter_block_strides + intra_block_strides))  # noqa
 
     if aslist:
-        return list(map(view.__getitem__, np.ndindex(outershape)))
+        return list(map(view.__getitem__, np.ndindex(outershape)))  # noqa
     return view
 
 

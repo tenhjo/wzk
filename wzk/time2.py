@@ -7,7 +7,7 @@ def get_timestamp(t=None, year=True, month=True, day=True, hour=True, minute=Tru
                   date_separator="-", date_time_separator="_", time_separator=":"):
     """
     Crete a datetime string including year, month, day; hour, minute, second, millisecond.
-    With options for each of the elements if it should be included and how the symbol separating
+    With options for each of the elements if it should be included and what the symbol separating
     two elements should look like.
     """
 
@@ -22,7 +22,7 @@ def get_timestamp(t=None, year=True, month=True, day=True, hour=True, minute=Tru
     # Create a boolean list indicating which elements to keep
     bool_list = [bool(b) for b in [year, month, day, hour, minute, second, millisecond]]
 
-    # Create a list of symbols which separate the elements of teh datetime string
+    # Create a list of symbols which separate the elements of the datetime string
     separator_list = [date_separator, date_separator,
                       date_time_separator,
                       time_separator, time_separator, time_separator]

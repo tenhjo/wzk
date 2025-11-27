@@ -62,7 +62,7 @@ def location_difference_cost(loc_a, loc_b):
 # ----------------------------------------------------------------------------------------------------------------------
 def rotation_cost(rot):
     """
-    Use cos(alpha) as cost metric, it is symmetric around zero, and the derivative of arccos is not needed.
+    Use cos(alpha) as a cost metric, it is symmetric around zero, and the derivative of arccos is not needed.
 
     # cos(theta) = (np.trace(rot, axis1=-2, axis2=-1) - n_dim + 2) / 2
     # cost = 1 - cos(theta)

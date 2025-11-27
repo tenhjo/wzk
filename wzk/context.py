@@ -19,4 +19,3 @@ def set_attribute(obj, attribute, value, fail_on_error=True):
 
     finally:
         __set_attribute_safe(obj=obj, attribute=attribute, value=old_value, fail_on_error=fail_on_error)
-

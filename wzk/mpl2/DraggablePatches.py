@@ -192,13 +192,13 @@ class DraggablePatch(DummyPatch):
 class DraggableCircle(patches.Circle, DraggablePatch):
     def __init__(self,
                  ax,
-                 xy: (np.ndarray, list, tuple),
+                 xy: np.ndarray | list | tuple,
                  radius,
                  vary_xy=(True, True), callback=None,
                  limits=None,
                  wsad=None,
                  **kwargs):
-        patches.Circle.__init__(self, xy=xy, radius=radius, **kwargs)
+        patches.Circle.__init__(self, xy=(xy[0], xy[1]), radius=radius, **kwargs)
         DraggablePatch.__init__(self, ax=ax, vary_xy=vary_xy, callback=callback, limits=limits, wsad=wsad)
 
     def get_xy_drag(self):
@@ -253,7 +253,7 @@ class DraggableRectangle(patches.Rectangle, DraggablePatch):
 
 class DraggablePatchList:
     def __init__(self):
-        self.dp_list: [DraggablePatch] = []
+        self.dp_list: list[DraggablePatch] = []
 
     def append(self, **kwargs):
         raise NotImplementedError

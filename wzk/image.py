@@ -34,7 +34,8 @@ def combine_shape_n_dim(shape, n_dim=None):
 
 def image_array_shape(shape, n_samples=None, n_dim=None, n_channels=None):
     """
-    Helper to set the shape for an image array.
+    helper to set the shape for an image array.
+
     n_samples=100,  shape=64,          n_dim=2,    n_channels=None  ->  (100, 64, 64)
     n_samples=100,  shape=64,          n_dim=3,    n_channels=2     ->  (100, 64, 64, 64, 2)
     n_samples=None, n_voxel=(10, 11, 12), n_dim=None, n_channels=None  ->  (10, 11, 12)
@@ -122,16 +123,16 @@ def add_padding(img, padding, value):
 
 def pooling(mat, kernel, method="max", pad=False):
     """
-    Non-overlapping pooling on 2D or 3D Measurements.
+    non-overlapping pooling on 2D or 3D Measurements.
     <mat>: ndarray, input array to pool.
     <ksize>: tuple of 2, kernel shape in (ky, kx).
     <method>: str, 'max for max-pooling,
                    'mean' for mean-pooling.
-    <pad>: bool, pad <mat> or not. If no pad, output has shape
-           n//f, n being <mat> shape, f being kernel shape.
+    <pad>: bool, pad <mat> or not. If no pad, the output has shape
+           n//f, n being <mat> shape, f being the kernel shape.
            if pad output has shape ceil(n/f).
 
-    Return <result>: pooled matrix.
+    return <result>: pooled matrix.
     """
 
     print("# TODO write general function with reshaping -> much faster")
@@ -165,7 +166,7 @@ def pooling(mat, kernel, method="max", pad=False):
 def check_overlap(a, b, return_arr=False):
     """
     Boolean indicating if the two arrays have an overlap.
-    Sum over the axis that do not match.
+    Sum over the axis that does not match.
     """
 
     a, b = (a, b) if a.n_dim > b.n_dim else (b, a)
@@ -191,11 +192,7 @@ def img2compressed(img, n_dim: int, level: int = 9):
     Compress the given image with the zlib routine to a binary string.
     Level of compression can be adjusted. A timing with respect to different compression levels for decompression showed
     no difference, so the highest level is default, this corresponds to the largest compression.
-    For compression, it is slightly slower but this happens just once and not during keras training, so the smaller
-    needed memory was favoured.
-
-    Alternative:
-    <-> use numpy sparse for the world images, especially in 3d  -> zlib is more effective and more general
+    For compression, higher levels are slightly slower but produce better compression ratios.
     """
 
     shape = img.shape[:-n_dim]
@@ -211,7 +208,7 @@ def img2compressed(img, n_dim: int, level: int = 9):
 
 def compressed2img(img_cmp, shape, n_dim=None, n_channels=None, dtype=None):
     """
-    Decompress the binary string back to an array of given shape
+    Decompress the binary string back to an array of the given shape
     """
 
     shape2 = image_array_shape(shape=shape, n_dim=n_dim, n_channels=n_channels)

@@ -8,7 +8,7 @@ from wzk import np2
 
 
 def quiet_mode_on():
-    # can not be changed back
+    # cannot be changed back
     # copy.copy does not work
     # stdout_copy = sys.stdout
     sys.stdout = open(os.devnull, "w")
@@ -80,7 +80,7 @@ def get_progress_bar(i, n, prefix="", suffix="", bar="█"):
 
 
 def progress_bar(i, n, prefix="", suffix="", bar_length=None, verbose=1,
-                 eta=False, __time=[-1.]):  # noqa: dangerous-default-value
+                 eta=False, _time=[-1.]):  # noqa: dangerous-default-value
 
     if verbose <= 0:
         return
@@ -95,11 +95,11 @@ def progress_bar(i, n, prefix="", suffix="", bar_length=None, verbose=1,
     i += 1
     suffix += f"({i}/{n})"
     if eta:
-        if __time[0] == -1. or i == 0 or i == 1:
-            __time[0] = time.time()
+        if _time[0] == -1. or i == 0 or i == 1:
+            _time[0] = time.time()
             suffix += " | 0s | ETA: ??s"
         else:
-            dt_s = (time.time() - __time[0])
+            dt_s = (time.time() - _time[0])
             s_per_i = dt_s/i
             eta_s = (n-i) * s_per_i
             suffix += f" | Elapsed: {dt_s:.3}s | ETA: {eta_s:.3}s"
@@ -284,7 +284,7 @@ def print_array_3d(array_3d,
 def clear_previous_lines(n=1):
     for i in range(n):
         sys.stdout.write("\033[K")  # clear line
-        sys.stdout.write("\033[F")  # back to previous line
+        sys.stdout.write("\033[F")  # back to the previous line
         sys.stdout.write("\033[K")  # clear line
 
 
@@ -329,6 +329,8 @@ def check_verbosity(verbose, threshold=0):
         return verbose > threshold
     elif isinstance(verbose, tuple):
         return verbose[0] > threshold
+    else:
+        raise ValueError(f"Unknown type '{type(verbose)}' for verbose")
 
 
 class Verbosity:

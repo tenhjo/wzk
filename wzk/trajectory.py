@@ -109,7 +109,7 @@ def get_substeps(x: np.ndarray, n: int,
 
     *shape, m, d = x.shape
 
-    # only fill in substeps if the number is greater 1,
+    # only fill in substeps if the number is greater than 1,
     if n <= 1 or m <= 1:
         if include_start:
             return x
@@ -171,7 +171,7 @@ def get_substeps_adjusted(x: np.ndarray, n: int,
     n_sub_exact = relative_steps_length * (n - 1)
     n_sub = np.round(n_sub_exact).astype(int)
 
-    # If the number of points do not match, change the substeps where the rounding was worst
+    # If the number of points does not match, change the substeps where the rounding was worst
     n_diff = (n-1) - np.sum(n_sub)
     if n_diff != 0:
         n_sub_acc = n_sub_exact - n_sub
@@ -193,7 +193,7 @@ def get_substeps_adjusted(x: np.ndarray, n: int,
 
 
 def get_path_adjusted(x: np.ndarray, n: int = None,
-                      is_periodic=None, weighting=None, enforce_equal_steps: bool = False, __m: int = 5):
+                      is_periodic=None, weighting=None, enforce_equal_steps: bool = False, _m: int = 5):
     n0 = x.shape[-2]
     if n is None:
         n = n0
@@ -201,15 +201,15 @@ def get_path_adjusted(x: np.ndarray, n: int = None,
         pass
 
     n = int(n)
-    return get_substeps_adjusted(x=x, n=(n - 1) * (n0*__m) + 1,
+    return get_substeps_adjusted(x=x, n=(n - 1) * (n0 * _m) + 1,
                                  is_periodic=is_periodic, weighting=weighting,
-                                 enforce_equal_steps=enforce_equal_steps)[..., ::(n0*__m), :]
+                                 enforce_equal_steps=enforce_equal_steps)[..., ::(n0 * _m), :]
 
 
 def order_path(x, start=None, end=None, is_periodic=None, weights=1.):
     """
     Order the points given by 'x' [2d: (n, d)] according to a weighted Euclidean distance
-    so that always the nearest point comes next.
+    so that the nearest point always comes next.
     Start with the first point in the array and end with the last if 'x_start' or 'x_end' aren't given.
     """
 
@@ -232,7 +232,7 @@ def order_path(x, start=None, end=None, is_periodic=None, weights=1.):
         x_o = np.zeros((n + 2, d))
         x_o[-1, :] = end.ravel()
 
-    # Order the points, so that always the nearest is visited next, according to the Euclidean distance
+    # Order the points so that the nearest is always visited next, according to the Euclidean distance
     x_o[0, :] = start.ravel()
     for i in range(n):
         x_diff = np.linalg.norm(periodic_dof_wrapper(x - start, is_periodic=is_periodic) * weights, axis=-1)
@@ -437,8 +437,8 @@ def fromto_spline2(x, n_c=4, x_mode="sdbee", start_end_mode="x->0"):
 def d_substeps__dx(n, order=0):
     """
     Get the dependence of substeps ' on the outer way points (x).
-    The substeps are placed linear between the waypoints.
-    To prevent counting points double one step includes only one of the two endpoints
+    The substeps are placed linearly between the waypoints.
+    To prevent counting points double, one step includes only one of the two endpoints
     This gives a symmetric number of steps but ignores either the start or the end in
     the following calculations.
 
@@ -468,11 +468,11 @@ def d_substeps__dx(n, order=0):
     (n-1)*n_s  # substeps (total)
 
     n_s = 5
-    jac0 = ([[1., 0.8, 0.6, 0.4, 0.2],  # following step  (including way point (1.))
+    jac0 = ([[1., 0.8, 0.6, 0.4, 0.2],  # next step      (including way point (1.))
              [0., 0.2, 0.4, 0.6, 0.8]]) # previous step  (excluding way point (1.))
 
     jac1 = ([[0.2, 0.4, 0.6, 0.8, 1.],  # previous step  (including way point (2.))
-             [0.8, 0.6, 0.4, 0.2, 0.]])  # following step  (excluding way point (2.))
+             [0.8, 0.6, 0.4, 0.2, 0.]])  # next step     (excluding way point (2.))
 
     """
 

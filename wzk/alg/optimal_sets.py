@@ -12,7 +12,7 @@ def idx_times_all(idx, n):
 
 def greedy(n, k, fun, i0=None, verbose=0):
     """
-    choose k elements out of set with size n
+    choose k elements out of a set with size n
     fun(idx_list) measures how good the current choice is
 
     """
@@ -139,7 +139,7 @@ def random(n, k, m, fun, chunk=1000,
 
 
 def ga(n, k, m, fun, verbose, **kwargs):
-    from wzk.ga.kofn import kofn
+    from wzk.alg.ga_kofn import kofn
 
     best, ancestors = kofn(n=n, k=k, fitness_fun=fun,  pop_size=m, verbose=verbose, **kwargs)
 

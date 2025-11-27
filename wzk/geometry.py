@@ -185,7 +185,7 @@ def make_rhs(xyz: np.ndarray, order: tuple = (0, 1)) -> np.ndarray:
     # xyz -> rhs
     # 1. keep rhs[order[0]]
     # 2. make rhs[order[1]] orthogonal to rhs[order[0]]
-    # 3. calculate the third vector as cross product of the first two
+    # 3. calculate the third vector as a cross-product of the first two
 
     def __normalize(*x):
         return [xx / np.linalg.norm(xx) for xx in x]
@@ -318,7 +318,7 @@ def two_to_three(*args):
 
 def line_line(line_a: np.ndarray, line_b: np.ndarray, _return_mu: bool = False) -> tuple[np.ndarray, np.ndarray]:
     """
-    line_a, line_b: first dimension is 2, the two endpoints of the lines. last dimension are xyz
+    line_a, line_b: first dimension is 2, the two endpoints of the lines. the last dimension is xyz
     (x1-x3) --- (x1-x4)
        |           |
        |           |
@@ -432,7 +432,7 @@ def circle_circle_intersection(xy0, r0, xy1, r1):
     # non-intersecting
     if d > r0 + r1:
         return None
-    # One circle within other
+    # One circle within the other
     if d < abs(r0 - r1):
         return None
     # coincident circles
@@ -456,7 +456,7 @@ def ray_sphere_intersection(rays, spheres, r):
     spheres: n x n_spheres x 3  (axis=-1: x, y, z)
     r: n_spheres
 
-    return: n x n_rays x n_spheres (boolean array) with res[:, o, j] = True if ray o intersects with sphere j
+    return: n x n_rays x n_spheres (boolean array) with res[: o, j] = True if ray o intersects with a sphere j
     Formula from: https:#en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
 
     rays = np.random.random((10, 4, 2, 3))
@@ -889,7 +889,7 @@ def test_discretize_triangle():
     x2 = discretize_triangle(a=x0[0], b=x0[1], c=x0[2], n=10)
 
     from wzk.mpl2 import new_fig
-    fig, ax = new_fig(aspect=1)
+    fig, ax = new_fig(aspect="equal")
     ax.plot(*x0.T, color="blue", marker="o")
     ax.plot(*x2.T, color="red", marker="x")
 
@@ -910,7 +910,7 @@ def test_string_of_pearls2surface():
     #
     p = string_of_pearls2surface(x, r)
     #
-    fig, ax = new_fig(aspect=1)
+    fig, ax = new_fig(aspect="equal")
     ax.plot(*x.T, marker="o", color="k")
     plot_circles(x=x, r=r, ax=ax, alpha=0.1, edgecolor="k", facecolor="none")
     ax.plot(*p.T, color="r")

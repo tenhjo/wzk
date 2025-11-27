@@ -62,7 +62,7 @@ class NURBS:
         for i in range(self.n_points):
             x = x + self.r_in(u=u, i=i)[:, np.newaxis] * self.p[i:i+1]
 
-        # otherwise, they are zero, weighting is little of somewhere, handle edge cases
+        # otherwise, they are zero, weighting is small of somewhere, handle edge cases
         x[u == 0] = self.p[0]
         x[u == 1] = self.p[-1]
         return x

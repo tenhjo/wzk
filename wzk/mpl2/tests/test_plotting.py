@@ -11,46 +11,48 @@ class Test(TestCase):
         n = 100
         x = np.random.normal(size=(n, n_dof))
         limits = np.array([[-4, +4]] * n_dof)
-        plotting.plot_projections_2d(x=x, dim_labels="xyzuvw", limits=limits, aspect=1)
+        plotting.plot_projections_2d(x=x, dim_labels="xyzuvw", limits=limits, aspect="equal")
 
         n_dof = 3
         n = 100
         x = np.random.normal(size=(n, n_dof))
         limits = np.array([[-4, +4]] * n_dof)
-        fig, ax = plotting.new_fig(n_rows=n_dof, n_cols=1, aspect=1)
-        plotting.plot_projections_2d(ax=ax, x=x, limits=limits, aspect=1)
+        fig, ax = plotting.new_fig(n_rows=n_dof, n_cols=1, aspect="equal")
+        plotting.plot_projections_2d(ax=ax, x=x, limits=limits, aspect="equal")
 
         self.assertTrue(True)
 
     def test_imshow(self):
         arr = np.arange(45).reshape(5, 9)
-        mask = arr % 2 == 0
+        mask0 = np.equal(arr % 2, 0)
+        mask1 = np.equal(arr % 2, 1)
         limits = np.array([[0, 5],
                            [0, 9]])
 
         arr2 = arr.copy()
-        arr2[mask] = 0
+        arr2[mask0] = 0
         print(arr2)
 
         fig, ax = plotting.new_fig(title="upper, ij")
-        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="upper", axis_order="ij->xy")
+        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="upper", axis_order="ij->xy")
 
         fig, ax = plotting.new_fig(title="upper, ji")
-        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="upper", axis_order="ij->yx")
+        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="upper", axis_order="ij->yx")
 
         fig, ax = plotting.new_fig(title="lower, ij")
-        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ij->xy")
+        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="lower", axis_order="ij->xy")
 
         fig, ax = plotting.new_fig(title="lower, ji")
-        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ij->yx")
+        plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="lower", axis_order="ij->yx")
 
         fig, ax = plotting.new_fig(title="lower, ji")
-        h = plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask, origin="lower", axis_order="ij->yx")
-        plotting.imshow(h=h, img=arr, mask=arr % 2 == 1, cmap="Reds", axis_order="ij->yx")
+        h = plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="lower", axis_order="ij->yx")
 
-        fig, ax = plotting.new_fig(aspect=1)
+        plotting.imshow(h=h, img=arr, mask=mask1, cmap="Reds", axis_order="ij->yx")
+
+        fig, ax = plotting.new_fig(aspect="equal")
         arr = np.arange(42).reshape(6, 7)
-        plotting.imshow(ax=ax, img=arr, limits=None, cmap="Blues", mask=arr % 2 == 0, vmin=0, vmax=100)
+        plotting.imshow(ax=ax, img=arr, limits=None, cmap="Blues", mask=mask0, vmin=0, vmax=100)
 
         self.assertTrue(True)
 

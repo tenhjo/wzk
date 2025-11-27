@@ -101,7 +101,7 @@ def mosaic_plot(ax, df, col_x, col_y,
         bool_y = np.array(df_y == vy)
 
         for j, bx in enumerate(bool_x):
-            temp[j] = np.logical_and(bx, bool_y).sum() / bx.sum() * 100
+            temp[j] = np.logical_and(bx, bool_y).sum() / np.sum(bx) * 100
 
         vy = vy.replace("\n", style["newline_in_legend"])
         vy = vy.replace("u.", "undecided")

@@ -8,7 +8,7 @@ r = np.random.uniform(low=0.1, high=0.2, size=n)
 limits = np.array([[0., 1.],
                    [0., 1.]])
 
-fig, ax = mpl2.new_fig(aspect=1)
+fig, ax = mpl2.new_fig(aspect="equal")
 dcl = mpl2.DraggableCircleList(ax=ax, xy=x, radius=r, alpha=0.5, color="red")
 img = bimage.spheres2bimg(x=x, r=r, shape=shape, limits=limits)
 
@@ -26,4 +26,3 @@ def callback(*args):  # noqa
 
 
 dcl.set_callback_drag(callback=callback)
-

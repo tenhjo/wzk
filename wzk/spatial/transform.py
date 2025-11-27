@@ -13,8 +13,9 @@ from wzk.spatial.util import initialize_frames, fill_frames_trans
 # vectorized versions of scipy's Rotation.from_x().to_y()
 def euler2dcm(euler: np.ndarray, seq="ZXZ"):
     """ZXZ == roll pitch yaw"""
-    return Rotation.from_euler(seq=seq, angles=euler.reshape((-1, 3)),
-                               ).as_matrix().reshape(euler.shape[:-1] + (3, 3))
+    return Rotation.from_euler(seq, angles=euler.reshape((-1, 3)),
+                               ).as_matrix().reshape(euler.shape[:-1] + (3, 3))  # noqa
+
 
 def rpy2dcm(rpy: np.ndarray):
     return euler2dcm(euler=rpy, seq="ZXZ")
@@ -22,27 +23,27 @@ def rpy2dcm(rpy: np.ndarray):
 
 def quaternions2dcm(quat):
     return Rotation.from_quat(quat.reshape((-1, 4))
-                              ).as_matrix().reshape(quat.shape[:-1] + (3, 3))
+                              ).as_matrix().reshape(quat.shape[:-1] + (3, 3))  # noqa
 
 
 def rotvec2dcm(rotvec):
     return Rotation.from_rotvec(rotvec.reshape((-1, 3))
-                                ).as_matrix().reshape(rotvec.shape[:-1] + (3, 3))
+                                ).as_matrix().reshape(rotvec.shape[:-1] + (3, 3))  # noqa
 
 
 def dcm2euler(dcm, seq="ZXZ"):
     return Rotation.from_matrix(dcm.reshape((-1, 3, 3))
-                                ).as_euler(seq=seq).reshape(dcm.shape[:-2] + (3,))
+                                ).as_euler(seq=seq).reshape(dcm.shape[:-2] + (3,))  # noqa
 
 
 def dcm2quaternions(dcm):
     return Rotation.from_matrix(dcm.reshape((-1, 3, 3))
-                                ).as_quat(canonical=False).reshape(dcm.shape[:-2] + (4,))
+                                ).as_quat(canonical=False).reshape(dcm.shape[:-2] + (4,))  # noqa
 
 
 def dcm2rotvec(dcm):
     return Rotation.from_matrix(dcm.reshape((-1, 3, 3))
-                                ).as_rotvec().reshape(dcm.shape[:-2] + (3,))
+                                ).as_rotvec().reshape(dcm.shape[:-2] + (3,))  # noqa
 
 
 # frame2rotation
@@ -142,7 +143,7 @@ def trans2frame(xyz=None, x=None, y=None, z=None):
 
 
 def trans_rot2frame(x, a, axis, squeeze=True):
-    """translation + rotation around one axis -> frame"""
+    """translation and rotation around one axis -> frame"""
     x = np.atleast_2d(x)
     n = len(x)
 
@@ -227,7 +228,7 @@ def is_rotation(r):
         _squeeze = True
 
     r[np.abs(r) < 1e-10] = 0
-    b = np.sum(np.abs(r) > 2, axis=(-2, -1)) == 0
+    b = np.array(np.sum(np.abs(r) > 2, axis=(-2, -1)) == 0, dtype=bool)
     b[b] = np.sum(np.abs(r[b]), axis=(-2, -1)) > _eps
     if np.any(b):
         r2 = r[b]
@@ -316,7 +317,7 @@ def apply_f_or_none(f, f_or_none):
 
 def invert(f):
     """
-    Create the inverse of an array of hm f
+    Create the inverse of n homogenous trafo f.
     Assume n x n are the last two dimensions of the array
     """
 
