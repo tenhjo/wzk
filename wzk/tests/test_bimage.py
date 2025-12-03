@@ -47,6 +47,20 @@ def test_spheres2bimg():
     raise ValueError("TODO how to do visual debugging")
 
 
+def test_create_stencil_dict():
+    from wzk import mpl2
+    fig, ax = mpl2.new_fig()
+
+    for i in range(1, 100):
+        inner, outer = bimage.get_sphere_stencil(r=0.1*i, voxel_size=0.1, n_dim=2)
+        stencil = np.logical_or(inner, outer)
+        ax.clear()
+        print(i, stencil.shape)
+        mpl2.imshow(img=stencil, ax=ax, cmap="gray", alpha=0.5)
+        mpl2.plt.pause(0.1)
+
+
+
 if __name__ == "__main__":
     test_spheres2bimg()
     # test_get_sphere_stencil()

@@ -25,7 +25,7 @@ if platform.system() == "Linux":
         headless = __turn_on_headless()
 
 elif platform.system() == "Darwin":
-    mpl.use('TkAgg')  # Alternative for Mac: 'Qt5Agg', interplay with Pyvista often a bit tricky otherwise
-    # mpl.use("macosx")  # Alternative for Mac: 'Qt5Agg', interplay with Pyvista often a bit tricky otherwise
-
+    # mpl.use('TkAgg')  # Alternative for Mac: 'Qt5Agg', interplay with Pyvista often a bit tricky otherwise
+    mpl.use("macosx")
+    # mpl.use("Qt5Agg")
 import matplotlib.pyplot as plt  # noqa

@@ -8,7 +8,6 @@ from typing import Union
 import platform
 import subprocess
 import msgpack
-
 import numpy as np
 from scipy.io import loadmat as load_mat, savemat as save_mat  # noqa: F401
 

@@ -103,13 +103,15 @@ def get_outer_edge(img):
     return np.logical_xor(edge_img, img)
 
 
-def get_sphere_stencil(r: float, voxel_size: float, n_dim: int = 2) -> tuple[np.ndarray, np.ndarray]:
+def get_sphere_stencil(r: float, voxel_size: float, n_dim: int = 2, use_center: bool = False) -> tuple[np.ndarray, np.ndarray]:
     half_side = get_max_occupied_cells(length=r, voxel_size=voxel_size) - 1
 
     if half_side == 0:
         return np.ones((1,) * n_dim, dtype=bool), np.zeros((1,) * n_dim, dtype=bool)
 
     x_center = __get_centers(voxel_size=voxel_size, n_dim=n_dim)
+    if use_center:
+        x_center = np.mean(x_center, axis=0)[np.newaxis, :]
 
     limits = np.zeros((n_dim, 2))
     limits[:, 1] = voxel_size
@@ -141,16 +143,21 @@ def get_stencil_list(r, n,
     return r_unique, stencil_list, stencil_idx
 
 
-def create_stencil_dict(voxel_size: float, n_dim: int):
+def create_stencil_dict(voxel_size: float, n_dim: int,
+                        only_inner: bool = False,
+                        use_center: bool = False) -> dict:
     stencil_dict = dict()
     n = int(5*(1 // voxel_size))
     for (i, r) in enumerate(np.linspace(voxel_size/10, 2, num=n)):
-        assert isinstance(r, float)
         printing.progress_bar(i=i, n=n, prefix="create_stencil_dict")
+        assert isinstance(r, float)
         d = int((r // voxel_size) * 2 + 3)
         if d not in stencil_dict.keys():
-            inner, outer = get_sphere_stencil(r=r, voxel_size=voxel_size, n_dim=n_dim)
-            stencil = np.logical_or(inner, outer)
+            inner, outer = get_sphere_stencil(r=r, voxel_size=voxel_size, n_dim=n_dim, use_center=use_center)
+            if only_inner:
+                stencil = inner
+            else:
+                stencil = np.logical_or(inner, outer)
             assert d == stencil.shape[0]
             stencil_dict[d] = stencil
     return stencil_dict
@@ -212,15 +219,19 @@ def spheres2bimg(x, r, shape, limits,
     img = np.zeros(shape, dtype=bool)
     voxel_size = grid.limits2voxel_size(shape=shape, limits=limits)
 
-    for i in range(n):
-        j = grid.x2i(x[i], limits=limits, shape=shape)
-        d = int((r[i] // voxel_size) * 2 + 3)
-        if stencil_dict:
-            stencil = stencil_dict[d]
-        else:
+    if stencil_dict is None:
+        for i in range(n):
+            j = grid.x2i(x[i], limits=limits, shape=shape)
             inner, outer = get_sphere_stencil(r=r[i], voxel_size=voxel_size, n_dim=n_dim)
             stencil = np.logical_or(inner, outer)
-        np2.add_small2big(idx=j, small=stencil, big=img)
+            np2.add_small2big(idx=j, small=stencil, big=img)
+
+    else:
+        for i in range(n):
+            j = grid.x2i(x[i], limits=limits, shape=shape)
+            d = int((r[i] // voxel_size) * 2 + 3)
+            stencil = stencil_dict[d]
+            np2.add_small2big(idx=j, small=stencil, big=img)
 
     return img
 

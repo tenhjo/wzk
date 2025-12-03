@@ -428,8 +428,9 @@ def plot_circles(x, r,
         return h
 
     else:
-        for h_i, x_i in zip(h, x):
+        for h_i, x_i, r_i in zip(h, x, r):
             h_i.set_center(x_i)
+            h_i.set_radius(r_i)
 
             if alpha is not None:
                 h_i.set_alpha(alpha)
