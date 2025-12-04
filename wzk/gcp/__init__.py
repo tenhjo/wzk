@@ -1,2 +1,2 @@
 from .gcloud2 import *
-from . import startup
+from . import startup as startup

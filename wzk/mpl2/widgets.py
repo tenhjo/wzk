@@ -1,5 +1,5 @@
 from matplotlib import widgets
-from wzk.math2 import modulo
+from wzk import math2
 
 
 # Widgets
@@ -21,16 +21,16 @@ def create_key_slider(*, ax, callback,
     def cb_key(event):
         val = slider.val
         if event.key == "right":
-            slider.set_val(modulo(val+valstep, low=valmin, high=valmax+1))
+            slider.set_val(math2.modulo(val+valstep, low=valmin, high=valmax+1))
 
         if event.key == "left":
-            slider.set_val(modulo(val-valstep, low=valmin, high=valmax+1))
+            slider.set_val(math2.modulo(val-valstep, low=valmin, high=valmax+1))
 
         if event.key == "up":
-            slider.set_val(modulo(val+fast_step*valstep, low=valmin, high=valmax+1))
+            slider.set_val(math2.modulo(val+fast_step*valstep, low=valmin, high=valmax+1))
 
         if event.key == "down":
-            slider.set_val(modulo(val-fast_step*valstep, low=valmin, high=valmax+1))
+            slider.set_val(math2.modulo(val-fast_step*valstep, low=valmin, high=valmax+1))
 
     slider.on_changed(callback)
     keyboard = ax.get_figure().canvas.mpl_connect("key_press_event", cb_key)

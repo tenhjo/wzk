@@ -37,7 +37,7 @@ def add_new_disks_flag(disks):
     if disks is None:
         return ""
     disks = atleast_list(disks, convert=False)
-    cmd = [f"--create-disk=boot={d['boot']}," 
+    cmd = [f"--create-disk=boot={d['boot']},"
            f"auto-delete={d['autodelete']},"
            f"device-name={d['name']},"
            f"mode=rw,size={d['size']},"

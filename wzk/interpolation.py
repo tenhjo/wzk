@@ -97,7 +97,7 @@ def get_coefficients(p, m, x=None):
         c[1] = m0
         c[2] = (-3*p0 + 3*p1 - (2*m0 + m1)*h) / h**2
         c[3] = (+2*p0 - 2*p1 + 1*(m0 + m1)*h) / h**3
-    
+
     # In scipy - equivalent
     # g = np.diff(p)
     # slope = g/h
@@ -106,7 +106,7 @@ def get_coefficients(p, m, x=None):
     # c[1] = m0
     # c[2] = (slope - m0) / h - t
     # c[3] = t / h
-    
+
     return c
 
 

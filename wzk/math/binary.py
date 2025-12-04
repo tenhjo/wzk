@@ -23,11 +23,3 @@ def binary_table(a, b):
     x[2, 2] = b.size
 
     return x
-
-
-def logical_or(*args):
-    b = np.logical_or(args[0], args[1])
-
-    for a in args[2:]:
-        b = np.logical_or(b, a)
-    return b

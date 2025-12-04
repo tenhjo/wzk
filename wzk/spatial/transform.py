@@ -1,8 +1,9 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
+
 from wzk import ltd, np2, geometry, trajectory
 
-from wzk.math2 import angle2minuspi_pluspi  # noqa
+from wzk.math.math2 import angle2minuspi_pluspi  # noqa
 from wzk.spatial.util import initialize_frames, fill_frames_trans
 
 # Nomenclature
@@ -68,7 +69,7 @@ def frame2rotz(f):
     z_axis = f[..., :3, 2]
     a = np.arctan2(z_axis[..., 1], z_axis[..., 0])
     return a
-    
+
 
 # frame2trans_rot
 # ----------------------------------------------------------------------------------------------------------------------
@@ -154,7 +155,7 @@ def trans_rot2frame(x, a, axis, squeeze=True):
     if squeeze and n == 1:
         f = np.squeeze(f)
     return f
-    
+
 
 def trans_quat2frame(trans=None, quat=None):
     s = np2.get_max_shape(trans, quat)
@@ -215,7 +216,7 @@ def trans_dcm2frame(trans=None, dcm=None):
     return f
 
 
-# Sampling 
+# Sampling
 
 
 # --- Sanity Checks ----------------------------------------------------------------------------------------------------
@@ -409,7 +410,7 @@ def check_side_of_plane(o, u, v, x):
     return side
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
 
 

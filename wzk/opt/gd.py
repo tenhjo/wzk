@@ -12,20 +12,20 @@ __debug_directory = "/Users/jote/Documents/PhD/data/mopla/GD/debug"
 class OPTimizer(ltd.CopyableObject):
     __slots__ = ("type",                           # str                 | type of the optimizer: gd, sqp, ...
                  "type_root",                      # str                 | type of the root search algorithm
-                 
+
                  "n_samples",                      # int                 | Number of samples
-                 
+
                  "n_steps",                        # int                 | Number of iterations
                  "stepsize",                       # float               |
-                 
-                 "optimizer",                      # Optimizer           | Adam, RMSProp, ...  
-                 
+
+                 "optimizer",                      # Optimizer           | Adam, RMSProp, ...
+
                  "limits",                         # fun()               | Limits of the variables
                  "limits_mode",                    # str                 | "jump", "clip", "ignore"
-                 
+
                  "clip",                           # float[n_steps]      |
-                 "clip_mode",                      # str                 | "value", "norm", "norm-force" (see np2.clip2) 
-                 
+                 "clip_mode",                      # str                 | "value", "norm", "norm-force" (see np2.clip2)
+
 
                  "callback",                       # fun()               |
                  "n_processes",                    # int                 |
@@ -40,20 +40,20 @@ class OPTimizer(ltd.CopyableObject):
 
     def __init__(self, n_samples=1, n_steps=100, stepsize=1, optimizer=Naive(), clip=0.1, n_processes=1,
                  clip_mode="value", limits_mode="clip"):
-        
+
         self.type = None
         self.type_root = "newton"
-        
+
         self.n_samples = n_samples
-        
+
         self.n_steps = n_steps
         self.stepsize = stepsize
-        
+
         self.clip = clip
         self.clip_mode = clip_mode
         self.limits_mode = limits_mode
         self.limits = lambda x: x
-        
+
         self.optimizer = optimizer
         self.n_processes = n_processes
         self.active_dims = None
@@ -69,7 +69,7 @@ class OPTimizer(ltd.CopyableObject):
         self.return_x_list = False
 
         self.verbose = 0
-        
+
 
 class OPTStaircase(object):
     __slots__ = ("n_stairs",        # int

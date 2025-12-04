@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import patches, transforms, pyplot, path
 
-from wzk.geometry import projection_point_line
+from wzk import geometry
 
 
 class RelativeFancyArrow(patches.FancyArrow):
@@ -93,7 +93,7 @@ class CurlyBrace(patches.PathPatch):
 
         p, x0, x1, = np.atleast_1d(p, x0, x1)
 
-        pp = projection_point_line(p=p, x0=x0, x1=x1)
+        pp = geometry.projection_point_line(p=p, x0=x0, x1=x1)
         d0pp = x0 - pp
         d1pp = x1 - pp
 

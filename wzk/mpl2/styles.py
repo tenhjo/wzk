@@ -31,7 +31,7 @@ def set_style(s=("ieee",)):
     params = {}
     if "ieee" in s:
         params.update({
-            'text.usetex': True,
+            "text.usetex": True,
             "pdf.fonttype": 42,  # Font type 3 error on paper submission, https://tex.stackexchange.com/a/526373/217246
             "ps.fonttype": 42,
 

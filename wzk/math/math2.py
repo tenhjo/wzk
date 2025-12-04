@@ -587,7 +587,7 @@ def project2null(A, x, clip=None, clip_mode=None, _rcond=__RCOND):
     If the determinant of the projection is not larger than 1, the second clipping has no effect.
     """
     x = np2.clip2(x, clip=clip, mode=clip_mode)
-    
+
     AT = np.swapaxes(A, -2, -1)
 
     A0 = np.eye(A.shape[-1]) - (AT @ np.linalg.pinv(AT, rcond=_rcond))
@@ -612,7 +612,7 @@ def solve_pinv(A, b, _rcond=__RCOND):
         print("solve_pinv: np.linalg.LinAlgError")
         x0 = np.zeros(b.shape[:-1] + (A.shape[-2],))
         return x0
-    
+
     return x
 
 
@@ -642,8 +642,8 @@ def solve_halley_damped(h, j, e, damping):
 def solve_newton_damped(j, e, damping):
     """Just a name alias for solve_cho_damped"""
     return solve_cho_damped(A=j, b=e, damping=damping)
-    
-    
+
+
 def solve_cho(A, b):
 
     if A.ndim == 2 and b.ndim == 1:
@@ -656,8 +656,8 @@ def solve_cho(A, b):
         return x
     else:
         raise ValueError("solve_cho: A and b must be 2D or 3D")
-        
-        
+
+
 def solve_cho_damped(A, b, damping):
     n, m = A.shape[-2:]
     AT = np.swapaxes(A, -2, -1)

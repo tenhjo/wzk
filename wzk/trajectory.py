@@ -246,15 +246,15 @@ def order_path(x, start=None, end=None, is_periodic=None, weights=1.):
 
 def remove_duplicates(q, eps=1e-5, verbose=0):
     assert q.ndim == 2
-    
+
     dq = q[1:] - q[:-1]
     dqn = np.linalg.norm(dq, axis=-1)
     b = np.concatenate([[True], dqn > eps], axis=0)
     q = q[b]
-    
-    if verbose > 0:    
+
+    if verbose > 0:
         printing.print_stats_bool(b=b, name="keep only unique waypoints")
-        
+
     return q
 
 

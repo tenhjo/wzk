@@ -41,7 +41,7 @@ def frame_logarithm(f0, f1, verbose=0):
         printing.print_stats_bool(b=b_small, name="small")
         printing.print_stats_bool(b=b_true, name="true")
 
-    # combine 
+    # combine
     log = np.concatenate([dx, dr], axis=-1)
     return log
 

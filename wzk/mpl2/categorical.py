@@ -220,7 +220,7 @@ def multi_bar_plot(ax, df, cols, ordering=None, colors=None, newline=None):
 
     add_absolute_ax(ax=ax, a=c_max, f=100, position="right")
     ax.legend()
-    
+
     return ax
 
 
@@ -253,7 +253,7 @@ def multi_bar_overlay_plot(ax, df, cols, ordering=None, colors=None, newline=Non
 
     add_absolute_ax(ax=ax, a=c_max, f=100, position="right")
     ax.legend()
-    
+
     return ax
 
 
@@ -284,7 +284,7 @@ def multiple_choice_bar(ax, df, cols, ordering=None, colors=None, x_label="", ne
 def conditional_bar_plot(ax, df, col, col_cond, val_cond, ordering=None, newline=None, style=None):
     bool_cond = pd.DataFrame(df[col_cond] == val_cond).values
     val_cond = val_cond.replace("\n", ", ")
-    return bar_plot(ax=ax, df=df.iloc[bool_cond, :], col=col, 
+    return bar_plot(ax=ax, df=df.iloc[bool_cond, :], col=col,
                     newline=newline, ordering=ordering,
                     style=style,
                     x_label=f"\n(given '{col_cond}'='{val_cond}')")
@@ -307,5 +307,5 @@ def pie_plot(ax, df, col, ordering=None, newline=None, style=None):
             xy = np.array(hl.get_position())
             xy = xy + xy * 1/2
             hl.set_position(xy)
-    
+
     return ax

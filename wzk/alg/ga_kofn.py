@@ -1,6 +1,6 @@
 import numpy as np
 
-from wzk.math2 import random_subset
+from wzk.math2.math2 import random_subset
 
 
 def rank(x):

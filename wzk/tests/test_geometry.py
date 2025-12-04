@@ -102,6 +102,6 @@ class Test(unittest.TestCase):
                                          radius_a=radius_a, radius_b=radius_b, d_true=d_true)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test = Test()
     test.test_capsule_capsule_permutations()

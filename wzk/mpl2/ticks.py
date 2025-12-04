@@ -29,7 +29,7 @@ def turn_ticks_and_labels_off(ax):
 
 
 def set_spine_width(ax, lw):
-    for axis in ['top', 'bottom', 'left', 'right']:
+    for axis in ["top", "bottom", "left", "right"]:
         ax.spines[axis].set_linewidth(lw)
 
 
@@ -341,10 +341,10 @@ def elongate_ticks_and_labels(ax, newline, labels=None, axis="x", position=None)
         labels = get_labels(ax=ax, axis=axis)
 
     newline = handle_newline(newline=newline, n=len(labels))
-    for i, l in enumerate(labels):
+    for i, lab in enumerate(labels):
         if newline[i]:
             nl = "\n" * newline[i]
-            labels[i] = f"{nl}{l}"
+            labels[i] = f"{nl}{lab}"
             change_tick_appearance(ax=ax, position=position, v=i, size=newline_size * newline[i])
 
     print(labels)

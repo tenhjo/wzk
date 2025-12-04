@@ -80,7 +80,7 @@ def get_progress_bar(i, n, prefix="", suffix="", bar="█"):
 
 
 def progress_bar(i, n, prefix="", suffix="", bar_length=None, verbose=1,
-                 eta=False, _time=[-1.]):  # noqa: dangerous-default-value
+                 eta=False, _time=[-1.]):  # noqa: B006
 
     if verbose <= 0:
         return

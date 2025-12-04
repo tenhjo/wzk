@@ -134,7 +134,7 @@ def try_nurbs_jacobi():
         mpl2.plt.pause(0.05)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # try_multidim_nurbs()
 
     try_nurbs_jacobi()

@@ -1,8 +1,8 @@
 from typing import Literal
 
 import numpy as np
-from wzk import dtypes2
 
+from . import dtypes2
 from . import basics
 from . import find
 from . import reshape

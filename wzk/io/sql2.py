@@ -9,9 +9,9 @@ from pandas.io import sql  # noqa
 
 import sqlite3
 
-from wzk import ltd, dtypes2, strings, files
-from wzk.np2 import object2numeric_array, numeric2object_array  # noqa
-from wzk.image import compressed2img, img2compressed  # noqa
+from wzk import ltd, strings, files
+
+from wzk.np2 import object2numeric_array, numeric2object_array, dtypes2  # noqa
 
 
 _CMP = "_cmp"
@@ -40,10 +40,10 @@ def rows2sql(rows: int | list | np.ndarray, dtype: object = str, values=None) ->
     assert rows is not None, rows
     rows = np.array(rows, dtype=int).reshape(-1) + 1  # Attention! Unlike in Python, SQL indices start at 1
 
-    if dtype == str:
+    if dtype is str:
         return ", ".join(map(str, rows))
 
-    elif dtype == list:
+    elif dtype is list:
         return rows.tolist()
 
     else:
@@ -56,9 +56,9 @@ def columns2sql(columns: object, dtype: object):
     if isinstance(columns, str):
         columns = [columns]
 
-    if dtype == str:
+    if dtype is str:
         return ", ".join(map(str, columns))
-    elif dtype == list:
+    elif dtype is list:
         return columns
     else:
         raise ValueError
@@ -83,16 +83,16 @@ def order2sql(order_by, dtype=str):
         assert len(asc_desc) == len(columns)
         for ad in asc_desc:
             assert ad == "ASC" or ad == "DESC"
-            
+
         order_by_str = ", ".join([f"{c} {ad}" for c, ad in zip(columns, asc_desc)])
         order_by_str = f" ORDER BY {order_by_str}"
 
-    if dtype == str:
+    if dtype is str:
         return order_by_str
     else:
         raise ValueError
-    
-    
+
+
 @contextmanager
 def open_db_connection(file: str,
                        lock=None,
@@ -322,7 +322,7 @@ def delete_tables(file, tables):
 def delete_rows(file: str, table: str, rows, lock=None):
     batch_size = int(1e5)
     print(f"delete_rows 'file':{file} table:'{table}' rows:{rows}")
-    
+
     if batch_size is None or batch_size > len(rows):
         rows = rows2sql(rows, dtype=str)
         execute(file=file, lock=lock, query=f"DELETE FROM {table} WHERE ROWID in ({rows})")
@@ -388,7 +388,7 @@ def copy_table(file, table_src, table_dst, columns=None, dtypes=None, order_by=N
     columns_dtype_str = ", ".join([f"{c} {d}" for c, d in zip(columns, dtypes)])
     columns_cast_dtype_str = ", ".join([f"CAST({c} AS {d})" for c, d in zip(columns, dtypes)])
     order_by_str = order2sql(order_by=order_by, dtype=str)
-    
+
     execute(file=file, query=f"CREATE TABLE {table_dst}({columns_dtype_str})")
     execute(file=file, query=f"INSERT INTO {table_dst} SELECT {columns_cast_dtype_str} FROM {table_src} {order_by_str}")
 

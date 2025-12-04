@@ -64,7 +64,6 @@ def i2x(i, limits, shape, mode="c"):
 
 def create_grid(limits, shape, mode="c", flatten=False):
     n_dim = len(limits)
-    # voxel_size = limits2voxel_size(shape=shape, limits=limits)
 
     ll = i2x(i=np.zeros(n_dim), limits=limits, mode=mode, shape=shape)
     ur = i2x(i=np.array(shape)-1, limits=limits, mode=mode, shape=shape)
@@ -76,3 +75,16 @@ def create_grid(limits, shape, mode="c", flatten=False):
     if flatten:
         return x.reshape((np.prod(shape), n_dim))
     return x
+
+
+def grid_lines(limits, shape, combine: bool = True):
+    lines = [np.array(np.meshgrid(*[np.linspace(limits[j, 0], limits[j, 1], 2 if i == j else shape[j]+1)
+                                    for j in range(3)],
+                                  indexing="ij"))
+             for i in range(3)]
+    lines = [np.swapaxes(ax, 1+i, 1) for i, ax in enumerate(lines)]
+    lines = [np.reshape(ax, (3, 2, -1)).T for ax in lines]
+
+    if combine:
+        lines = np.concatenate(lines, axis=0)
+    return lines

@@ -3,8 +3,7 @@ import numpy as np
 from skimage.io import imread, imsave  # noqa
 from PIL import Image
 
-from wzk import np2, math2, files
-from wzk.bimage import sample_bimg_i
+from wzk import np2, math2, files, bimage
 
 
 def imread_bw(file, threshold):
@@ -183,7 +182,7 @@ def check_overlap(a, b, return_arr=False):
 
 def sample_from_img(img, range, n, replace=False):   # noqa
     bimg = np.logical_and(range[0] < img, img < range[1])
-    return sample_bimg_i(img=bimg, n=n, replace=replace)
+    return bimage.sample_bimg_i(img=bimg, n=n, replace=replace)
 
 
 # Image Compression <-> Decompression
@@ -234,6 +233,6 @@ def volume_slice_gif(volume, file, axis=2,
     axis_img = np2.axis_wrapper(axis=axis, n_dim=3, invert=True)
 
     volume = volume.transpose(axis_time + axis_img)
-    img_list = [Image.fromarray(volume[i, :, :]).convert('P') for i in range(volume.shape[0])]
+    img_list = [Image.fromarray(volume[i, :, :]).convert("P") for i in range(volume.shape[0])]
     img_list[0].save(file, save_all=True, append_images=img_list[1:],
                      optimize=optimize, duration=duration, loop=loop)

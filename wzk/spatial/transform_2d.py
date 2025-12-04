@@ -7,10 +7,10 @@ def x2_to_3(xy, z, axis=2):
     s = np.array(np.shape(xy))
     s[-1] = 3
     x = np.zeros(s)
-    
+
     axis_xy = np.arange(3)
     axis_xy = np.delete(axis_xy, axis)
-    
+
     x[..., axis_xy] = xy
     x[..., axis] = z
     return x

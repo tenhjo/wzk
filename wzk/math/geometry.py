@@ -2,7 +2,8 @@ import math
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from wzk import printing, np2, math2, random2
+from wzk import printing, np2, random2
+from . import math2
 
 
 def get_ortho_star_2d(x: np.ndarray):
@@ -842,7 +843,7 @@ def get_x_intersections(x_a, x_b, threshold=0.001,
         _, i_ab[:, 1] = np.unique(i_ab[:, 1], return_inverse=True)
 
     return i_a, i_b, i_ab
-    
+
 
 def string_of_pearls2surface(x, r):
     eps0 = 1e-6

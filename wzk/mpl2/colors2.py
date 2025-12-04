@@ -20,8 +20,8 @@ blues10 = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
            "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
 
 
-divergent_blue_red13 = np.array(["#395e8f" "#5a749f" "#798caf" "#97a4bf" "#b4bdcf" "#d2d6e0" 
-                                 "#f1f1f1" 
+divergent_blue_red13 = np.array(["#395e8f" "#5a749f" "#798caf" "#97a4bf" "#b4bdcf" "#d2d6e0"
+                                 "#f1f1f1"
                                  "#f3d9d1" "#f3c1b2" "#f1a994" "#ec9077" "#e6785a" "#de5e3e"])
 
 

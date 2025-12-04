@@ -6,7 +6,7 @@ from scipy import ndimage
 from skimage import measure
 from skimage.morphology import flood_fill
 
-from wzk import geometry, np2, printing, trajectory, grid, spatial, math2
+from wzk import geometry, np2, printing, trajectory, grid, spatial, math2, meshes
 
 
 __eps = 1e-9
@@ -163,52 +163,6 @@ def create_stencil_dict(voxel_size: float, n_dim: int,
     return stencil_dict
 
 
-def bimg2surf(img, limits, level=None):
-    lower_left = limits[:, 0]
-    voxel_size = grid.limits2voxel_size(shape=img.shape, limits=limits)
-    if img.sum() == 0:
-        verts = np.zeros((3, 3))
-        faces = np.zeros((1, 3), dtype=int)
-        faces[:] = np.arange(3)
-
-    else:
-        verts, faces, _, _ = measure.marching_cubes(img, level=level, spacing=(voxel_size,) * img.ndim,)
-        verts = verts + lower_left
-
-    return verts, faces
-
-
-def mesh2bimg(p, shape, limits, f=None):
-    img = np.zeros(shape, dtype=int)
-
-    voxel_size = grid.limits2voxel_size(shape=shape, limits=limits)
-    if img.ndim == 2:
-        p2 = np.concatenate([p, p[:1]], axis=0)
-        p2 = trajectory.get_substeps_adjusted(x=p2, n=2 * len(p) * max(shape))
-        i2 = grid.x2i(x=p2, limits=limits, shape=shape)
-        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),
-            np.clip(i2[:, 1], a_min=0, a_max=shape[1]-1)] = 1
-
-    elif img.ndim == 3:
-        if f is None:
-            ch = geometry.ConvexHull(p)
-            p = ch.points
-            f = ch.simplices  # noqa
-        p2 = geometry.discretize_triangle_mesh(p=p, f=f, voxel_size=voxel_size)
-        i2 = grid.x2i(x=p2, limits=limits, shape=shape)
-        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),
-            np.clip(i2[:, 1], a_min=0, a_max=shape[1]-1),
-            np.clip(i2[:, 2], a_min=0, a_max=shape[2]-1)] = 1
-
-    else:
-        raise ValueError
-
-    img = flood_fill(img, seed_point=(0,) * img.ndim, connectivity=1, new_value=2)
-    img = np.array(img != 2)
-
-    return img
-
-
 def spheres2bimg(x, r, shape, limits,
                  stencil_dict=None):
     x = np.atleast_2d(x)
@@ -243,7 +197,7 @@ def add_boxes_img(img, box_list, limits):
         img[:] = np.logical_or(img, img_x)
 
 
-# Sampling 
+# Sampling
 # ----------------------------------------------------------------------------------------------------------------------
 def sample_bimg_i(img, n, replace=True):
     i = np.array(np.nonzero(img)).T
@@ -351,3 +305,136 @@ def dense_point_cloud2bimg(x, voxel_size: float):
     bimg = np.zeros(shape, dtype=bool)
     bimg[i_ws[:, 0], i_ws[:, 1], i_ws[:, 2]] = True
     return bimg, limits
+
+
+def bimg2surf(img, limits, level=None):
+    lower_left = limits[:, 0]
+    voxel_size = grid.limits2voxel_size(shape=img.shape, limits=limits, unify=False)
+    if img.sum() == 0:
+        verts = np.zeros((3, 3))
+        faces = np.zeros((1, 3), dtype=int)
+        faces[:] = np.arange(3)
+
+    else:
+        verts, faces, _, _ = measure.marching_cubes(img, level=level, spacing=voxel_size)
+        verts = verts + lower_left
+
+    return verts, faces
+
+
+def mesh2bimg(p, shape, limits, f=None):
+    img = np.zeros(shape, dtype=int)
+
+    voxel_size = grid.limits2voxel_size(shape=shape, limits=limits)
+    if img.ndim == 2:
+        p2 = np.concatenate([p, p[:1]], axis=0)
+        p2 = trajectory.get_substeps_adjusted(x=p2, n=2 * len(p) * max(shape))
+        i2 = grid.x2i(x=p2, limits=limits, shape=shape)
+        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),
+            np.clip(i2[:, 1], a_min=0, a_max=shape[1]-1)] = 1
+
+    elif img.ndim == 3:
+        if f is None:
+            ch = geometry.ConvexHull(p)
+            p = ch.points
+            f = ch.simplices  # noqa
+        p2 = geometry.discretize_triangle_mesh(p=p, f=f, voxel_size=voxel_size)
+        i2 = grid.x2i(x=p2, limits=limits, shape=shape)
+        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),
+            np.clip(i2[:, 1], a_min=0, a_max=shape[1]-1),
+            np.clip(i2[:, 2], a_min=0, a_max=shape[2]-1)] = 1
+
+    else:
+        raise ValueError
+
+    img = flood_fill(img, seed_point=(0,) * img.ndim, connectivity=1, new_value=2)
+    img = np.array(img != 2)
+
+    return img
+
+
+def bimg2surf_new(img, limits):
+
+    vertices = []
+
+    # Helper to add all quads for a given mask and vertex pattern
+    def add_faces(mask, vertices_fun):
+        x, y, z = np.nonzero(mask)
+        v = np.array(vertices_fun(x, y, z))
+        v = np.transpose(v, axes=(2, 0, 1))
+        vertices.append(v)
+
+    img = np.asarray(img).astype(bool)
+
+    # Pad with a single layer of empty cells around to simplify boundary checks
+    img_p = np.pad(img, 1, mode="constant", constant_values=False)
+
+    # Neighbors in 6 directions
+    xp = img_p[2:  , 1:-1, 1:-1]  # +x
+    xm = img_p[ :-2, 1:-1, 1:-1]  # -x
+    yp = img_p[1:-1, 2:  , 1:-1]  # +y
+    ym = img_p[1:-1,  :-2, 1:-1]  # -y
+    zp = img_p[1:-1, 1:-1, 2:  ]  # +z
+    zm = img_p[1:-1, 1:-1,  :-2]  # -z
+
+    # Conventions: voxel (i,j,k) spans [i, i+1] x [j, j+1] x [k, k+1]
+    # All windings chosen so that normals point outward assuming
+    # +x right, +y up, +z "out of the screen".
+
+    # face: +x / x = i+1
+    add_faces(mask=img & ~xp,  # Masks where the face is exposed (filled voxel next to empty)
+              vertices_fun=lambda i, j, k:
+              [(i+1, j  , k  ),
+               (i+1, j+1, k  ),
+               (i+1, j+1, k+1),
+               (i+1, j  , k+1)])
+
+    # face -x /  x = i
+    add_faces(mask=img & ~xm,
+              vertices_fun=lambda i, j, k:
+              [(i, j  , k  ),
+               (i, j  , k+1),
+               (i, j+1, k+1),
+               (i, j+1, k  )])
+
+    # face: +y / y = j+1
+    add_faces(mask=img & ~yp,
+              vertices_fun=lambda i, j, k:
+              [(i  , j+1, k  ),
+               (i  , j+1, k+1),
+               (i+1, j+1, k+1),
+               (i+1, j+1, k  )])
+
+    # face: -y / y = j
+    add_faces(mask=img & ~ym,
+              vertices_fun=lambda i, j, k:
+              [(i  , j, k   ),
+               (i+1, j, k   ),
+               (i+1, j, k+1 ),
+               (i  , j, k+1 )])
+
+    # face +z: plane z = k+1
+    add_faces(mask=img & ~zp,
+              vertices_fun=lambda i, j, k:
+              [(i  , j  , k+1),
+               (i+1, j  , k+1),
+               (i+1, j+1, k+1),
+               (i  , j+1, k+1)])
+
+    # -Z face: plane z = k
+    add_faces(mask=img & ~zm,
+              vertices_fun=lambda i, j, k:
+              [(i  , j    , k),
+               (i    , j+1  , k),
+               (i+1  , j+1  , k),
+               (i+1  , j    , k)])
+
+    vertices = np.concatenate(vertices, dtype=np.int32, axis=0)
+    vertices = vertices.reshape(-1, 3)
+    vertices, faces = np.unique(vertices, axis=0, return_inverse=True)
+
+    faces = faces.reshape(-1, 4).astype(np.int32)
+    vertices = grid.i2x(i=vertices, limits=limits, shape=img.shape, mode="b")
+    faces = meshes.quad_to_tri_faces(faces)
+
+    return vertices, faces
