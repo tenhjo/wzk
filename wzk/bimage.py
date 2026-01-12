@@ -6,7 +6,7 @@ from scipy import ndimage
 from skimage import measure
 from skimage.morphology import flood_fill
 
-from wzk import geometry, np2, printing, trajectory, grid, spatial, math2, meshes
+from wzk import geometry, np2, printing, trajectory, grid, spatial, math2
 
 
 __eps = 1e-9
@@ -353,7 +353,7 @@ def mesh2bimg(p, shape, limits, f=None):
     return img
 
 
-def bimg2surf_new(img, limits):
+def bimg2surf_new(img):
 
     vertices = []
 
@@ -434,7 +434,4 @@ def bimg2surf_new(img, limits):
     vertices, faces = np.unique(vertices, axis=0, return_inverse=True)
 
     faces = faces.reshape(-1, 4).astype(np.int32)
-    vertices = grid.i2x(i=vertices, limits=limits, shape=img.shape, mode="b")
-    faces = meshes.quad_to_tri_faces(faces)
-
     return vertices, faces

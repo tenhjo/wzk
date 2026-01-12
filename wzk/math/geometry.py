@@ -2,8 +2,10 @@ import math
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from wzk import printing, np2, random2
+from wzk import printing, np2
 from . import math2
+
+from wzk.random.random2 import random_uniform_ndim
 
 
 def get_ortho_star_2d(x: np.ndarray):

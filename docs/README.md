@@ -5,7 +5,7 @@
 Abbreviation of the German noun *"WerkZeugKasten"* (~*"toolbox"*)
 
 ---
-A mixed collection of "fairly general" convenience functions I use across different projects.
+A mixed collection of "fairly general" functions I use across different projects.
 The functions are structured with respect to the existing module they extend, or the functionality they facilitate. 
 
 # Attention

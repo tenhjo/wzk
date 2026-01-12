@@ -31,7 +31,7 @@ def greedy(n, k, fun, i0=None, verbose=0):
 
     # best = np.sort(best)
     s = np.array(s, dtype=int)
-    o = fun(s)
+    o = fun(s[np.newaxis, :])[0]
     if verbose > 1:
         print(f"set: {repr(s)} | objective: {o}")
     return s, o
