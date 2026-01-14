@@ -4,7 +4,7 @@ name = "wzk"
 requires-python = "== 3.13"
 version = "0.1.0"
 dependencies = [
-    "numpy",
+    "numpy>2.0",
     "scipy",
     "scikit-image",
     "scikit-learn",
@@ -13,7 +13,8 @@ dependencies = [
     "ortools>=9.14.6206,<10",
     "matplotlib",
     "plotly",
-    "viser>=1.0.16,<2",
+#    "yourdfpy @ git+ssh://git@github.com/ROBOTIS-GIT/yourdfpy.git",
+    "viser>=1.0.15,<2",
     "trimesh>=4.10.0,<5",
     "joblib",
     "fire",
@@ -30,11 +31,11 @@ platforms = ["osx-arm64"]
 
 [tool.pixi.pypi-dependencies]
 wzk = { path = ".", editable = true }
+yourdfpy = { path = "../yourdfpy" } # TODO move to github version
 
 [tool.pixi.dependencies]
 pixi-pycharm = ">=0.0.10,<0.0.11"
 hatchling = ">=1.27.0,<2"
-
 
 
 # Ruff

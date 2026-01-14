@@ -105,7 +105,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/68/39/469aaf786830ea3b0cb660417e98d7f1e3f5887f13875b51be4545f00f09/viser-1.0.16-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ff/0b/33cef55ff24f2d92924923c99926dcce78e7bd922d649467f0eda8368923/websockets-15.0.1-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/31/a8/3fbce1cd96534a95e35d5120637bf29b0d7f5d8fa2f6374e31b4156dd419/xxhash-3.6.0-cp313-cp313-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/fa/e1/ab7086ffc2767455a28848945ddacce1533d67ad26c20a4a01c93d0ea239/yourdfpy-0.0.58-py3-none-any.whl
+      - pypi: ../yourdfpy
       - pypi: ./
 packages:
 - pypi: https://files.pythonhosted.org/packages/8f/aa/ba0014cc4659328dc818a28827be78e6d97312ab0cb98105a770924dc11e/absl_py-2.3.1-py3-none-any.whl
@@ -1530,9 +1530,9 @@ packages:
 - pypi: ./
   name: wzk
   version: 0.1.0
-  sha256: 0b6c2567c15546f78cd51e175d6726e1e4e2c29534698a47317a5a0a8485cc36
+  sha256: 06cfd84f750157c8d6a201d0ccd81621c3fb2d20c9d91a3bed45de6cf5e32c70
   requires_dist:
-  - numpy
+  - numpy>2.0
   - scipy
   - scikit-image
   - scikit-learn
@@ -1541,7 +1541,7 @@ packages:
   - ortools>=9.14.6206,<10
   - matplotlib
   - plotly
-  - viser>=1.0.16,<2
+  - viser>=1.0.15,<2
   - trimesh>=4.10.0,<5
   - joblib
   - fire
@@ -1590,20 +1590,15 @@ packages:
   purls: []
   size: 86425
   timestamp: 1749230316106
-- pypi: https://files.pythonhosted.org/packages/fa/e1/ab7086ffc2767455a28848945ddacce1533d67ad26c20a4a01c93d0ea239/yourdfpy-0.0.58-py3-none-any.whl
+- pypi: ../yourdfpy
   name: yourdfpy
-  version: 0.0.58
-  sha256: 9e1b00ef0d33256d8d0f3a48e34ebf28a05181cee7f6c44a32c704a0261aa9c0
+  version: 0.0.99
+  sha256: 1668899585a91bb9dac0dd8b01f26f38d49f341ab535b15fcad1a15f727a6e85
   requires_dist:
-  - importlib-metadata ; python_full_version < '3.8'
   - lxml
   - trimesh[easy]>=3.11.2
-  - numpy
+  - numpy>2.0
   - six
-  - pyglet<2 ; extra == 'full'
-  - setuptools ; extra == 'testing'
-  - pytest ; extra == 'testing'
-  - pytest-cov ; extra == 'testing'
   requires_python: '>=3.7'
 - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhd8ed1ab_0.conda
   sha256: 7560d21e1b021fd40b65bfb72f67945a3fcb83d78ad7ccf37b8b3165ec3b68ad
