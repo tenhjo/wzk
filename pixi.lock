@@ -1530,7 +1530,7 @@ packages:
 - pypi: ./
   name: wzk
   version: 0.1.0
-  sha256: 06cfd84f750157c8d6a201d0ccd81621c3fb2d20c9d91a3bed45de6cf5e32c70
+  sha256: ddb50cc5da378820ea137c4e4ecc7b1b54cab56551cd6b660e17a18ace7ece23
   requires_dist:
   - numpy>2.0
   - scipy
