@@ -63,3 +63,37 @@ def add_line_segments2(scene: SceneApi,
 
     points = points_toN23(points=points, flatten=True)
     return scene.add_line_segments(name=name, points=points, colors=colors)
+
+
+def fov(h_deg, v_deg, z_min_m, z_max_m, num_slices=2):
+    # TODO move to better module
+    tan_h = np.tan(np.deg2rad(h_deg / 2.0))  # ≈ 0.949
+    tan_v = np.tan(np.deg2rad(v_deg / 2.0))
+
+    def rect_at_z(z):
+        x = tan_h * z
+        y = tan_v * z
+        corners = np.array([
+            [-x,  y, z],  # top-left
+            [ x,  y, z],  # top-right
+            [ x, -y, z],  # bottom-right
+            [-x, -y, z],  # bottom-left
+        ])
+        return corners
+
+    # --- Generate slices along z ---
+    z_list = np.linspace(z_min_m, z_max_m, num_slices)
+
+    # Draw rays from origin to far-plane corners (frustum edges)
+    edges = np.zeros((4, 2, 3))
+    edges[:, 1, :] = rect_at_z(z_max_m)
+
+    planes = []
+    for z_i in z_list:
+        rect = np.zeros((4, 2, 3))
+        rect[:, 0, :] = rect_at_z(z=z_i)
+        rect[:, 1, :] = np.roll(rect[:, 0, :], axis=0, shift=1)
+        planes.append(rect)
+    planes = np.concatenate(planes, axis=0)
+    edges_planes = np.concatenate([edges, planes], axis=0)
+    return edges_planes

@@ -10,6 +10,8 @@ from wzk.spatial.util import initialize_frames, fill_frames_trans
 # dcm ~ SE3 matrix (3x3)
 # frame ~ (4x4) homogeneous matrix, SE3 + translation
 
+__quat_scalar_first = True
+__quat_canonical = True
 
 # vectorized versions of scipy's Rotation.from_x().to_y()
 def euler2dcm(euler: np.ndarray, seq="ZXZ"):
@@ -23,7 +25,7 @@ def rpy2dcm(rpy: np.ndarray):
 
 
 def quaternions2dcm(quat):
-    return Rotation.from_quat(quat.reshape((-1, 4))
+    return Rotation.from_quat(quat.reshape((-1, 4)), scalar_first=__quat_scalar_first,
                               ).as_matrix().reshape(quat.shape[:-1] + (3, 3))  # noqa
 
 
@@ -39,7 +41,8 @@ def dcm2euler(dcm, seq="ZXZ"):
 
 def dcm2quaternions(dcm):
     return Rotation.from_matrix(dcm.reshape((-1, 3, 3))
-                                ).as_quat(canonical=False).reshape(dcm.shape[:-2] + (4,))  # noqa
+                                ).as_quat(canonical=__quat_canonical, scalar_first=__quat_scalar_first
+                                          ).reshape(dcm.shape[:-2] + (4,))  # noqa
 
 
 def dcm2rotvec(dcm):

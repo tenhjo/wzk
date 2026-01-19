@@ -13,7 +13,7 @@ dependencies = [
     "ortools>=9.14.6206,<10",
     "matplotlib",
     "plotly",
-#    "yourdfpy @ git+ssh://git@github.com/ROBOTIS-GIT/yourdfpy.git",
+    "yourdfpy>=0.0.59",
     "viser>=1.0.15,<2",
     "trimesh>=4.10.0,<5",
     "joblib",
@@ -31,7 +31,6 @@ platforms = ["osx-arm64"]
 
 [tool.pixi.pypi-dependencies]
 wzk = { path = ".", editable = true }
-yourdfpy = { path = "../yourdfpy" } # TODO move to github version
 
 [tool.pixi.dependencies]
 pixi-pycharm = ">=0.0.10,<0.0.11"
