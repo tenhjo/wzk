@@ -1,0 +1,6 @@
+{
+    "python.defaultInterpreterPath": "/Users/tenhjo/Documents/code/python/src/wzk/.pixi/envs/default/bin/python",
+    "ruff.interpreter": [
+        "/Users/tenhjo/Documents/code/python/src/wzk/.pixi/envs/default/bin/python"
+    ]
+}
