@@ -1,22 +1,13 @@
 import numpy as np
 import trimesh
+
 import viser
 from viser import SceneApi, LineSegmentsHandle
 
 from wzk import grid
 
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    Tuple,
-    TypeVar,
-    Union,
-    cast,
-    get_args,
-    overload,
-)
-
-from typing_extensions import Literal, ParamSpec, TypeAlias, deprecated
+from typing import (Tuple, Union)
+from typing_extensions import TypeAlias
 
 
 RgbTupleOrArray: TypeAlias = Union[
@@ -73,12 +64,10 @@ def fov(h_deg, v_deg, z_min_m, z_max_m, num_slices=2):
     def rect_at_z(z):
         x = tan_h * z
         y = tan_v * z
-        corners = np.array([
-            [-x,  y, z],  # top-left
-            [ x,  y, z],  # top-right
-            [ x, -y, z],  # bottom-right
-            [-x, -y, z],  # bottom-left
-        ])
+        corners = np.array([[-x,  y, z],
+                            [ x,  y, z],
+                            [ x, -y, z],
+                            [-x, -y, z]])
         return corners
 
     # --- Generate slices along z ---

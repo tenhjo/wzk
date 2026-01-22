@@ -13,6 +13,7 @@ from wzk.spatial.util import initialize_frames, fill_frames_trans
 __quat_scalar_first = True
 __quat_canonical = True
 
+
 # vectorized versions of scipy's Rotation.from_x().to_y()
 def euler2dcm(euler: np.ndarray, seq="ZXZ"):
     """ZXZ == roll pitch yaw"""
@@ -345,6 +346,16 @@ def make_x_hm(x):
     x1 = np.ones(x.shape[:-1] + (4,))
     x1[..., :3] = x[..., :3]
     return x1
+
+
+def scale_matrix(scale) -> np.ndarray:
+    if isinstance(scale, (int, float, np.floating)):
+        sx = sy = sz = float(scale)
+    else:
+        sx, sy, sz = map(float, scale)
+    S = np.eye(4, dtype=np.float64)
+    S[0, 0], S[1, 1], S[2, 2] = sx, sy, sz
+    return S
 
 
 def Ax(A, x):
