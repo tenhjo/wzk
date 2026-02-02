@@ -24,24 +24,6 @@ def dh2frame(q, d, theta, a, alpha):
                      [0, 0, 0, 1]])
 
 
-def frame2dh(f):
-    if f[0, 2] != 0:
-        print("frame does not match DH formalism")
-    theta = np.arctan2(-f[0, 1], f[0, 0])
-    alpha = np.arctan2(-f[1, 2], f[2, 2])
-
-    theta = math2.angle2minuspi_pluspi(theta)
-    alpha = math2.angle2minuspi_pluspi(alpha)
-
-    if np.cos(theta) != 0:
-        d = f[2, 3] / np.cos(alpha)
-    else:  # np.sin(theta) != 0:
-        d = -f[1, 3] / np.sin(alpha)
-
-    a = f[0, 3]
-    return d, theta, a, alpha
-
-
 def dh2frame2(q, d, theta, a, alpha):
 
     cos_th = np.cos(theta + q)
@@ -64,6 +46,28 @@ def dh2frame2(q, d, theta, a, alpha):
     frames[2, 3] = d * cos_al
     frames[3, 3] = 1
     return frames
+
+
+
+def frame2dh(f):
+    if f[0, 2] != 0:
+        print("frame does not match DH formalism")
+    theta = np.arctan2(-f[0, 1], f[0, 0])
+    alpha = np.arctan2(-f[1, 2], f[2, 2])
+
+    theta = math2.angle2minuspi_pluspi(theta)
+    alpha = math2.angle2minuspi_pluspi(alpha)
+
+    if np.cos(theta) != 0:
+        d = f[2, 3] / np.cos(alpha)
+    else:  # np.sin(theta) != 0:
+        d = -f[1, 3] / np.sin(alpha)
+
+    a = f[0, 3]
+    return d, theta, a, alpha
+
+
+
 
 
 def dh2frame_2d(q, theta, a):

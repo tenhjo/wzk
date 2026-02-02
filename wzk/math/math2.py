@@ -476,7 +476,7 @@ def magic(n, m=None):
 
 
 # Clustering
-def k_farthest_neighbors(x, k, weighting=None, mode="inverse_sum"):
+def k_farthest_neighbors(x, k, weighting=None, mode="inverse_sum") :
     n = len(x)
     eps = 1e-6
     m_dist = x[np.newaxis, :, :] - x[:, np.newaxis, :]

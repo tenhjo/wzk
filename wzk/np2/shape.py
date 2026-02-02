@@ -1,5 +1,7 @@
 import numpy as np
 
+from typing import Iterable
+
 
 def axis_wrapper(axis, n_dim, invert=False):
     if axis is None:
@@ -15,9 +17,10 @@ def axis_wrapper(axis, n_dim, invert=False):
         return tuple(axis)
 
 
-def shape_wrapper(shape=None) -> tuple:
+def shape_wrapper(shape: int | np.integer | Iterable[int] | None = None
+                  ) -> tuple[int, ...]:
     """
-    Note the inconsistent usage of shape / shape as function arguments in numpy.
+    Note the inconsistent usage of shape / size as function arguments in numpy.
     https://stackoverflow.com/questions/44804965/numpy-size-vs-shape-in-function-arguments
     -> use shape
     """
