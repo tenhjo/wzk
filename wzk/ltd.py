@@ -354,6 +354,19 @@ def list_allclose(a, b):
         return np.allclose(a, b)
 
 
+def dict_allclose(a, b):
+    keys_a = sorted(list(a.keys()))
+    keys_b = sorted(list(b.keys()))
+    if keys_a != keys_b:
+        return False
+
+    for k in keys_a:
+        if not np.allclose(a[k], b[k]):
+            return False
+
+    return True
+
+
 # json
 def write_dict2json(file, d, **kwargs):
     with open(file=file, mode="w") as f:

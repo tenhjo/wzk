@@ -18,7 +18,8 @@ dependencies = [
     "trimesh>=4.10.0,<5",
     "joblib",
     "fire",
-    "meshcat>=0.3.2,<0.4"]
+    "meshcat>=0.3.2,<0.4",
+]
 
 [build-system]
 build-backend = "hatchling.build"

@@ -24,6 +24,12 @@ def dh2frame(q, d, theta, a, alpha):
                      [0, 0, 0, 1]])
 
 
+def dh2frame_all(dh):
+    d, theta, a, alpha = dh.T
+    f = np.array([dh2frame(q=0, d=d[i], theta=theta[i], a=a[i], alpha=alpha[i]) for i in range(len(dh))])
+    return f
+
+
 def dh2frame2(q, d, theta, a, alpha):
 
     cos_th = np.cos(theta + q)
@@ -48,7 +54,6 @@ def dh2frame2(q, d, theta, a, alpha):
     return frames
 
 
-
 def frame2dh(f):
     if f[0, 2] != 0:
         print("frame does not match DH formalism")
@@ -64,10 +69,11 @@ def frame2dh(f):
         d = -f[1, 3] / np.sin(alpha)
 
     a = f[0, 3]
+    f1 = dh2frame(q=0, d=d, theta=theta, a=a, alpha=alpha)
+    if not np.allclose(f1, f):
+        print("frame does not match DH formalism")
+
     return d, theta, a, alpha
-
-
-
 
 
 def dh2frame_2d(q, theta, a):

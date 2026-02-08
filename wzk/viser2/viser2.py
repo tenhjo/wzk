@@ -24,7 +24,6 @@ def bimg2trimesh(img, limits, colors=(0.8, 0.8, 0.8, 1.0)):
     mesh = mesh.as_boxes(colors=colors)
     return mesh
 
-
 def points_toN23(points: np.ndarray,
                  flatten: bool = True) -> np.ndarray:
     points = np.asarray(points, dtype=np.float32)

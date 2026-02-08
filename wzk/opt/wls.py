@@ -1,6 +1,4 @@
-"""
-Weighted Least Squares
-"""
+"""Weighted Least Squares"""
 import numpy as np
 from scipy.optimize import least_squares
 from joblib import Parallel, delayed
@@ -9,7 +7,7 @@ from wzk import mp2
 
 
 def nl_wls(fun_delta, x0, w_sqrt=None,
-           verbose=0):
+           max_nfev=100, verbose=0):
     """non-linear weighted least squares
     == min_x (y - f(beta, x))' W (y - f(beta, x))
     """
@@ -27,13 +25,8 @@ def nl_wls(fun_delta, x0, w_sqrt=None,
             dy = fun_delta(x)
             return w_sqrt @ dy
 
-    # from time import sleep
-    # while True:
-    #     sleep(0.5)
-    #     print("a")
-
     # is way quicker without setting bounds
-    res = least_squares(fun=fun_delta2, x0=x0, verbose=verbose, max_nfev=50)
+    res = least_squares(fun=fun_delta2, x0=x0, verbose=verbose, max_nfev=max_nfev)
 
     return res.x
 

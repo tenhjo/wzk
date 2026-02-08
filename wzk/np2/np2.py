@@ -8,7 +8,7 @@ from . import find
 from . import reshape
 from .range import slicen
 
-np.core.arrayprint._line_width = 80  # noqa
+np._core.arrayprint._line_width = 80  # noqa
 
 
 class DummyArray:
