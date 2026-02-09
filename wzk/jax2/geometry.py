@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import math
-from typing import Any
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -423,41 +423,49 @@ def rotation_between_vectors(a: ArrayLike, b: ArrayLike):
     return r
 
 
-def sample_points_on_disc(radius: float, shape: ShapeLike | None = None):
-    rho = np.sqrt(np.random.uniform(low=0, high=radius ** 2, size=shape))
-    theta = np.random.uniform(low=0, high=2 * np.pi, size=shape)
-    xy = np.empty(np.shape(theta) + (2,), dtype=float32)
-    xy[..., 0] = rho * np.cos(theta)
-    xy[..., 1] = rho * np.sin(theta)
-
-    return jnp.asarray(xy)
+def _rng_key(key: jax.Array | None = None) -> jax.Array:
+    if key is None:
+        return jax.random.PRNGKey(np.random.randint(0, 2**31 - 1))
+    return key
 
 
-def sample_points_on_sphere_3d(shape: ShapeLike | None = None):
+def sample_points_on_disc(radius: float, shape: ShapeLike | None = None, key: jax.Array | None = None):
     shape = np2.shape_wrapper(shape=shape)
-    x = np.empty(tuple(shape) + (3,), dtype=float32)
-    theta = np.random.uniform(low=0, high=2 * np.pi, size=shape)
-    phi = np.arccos(np.clip(1 - 2 * np.random.uniform(low=0, high=1, size=shape), -1, 1))
-    sin_phi = np.sin(phi)
-    x[..., 0] = sin_phi * np.cos(theta)
-    x[..., 1] = sin_phi * np.sin(theta)
-    x[..., 2] = np.cos(phi)
-
-    return jnp.asarray(x)
+    key = _rng_key(key=key)
+    key_rho, key_theta = jax.random.split(key)
+    rho = jnp.sqrt(jax.random.uniform(key_rho, shape=shape, minval=0.0, maxval=radius ** 2, dtype=float32))
+    theta = jax.random.uniform(key_theta, shape=shape, minval=0.0, maxval=2 * jnp.pi, dtype=float32)
+    return jnp.stack((rho * jnp.cos(theta), rho * jnp.sin(theta)), axis=-1)
 
 
-def sample_points_in_sphere_nd(shape: ShapeLike, n_dim: int):
+def sample_points_on_sphere_3d(shape: ShapeLike | None = None, key: jax.Array | None = None):
     shape = np2.shape_wrapper(shape=shape)
-    r = np.random.uniform(low=0, high=1, size=shape) ** (1 / n_dim)
-    x = np.random.normal(loc=0, scale=1, size=tuple(shape) + (n_dim,))
-    x = x / np.linalg.norm(x, axis=-1, keepdims=True)
-    x = x * r[..., np.newaxis]
-    return jnp.asarray(x)
+    key = _rng_key(key=key)
+    key_theta, key_u = jax.random.split(key)
+    theta = jax.random.uniform(key_theta, shape=shape, minval=0.0, maxval=2 * jnp.pi, dtype=float32)
+    u = jax.random.uniform(key_u, shape=shape, minval=0.0, maxval=1.0, dtype=float32)
+    phi = jnp.arccos(jnp.clip(1 - 2 * u, min=-1.0, max=1.0))
+    sin_phi = jnp.sin(phi)
+    x = jnp.empty(tuple(shape) + (3,), dtype=float32)
+    x = x.at[..., 0].set(sin_phi * jnp.cos(theta))
+    x = x.at[..., 1].set(sin_phi * jnp.sin(theta))
+    x = x.at[..., 2].set(jnp.cos(phi))
+    return x
 
 
-def sample_points_in_ellipse_nd(shape: ShapeLike, size: ArrayLike):
+def sample_points_in_sphere_nd(shape: ShapeLike, n_dim: int, key: jax.Array | None = None):
+    shape = np2.shape_wrapper(shape=shape)
+    key = _rng_key(key=key)
+    key_r, key_x = jax.random.split(key)
+    r = jax.random.uniform(key_r, shape=shape, minval=0.0, maxval=1.0, dtype=float32) ** (1 / n_dim)
+    x = jax.random.normal(key_x, shape=tuple(shape) + (n_dim,), dtype=float32)
+    x = x / (jnp.linalg.norm(x, axis=-1, keepdims=True) + 1e-12)
+    return x * r[..., jnp.newaxis]
+
+
+def sample_points_in_ellipse_nd(shape: ShapeLike, size: ArrayLike, key: jax.Array | None = None):
     n_dim = len(size)
-    x = sample_points_in_sphere_nd(shape=shape, n_dim=n_dim)
+    x = sample_points_in_sphere_nd(shape=shape, n_dim=n_dim, key=key)
     x = x * jnp.asarray(size)
     return x
 
@@ -541,10 +549,3 @@ def get_x_intersections(x_a: ArrayLike,
         _, i_ab[:, 1] = np.unique(i_ab[:, 1], return_inverse=True)
 
     return i_a, i_b, i_ab
-
-
-from wzk.math import geometry as _np_geometry  # noqa: E402
-
-
-def __getattr__(name: str) -> Any:
-    return getattr(_np_geometry, name)

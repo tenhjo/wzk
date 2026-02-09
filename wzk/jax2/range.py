@@ -5,12 +5,12 @@ from typing import Any
 import numpy as np
 
 from .basics import max_size, scalar2array
-from ._types import ArrayLike, int32
+from ._types import ArrayLike, ShapeLike, int32
 
 
-def arangen(start: ArrayLike | None = None,
-            end: ArrayLike | None = None,
-            step: ArrayLike | None = None) -> list[np.ndarray]:
+def arangen(start: ArrayLike | ShapeLike | None = None,
+            end: ArrayLike | ShapeLike | None = None,
+            step: ArrayLike | ShapeLike | None = None) -> list[np.ndarray]:
     """N-dimensional arange."""
     n = max_size(start, end, step)
     start, end, step = scalar2array(start, end, step, shape=n)
@@ -29,9 +29,9 @@ def arange_between(i: ArrayLike, n: int) -> np.ndarray:
     return j
 
 
-def slicen(start: ArrayLike | None = None,
-           end: ArrayLike | None = None,
-           step: ArrayLike | None = None) -> tuple[slice, ...]:
+def slicen(start: ArrayLike | ShapeLike | None = None,
+           end: ArrayLike | ShapeLike | None = None,
+           step: ArrayLike | ShapeLike | None = None) -> tuple[slice, ...]:
     """N-dimensional slice tuple."""
     n = max_size(start, end, step)
     start, end, step = scalar2array(start, end, step, shape=n)

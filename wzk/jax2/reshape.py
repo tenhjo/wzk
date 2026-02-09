@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from ._types import ArrayLike, ShapeLike
+from ._types import ArrayLike, ShapeLike, int32
 from .range import slicen
 from .basics import scalar2array
 from .find import align_shapes
@@ -16,7 +16,7 @@ def repeat2new_shape(img: ArrayLike, new_shape: ShapeLike) -> jax.Array:
     for i in range(img.ndim):
         img = np.repeat(img, repeats=reps[i], axis=i)
 
-    img = img[slicen(end=new_shape)]
+    img = img[slicen(end=np.asarray(new_shape, dtype=int32))]
     return jnp.asarray(img)
 
 
@@ -44,22 +44,25 @@ def flatten_without_first(x: ArrayLike) -> jax.Array:
     return jnp.reshape(x, (np.shape(x)[0], -1))
 
 
-def fill_with_air_left(arr: ArrayLike, out: ArrayLike) -> None:
+def fill_with_air_left(arr: ArrayLike, out: np.ndarray) -> None:
     assert np.ndim(arr) == np.ndim(out)
-    out[slicen(end=np.shape(arr))] = arr
+    out[slicen(end=np.asarray(np.shape(arr), dtype=int32))] = arr
 
 
-def array2array(a: np.ndarray, shape: ShapeLike, fill_value: str = "empty"):
+def array2array(a: np.ndarray, shape: ShapeLike, fill_value: str = "empty") -> jax.Array:
     a = np.atleast_1d(a)
-    if np.size(a) == 1:
-        return scalar2array(a.item(), shape=shape)
+    shape_arr = np.atleast_1d(np.asarray(shape, dtype=int32))
+    shape_tuple = tuple(int(v) for v in shape_arr.tolist())
 
-    s = align_shapes(shape, a.shape)
+    if np.size(a) == 1:
+        return jnp.asarray(scalar2array(a.item(), shape=shape_tuple))
+
+    s = align_shapes(shape_arr, np.asarray(a.shape, dtype=int32))
     s = tuple(slice(None) if ss == 1 else np.newaxis for ss in s)
     if fill_value == "empty":
-        b = np.empty(shape, dtype=a.dtype)
+        b = np.empty(shape_tuple, dtype=a.dtype)
     else:
-        b = np.full(shape, fill_value, dtype=a.dtype)
+        b = np.full(shape_tuple, fill_value, dtype=a.dtype)
 
     b[:] = a[s]
     return jnp.asarray(b)

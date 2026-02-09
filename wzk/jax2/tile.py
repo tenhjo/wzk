@@ -7,7 +7,7 @@ from scipy.signal import convolve2d
 
 from wzk import ltd
 
-from ._types import ArrayLike, ShapeLike, float32
+from ._types import ArrayLike, float32
 from .shape import shape_wrapper
 from .basics import scalar2array
 
@@ -28,8 +28,8 @@ def tile_offset(a: ArrayLike,
             o = np.asarray(offsets)
 
         assert len(o) == len(s)
-        offsets = [jnp.repeat(jnp.arange(rr), ss) * oo for ss, rr, oo in zip(s, r, o)]
-        b = b + sum(jnp.meshgrid(*offsets, indexing="ij"))
+        offsets_grid = [jnp.repeat(jnp.arange(rr), ss) * oo for ss, rr, oo in zip(s, r, o)]
+        b = b + sum(jnp.meshgrid(*offsets_grid, indexing="ij"))
     return b
 
 
@@ -38,7 +38,7 @@ def tile_2d(*,
             v_in_row: int,
             v_to_next_row: tuple[int, int],
             offset: tuple[int, int] = (0, 0),
-            shape: ShapeLike) -> jax.Array:
+            shape: tuple[int, int]) -> jax.Array:
     nodes = np.zeros((shape[0] + v_to_next_row[0], shape[1] + v_in_row), dtype=float32)
 
     for ii, i in enumerate(range(0, nodes.shape[0], v_to_next_row[0])):

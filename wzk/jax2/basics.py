@@ -7,7 +7,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from ._types import ArrayLike, AxisLike, BoolArray, float32, int32
+from ._types import ArrayLike, AxisLike, BoolArray, ShapeLike, float32, int32
 from . import shape as sh
 
 
@@ -153,16 +153,16 @@ def allclose(a: ArrayLike,
     a = np.asarray(a)
     b = np.asarray(b)
     assert a.shape == b.shape, f"{a.shape} != {b.shape}"
-    axis = np.array(sh.axis_wrapper(axis=axis, n_dim=a.ndim))
-    assert len(axis) <= len(a.shape)
+    axis_tuple = sh.axis_wrapper(axis=axis, n_dim=a.ndim)
+    assert len(axis_tuple) <= len(a.shape)
     if np.isscalar(a) and np.isscalar(b):
         return np.allclose(a, b)
 
-    shape = np.array(a.shape)[axis]
+    shape = np.array(a.shape)[np.array(axis_tuple)]
     bool_arr = np.zeros(shape, dtype=bool)
     for i in product(*(range(s) for s in shape)):
-        bool_arr[i] = np.allclose(extract(a, idx=i, axis=axis),
-                                  extract(b, idx=i, axis=axis),
+        bool_arr[i] = np.allclose(extract(a, idx=i, axis=axis_tuple),
+                                  extract(b, idx=i, axis=axis_tuple),
                                   rtol=rtol, atol=atol)
     return bool_arr
 
@@ -192,20 +192,27 @@ def logical_and(*args: ArrayLike) -> jax.Array:
     return __wrapper_pair2list_fun(*args, fun=jnp.logical_and)
 
 
-def max_size(*args: ArrayLike) -> int:
-    return int(np.max([np.size(a) for a in args]))
+def max_size(*args: ArrayLike | ShapeLike | None) -> int:
+    sizes = [np.size(a) for a in args if a is not None]
+    assert sizes, "At least one argument must be non-None"
+    return int(np.max(sizes))
 
 
-def min_size(*args: ArrayLike) -> int:
-    return int(np.min([np.size(a) for a in args]))
+def min_size(*args: ArrayLike | ShapeLike | None) -> int:
+    sizes = [np.size(a) for a in args if a is not None]
+    assert sizes, "At least one argument must be non-None"
+    return int(np.min(sizes))
 
 
-def argmax_size(*args: ArrayLike) -> int:
-    return int(np.argmax([np.size(a) for a in args]))
+def argmax_size(*args: ArrayLike | ShapeLike | None) -> int:
+    sizes = [(-1 if a is None else np.size(a)) for a in args]
+    return int(np.argmax(sizes))
 
 
-def max_len(*args: ArrayLike) -> int:
-    return int(np.max([len(a) for a in args]))
+def max_len(*args: ArrayLike | ShapeLike | None) -> int:
+    lengths = [len(np.atleast_1d(a)) for a in args if a is not None]
+    assert lengths, "At least one argument must be non-None"
+    return int(np.max(lengths))
 
 
 def squeeze_all(*args: ArrayLike) -> list[jax.Array]:

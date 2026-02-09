@@ -215,9 +215,8 @@ def clip2(x, clip: float, mode: str, axis=-1):
         elif mode == "norm":
             x = x.copy()
             n = np.linalg.norm(x, axis=axis, keepdims=True)
-            b = n > clip
-            x[b] = x[b] * (clip / n[b])
-            return x
+            scale = np.where(n > clip, clip / (n + 1e-12), 1.0)
+            return x * scale
 
         elif mode == "norm-force":
             n = np.linalg.norm(x, axis=axis, keepdims=True)

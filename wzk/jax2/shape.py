@@ -8,16 +8,14 @@ from ._types import AxisLike, ShapeLike, int32
 
 
 def axis_wrapper(axis: AxisLike, n_dim: int, invert: bool = False) -> tuple[int, ...]:
-    if axis is None:
-        axis = np.arange(n_dim)
-
-    axis = np.atleast_1d(axis).astype(int32)
-    axis %= n_dim
-    axis = np.sort(axis)
+    axis_arr = np.arange(n_dim, dtype=int32) if axis is None else np.atleast_1d(np.asarray(axis, dtype=int32))
+    axis_arr %= n_dim
+    axis_arr = np.sort(axis_arr)
 
     if invert:
-        return tuple(np.setxor1d(np.arange(n_dim), axis).astype(int32))
-    return tuple(axis)
+        axis_inv = np.setxor1d(np.arange(n_dim, dtype=int32), axis_arr).astype(int32)
+        return tuple(int(v) for v in axis_inv.tolist())
+    return tuple(int(v) for v in axis_arr.tolist())
 
 
 def shape_wrapper(shape: ShapeLike | None = None) -> tuple[int, ...]:
@@ -40,4 +38,6 @@ def get_max_shape(*args: Any) -> tuple[int, ...] | int:
 
 
 def get_subshape(shape: ShapeLike, axis: AxisLike) -> tuple[int, ...]:
-    return tuple(np.array(shape)[np.array(axis)])
+    shape_np = np.asarray(shape)
+    axis_tuple = axis_wrapper(axis=axis, n_dim=shape_np.size)
+    return tuple(shape_np[np.array(axis_tuple)])

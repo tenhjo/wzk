@@ -4,9 +4,9 @@ import math
 from itertools import product
 from typing import Any, Callable
 
+import jax
 import jax.numpy as jnp
 import numpy as np
-from scipy.linalg import cho_factor, cho_solve
 
 from wzk import ltd
 
@@ -433,18 +433,18 @@ def solve_pinv(A: ArrayLike, b: ArrayLike, _rcond: float = __RCOND):
 
 
 def solve_lstsq(A: ArrayLike, b: ArrayLike, rcond: float | None = None):
-    A = np.asarray(A)
-    b = np.asarray(b)
+    A = jnp.asarray(A)
+    b = jnp.asarray(b)
 
     if A.ndim == 2 and b.ndim == 1:
-        return jnp.asarray(np.linalg.lstsq(A, b, rcond=rcond)[0])
+        return jnp.linalg.lstsq(A, b, rcond=rcond)[0]
 
     if A.ndim == 3 and b.ndim == 2:
-        nn, _, ny = A.shape
-        x = np.zeros((nn, ny))
-        for i in range(nn):
-            x[i] = np.linalg.lstsq(A[i], b[i], rcond=rcond)[0]
-        return jnp.asarray(x)
+        def _solve_lstsq(args):
+            a_i, b_i = args
+            return jnp.linalg.lstsq(a_i, b_i, rcond=rcond)[0]
+
+        return jax.vmap(_solve_lstsq)((A, b))
 
     raise ValueError
 
@@ -462,17 +462,13 @@ def solve_newton_damped(j: ArrayLike, e: ArrayLike, damping: float):
 
 
 def solve_cho(A: ArrayLike, b: ArrayLike):
-    A = np.asarray(A)
-    b = np.asarray(b)
+    A = jnp.asarray(A)
+    b = jnp.asarray(b)
 
     if A.ndim == 2 and b.ndim == 1:
-        return jnp.asarray(cho_solve(cho_factor(A), b))
+        return jnp.linalg.solve(A, b)
     if A.ndim == 3 and b.ndim == 2:
-        nn, _, ny = A.shape
-        x = np.zeros((nn, ny))
-        for i in range(nn):
-            x[i] = cho_solve(cho_factor(A[i]), b[i])
-        return jnp.asarray(x)
+        return jnp.linalg.solve(A, b[..., jnp.newaxis])[..., 0]
 
     raise ValueError("solve_cho: A and b must be 2D or 3D")
 
@@ -487,26 +483,18 @@ def solve_cho_damped(A: ArrayLike, b: ArrayLike, damping: float):
     if damping > 0:
         AAT = AAT.at[..., range(n), range(n)].add(damping)
 
-    x = AT @ solve_cho(np.asarray(AAT), np.asarray(b))[..., jnp.newaxis]
+    x = AT @ solve_cho(AAT, b)[..., jnp.newaxis]
     x = x[..., 0]
     return x
 
 
 def matrix_sqrt(A: ArrayLike):
-    A = np.asarray(A)
+    A = jnp.asarray(A)
     if A.ndim == 1:
-        return jnp.sqrt(jnp.asarray(A))
+        return jnp.sqrt(A)
 
-    e_val, e_vec = np.linalg.eig(A)
-    if (e_val < 0).any():
+    e_val, e_vec = jnp.linalg.eigh(A)
+    if jnp.any(e_val < -1e-9):
         raise ValueError("Matrix does not have a real square root")
-    e_val_sqrt = np.sqrt(e_val)
-    sqrt_A = e_vec @ np.diag(e_val_sqrt) @ np.linalg.inv(e_vec)
-    return jnp.asarray(sqrt_A)
-
-
-from wzk.math import math2 as _np_math2  # noqa: E402
-
-
-def __getattr__(name: str) -> Any:
-    return getattr(_np_math2, name)
+    e_val_sqrt = jnp.sqrt(jnp.clip(e_val, min=0.0))
+    return e_vec @ jnp.diag(e_val_sqrt) @ e_vec.T

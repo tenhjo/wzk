@@ -10,12 +10,12 @@ float32 = jnp.float32
 int32 = jnp.int32
 
 Scalar: TypeAlias = float | int | np.number[Any]
-ArrayLike: TypeAlias = Any
+ArrayLike: TypeAlias = Array | np.ndarray[Any, Any]
 
 FloatArray: TypeAlias = Float[Array, "..."]
 IntArray: TypeAlias = Int[Array, "..."]
 BoolArray: TypeAlias = Bool[Array, "..."]
 NumArray: TypeAlias = Num[Array, "..."]
 
-ShapeLike: TypeAlias = Any
-AxisLike: TypeAlias = Any
+ShapeLike: TypeAlias = int | tuple[int, ...] | list[int]
+AxisLike: TypeAlias = int | tuple[int, ...] | list[int] | None

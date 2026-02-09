@@ -20,7 +20,7 @@ class DummyArray:
 
     def __init__(self, arr: Any, shape: ShapeLike):
         self.arr = arr
-        self.shape = shape
+        self.shape = tuple(int(v) for v in np.atleast_1d(shape).tolist())
 
     def __assert_int(self, item: int, i: int) -> None:
         assert item in range(-self.shape[i], self.shape[i])
@@ -38,17 +38,19 @@ class DummyArray:
             self.__assert_slice(item=item, i=0)
         elif isinstance(item, type(...)):
             self.__assert_ellipsis(item=item, i=0)
-        else:
+        elif isinstance(item, tuple):
             assert len(item) == len(self.shape), f"Incompatible index {item} for array with shape {self.shape}"
             for i, item_i in enumerate(item):
                 if isinstance(item_i, int):
                     self.__assert_int(item=item_i, i=i)
                 elif isinstance(item_i, slice):
                     self.__assert_slice(item=item_i, i=i)
-                elif isinstance(item, type(...)):
-                    self.__assert_ellipsis(item=item, i=i)
+                elif isinstance(item_i, type(...)):
+                    self.__assert_ellipsis(item=item_i, i=i)
                 else:
                     raise ValueError
+        else:
+            raise TypeError(f"Unsupported index type {type(item)}")
 
         return self.arr
 
@@ -80,7 +82,7 @@ def np_isinstance(o: Any, c: Any) -> bool:
     return isinstance(o, c)
 
 
-def delete_args(*args: ArrayLike, i: int, axis: AxisLike = None) -> tuple[np.ndarray, ...]:
+def delete_args(*args: ArrayLike, i: int, axis: int | None = None) -> tuple[np.ndarray, ...]:
     return tuple(np.delete(np.asarray(a), obj=i, axis=axis) for a in args)
 
 
@@ -113,7 +115,7 @@ def make_odd(arr: ArrayLike) -> jax.Array:
     arr = np.asarray(arr)
     mo = (np.array(arr.shape) + 1) % 2
     arr_new = np.zeros(np.array(arr.shape) + mo, dtype=bool)
-    arr_new[slicen(end=arr.shape)] = arr
+    arr_new[slicen(end=np.asarray(arr.shape, dtype=int32))] = arr
     return jnp.asarray(arr_new)
 
 
@@ -249,16 +251,16 @@ def block_view(a: ArrayLike,
                require_aligned_blocks: bool = True) -> np.ndarray | list[np.ndarray]:
     a = np.asarray(a)
     assert a.flags["C_CONTIGUOUS"], "This function relies on the memory layout of the array."
-    shape = tuple(shape)
-    outershape = tuple(np.array(a.shape) // shape)
-    view_shape = outershape + shape
+    shape_tuple = tuple(int(v) for v in np.atleast_1d(shape).tolist())
+    outershape = tuple(np.array(a.shape) // np.array(shape_tuple))
+    view_shape = outershape + shape_tuple
 
     if require_aligned_blocks:
-        assert np.all(np.mod(a.shape, shape) == 0), (
-            f"blockshape {shape} must divide evenly into array shape {a.shape}")
+        assert np.all(np.mod(a.shape, shape_tuple) == 0), (
+            f"blockshape {shape_tuple} must divide evenly into array shape {a.shape}")
 
     intra_block_strides = a.strides
-    inter_block_strides = tuple(a.strides * np.array(shape))
+    inter_block_strides = tuple(np.array(a.strides) * np.array(shape_tuple))
     view = np.lib.stride_tricks.as_strided(a, shape=view_shape, strides=(inter_block_strides + intra_block_strides))
 
     if aslist:
@@ -339,13 +341,14 @@ def banded_matrix(v_list: list[ArrayLike], k0: int) -> jax.Array:
 
 def get_stats(x: ArrayLike, axis: AxisLike = None, return_array: bool = False) -> dict[str, Any] | jax.Array:
     x = jnp.asarray(x)
+    axis_normalized = tuple(axis) if isinstance(axis, list) else axis
     stats = {
-        "size": int(np.size(np.asarray(x), axis=axis)),
-        "mean": jnp.mean(x, axis=axis),
-        "std": jnp.std(x, axis=axis),
-        "median": jnp.median(x, axis=axis),
-        "min": jnp.min(x, axis=axis),
-        "max": jnp.max(x, axis=axis),
+        "size": int(np.size(np.asarray(x), axis=axis_normalized)),
+        "mean": jnp.mean(x, axis=axis_normalized),
+        "std": jnp.std(x, axis=axis_normalized),
+        "median": jnp.median(x, axis=axis_normalized),
+        "min": jnp.min(x, axis=axis_normalized),
+        "max": jnp.max(x, axis=axis_normalized),
     }
 
     if return_array:
@@ -376,10 +379,3 @@ def get_points_inbetween(x: ArrayLike, extrapolate: bool = False) -> np.ndarray:
         x_new[-1] = x_new[-2] + delta[-1]
         return x_new
     return x_new[1:-1]
-
-
-from wzk.np2 import np2 as _np_np2  # noqa: E402
-
-
-def __getattr__(name: str) -> Any:
-    return getattr(_np_np2, name)
