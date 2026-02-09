@@ -57,6 +57,7 @@ target/
 .pixi/*
 !.pixi/config.toml
 pixi.lock
+uv.lock
 
 # Jupyter Notebook
 .ipynb_checkpoints

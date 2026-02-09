@@ -17,6 +17,11 @@ from .io import sql2 as sql2
 from .math import math2 as math2
 from .math import geometry as geometry
 
+try:
+    from . import jax2 as jax2
+except ImportError:
+    pass
+
 from .random import random2 as random2
 from .random import perlin as perlin
 
