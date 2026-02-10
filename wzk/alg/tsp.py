@@ -3,6 +3,10 @@ import numpy as np
 from scipy.spatial import distance_matrix
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
+from wzk.logger import setup_logger
+
+logger = setup_logger(__name__)
+
 
 def get_route(manager, routing, assignment):
     index = routing.Start(0)
@@ -15,16 +19,16 @@ def get_route(manager, routing, assignment):
     return np.array(route, dtype=int)
 
 
-def solve_tsp(x, dist_mat=None, time_limit=10,
-              verbose=1):
+def _solve_tsp(x, dist_mat=None, time_limit=10):
     """
     Get the index list for the optimal route for all points, starting at the first
     :param x:
     :param dist_mat: optional
     :param time_limit: seconds
-    :param verbose:
     :return:
     """
+    x = np.asarray(x)
+    assert x.ndim == 2, f"x must be 2D (n, d), got {x.shape}"
 
     n = len(x)
     if n <= 2:
@@ -69,10 +73,51 @@ def solve_tsp(x, dist_mat=None, time_limit=10,
     assignment = routing.SolveWithParameters(search_parameters=search_parameters)
     route = get_route(manager=manager, routing=routing, assignment=assignment)
 
-    if verbose:
-        cost = dist_mat[route, np.roll(route, - 1)].sum()
-        print(f"TSP Cost for {x.shape} points after {time_limit}s: {cost}")
+    cost = dist_mat[route, np.roll(route, - 1)].sum()
+    logger.info("TSP cost for %s points after %ss: %s", x.shape, time_limit, cost)
 
+    return route
+
+
+def _extend_distmat(dist_mat, x, x_new):
+    n = len(x)
+    dist_mat = np.asarray(dist_mat)
+    assert dist_mat.shape == (n, n), f"dist_mat must have shape {(n, n)}, got {dist_mat.shape}"
+
+    d_home = distance_matrix(x_new, x)[0]
+    dist_mat2 = np.empty((n + 1, n + 1), dtype=dist_mat.dtype)
+    dist_mat2[0, 0] = 0
+    dist_mat2[0, 1:] = d_home
+    dist_mat2[1:, 0] = d_home
+    dist_mat2[1:, 1:] = dist_mat
+    return dist_mat2
+
+
+def solve_tsp(x: np.ndarray, dist_mat=None, x_home=None, time_limit=10):
+    """
+    Solve TSP on x and return a route over x indices.
+    If x_home is provided, anchor the route by prepending x_home to the optimization problem
+    and remove that anchor index from the returned route.
+    """
+    x = np.asarray(x)
+    assert x.ndim == 2, f"x must be 2D (n, d), got {x.shape}"
+    n = len(x)
+    if n <= 2:
+        return np.arange(n, dtype=int)
+
+    if x_home is None:
+        return _solve_tsp(x=x, time_limit=time_limit, dist_mat=dist_mat)
+
+    x_home = np.asarray(x_home).reshape((1, -1))
+    assert x_home.shape[1] == x.shape[1]
+
+    x2 = np.concatenate([x_home, x], axis=0)
+    if dist_mat is not None:
+        dist_mat = _extend_distmat(x=x, x_new=x_home, dist_mat=dist_mat)
+
+    route = _solve_tsp(x=x2, dist_mat=dist_mat, time_limit=time_limit)
+
+    route = route[route != 0] - 1
     return route
 
 
@@ -80,10 +125,6 @@ def order_q_with_tsp(*,
                      q: np.ndarray,
                      anchor_q: np.ndarray | None = None,
                      time_limit_sec: int = 3) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Reorder waypoints q with a TSP route.
-    If anchor_q is provided, solve TSP on [anchor_q, q] and drop the anchor index in the result.
-    """
     q_np = np.asarray(q, dtype=np.float32)
     assert q_np.ndim == 2, f"q must be 2D (n, d), got {q_np.shape}"
 
@@ -92,39 +133,19 @@ def order_q_with_tsp(*,
         route = np.arange(n_q, dtype=int)
         return q_np, route
 
-    if anchor_q is None:
-        route_np = np.asarray(
-            solve_tsp(
-                x=q_np,
-                time_limit=time_limit_sec,
-                verbose=0,
-            ),
-            dtype=int,
-        )
-        return q_np[route_np], route_np
-
-    anchor_np = np.asarray(anchor_q, dtype=np.float32).reshape((1, -1))
-    assert anchor_np.shape[1] == q_np.shape[1], (
-        f"anchor_q dimensionality {anchor_np.shape[1]} must match q dimensionality {q_np.shape[1]}"
-    )
-
     route_np = np.asarray(
         solve_tsp(
-            x=np.concatenate([anchor_np, q_np], axis=0),
+            x=q_np,
+            x_home=anchor_q,
             time_limit=time_limit_sec,
-            verbose=0,
         ),
         dtype=int,
     )
-    route_interior = route_np[route_np != 0] - 1
-    return q_np[route_interior], route_interior
+    return q_np[route_np], route_np
 
 
 def _order_q_with_tsp(*,
                       q: np.ndarray,
                       anchor_q: np.ndarray | None = None,
                       time_limit_sec: int = 3) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Backward-compatible alias for order_q_with_tsp.
-    """
     return order_q_with_tsp(q=q, anchor_q=anchor_q, time_limit_sec=time_limit_sec)

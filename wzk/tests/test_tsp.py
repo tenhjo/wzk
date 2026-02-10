@@ -62,7 +62,7 @@ def test_solve_tsp(mode="random"):
     else:
         raise NotImplementedError
 
-    route = tsp.solve_tsp(x=points, time_limit=1, verbose=1)
+    route = tsp.solve_tsp(x=points, time_limit=1)
     plot_solution_2d(points=points, route=route)
     return route
 

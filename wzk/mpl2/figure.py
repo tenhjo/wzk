@@ -11,6 +11,7 @@ from wzk.mpl2.axes import set_ax_limits
 from wzk.mpl2.move_figure import move_fig
 
 from wzk import files, ltd, math2, printing, strings
+from wzk.logger import setup_logger
 
 import matplotlib as mpl
 from matplotlib import axes  # noqa
@@ -20,6 +21,7 @@ shape_1c_ieee = [3 + 1 / 2, (3 + 1 / 2) / math2.GOLDEN_RATIO]
 shape_2c_ieee = [7 + 1 / 16, (7 + 1 / 16) / math2.GOLDEN_RATIO]
 
 axes_type = mpl.axes.Axes
+logger = setup_logger(__name__)
 
 
 def ax_wrapper(ax: Union[dict, mpl.axes.Axes]):
@@ -94,7 +96,7 @@ def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
 def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: Union[str, tuple] = None,
              dpi: int = 600, bbox: Optional[str] = "tight", pad: float = 0.1,
              save: bool = True, replace: bool = True, show: bool = False, copy2cb: bool = False,
-             verbose: int = 1, **kwargs: object) -> object:
+             **kwargs: object) -> object:
     """
     adaption of the matplotlib 'savefig' function with some added convenience.
     bbox = tight / standard (standard does not crop but saves the whole figure)
@@ -132,10 +134,9 @@ def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: Union[str
 
         if replace or not os.path.isfile(path=file_f):
             fig.savefig(file_f, format=f, bbox_inches=bbox, pad_inches=pad,  dpi=dpi, **kwargs)
-            if verbose >= 1:
-                print(f"{file_f} saved")
+            logger.info("%s saved", file_f)
         else:
-            print(f"{file_f} already exists")
+            logger.info("%s already exists", file_f)
 
     if show:
         files.start_open(file=f"{file}.{formats[0]}")
@@ -159,7 +160,7 @@ def save_ani(file: str, fig: mpl.figure.Figure, ani,
         printing.progress_bar(i=nn, n=n[-1] + 1)
         ani(nn)
         save_fig(file="{}/frame{:0>6}".format(dir_temp, nn), fig=fig, formats=("png", ), dpi=dpi, bbox=bbox,
-                 verbose=0)
+                 )
 
     os.system(f"ffmpeg -r {fps} -i {dir_temp}/"
               f'frame%06d.png -pix_fmt yuv420p -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" {file}.mp4')

@@ -3,8 +3,12 @@ from __future__ import annotations
 import jax.numpy as jnp
 import numpy as np
 
+from wzk.logger import setup_logger
+
 from ._types import ArrayLike, int32
 from .basics import args2arrays, rolling_window
+
+logger = setup_logger(__name__)
 
 
 def find_subarray(a: ArrayLike, b: ArrayLike) -> np.ndarray:
@@ -55,15 +59,13 @@ def find_array_occurrences(a: ArrayLike, o: ArrayLike) -> np.ndarray:
 
 
 def get_element_overlap(arr1: ArrayLike,
-                        arr2: ArrayLike | None = None,
-                        verbose: int = 0) -> np.ndarray:
+                        arr2: ArrayLike | None = None) -> np.ndarray:
     if arr2 is None:
         arr2 = arr1
 
     overlap = np.zeros((len(arr1), len(arr2)), dtype=int32)
     for i, arr_i in enumerate(arr1):
-        if verbose > 0:
-            print(f"{i} / {len(arr1)}")
+        logger.debug("get_element_overlap progress: %s / %s", i, len(arr1))
         for j, arr_j in enumerate(arr2):
             for k in arr_i:
                 if k in arr_j:
@@ -180,8 +182,7 @@ def find_largest_consecutives(x: ArrayLike) -> tuple[int, np.ndarray]:
 def find_block_shuffled_order(a: ArrayLike,
                               b: ArrayLike,
                               block_size: int,
-                              threshold: float,
-                              verbose: int = 1) -> np.ndarray:
+                              threshold: float) -> np.ndarray:
     n = len(a)
     m = len(b)
     assert n == m
@@ -198,8 +199,7 @@ def find_block_shuffled_order(a: ArrayLike,
             d = np.abs(d).max()
             if d < threshold:
                 idx[i] = j
-                if verbose > 0:
-                    print(i, j, d)
+                logger.debug("find_block_shuffled_order match: i=%s j=%s d=%s", i, j, d)
 
     return idx
 

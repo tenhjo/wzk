@@ -8,9 +8,9 @@ def test_solve_tsp_small_default():
     x1 = np.array([[0.0, 0.0]], dtype=float)
     x2 = np.array([[0.0, 0.0], [1.0, 1.0]], dtype=float)
 
-    assert np.array_equal(tsp.solve_tsp(x=x0, time_limit=1, verbose=0), np.arange(0))
-    assert np.array_equal(tsp.solve_tsp(x=x1, time_limit=1, verbose=0), np.arange(1))
-    assert np.array_equal(tsp.solve_tsp(x=x2, time_limit=1, verbose=0), np.arange(2))
+    assert np.array_equal(tsp.solve_tsp(x=x0, time_limit=1), np.arange(0))
+    assert np.array_equal(tsp.solve_tsp(x=x1, time_limit=1), np.arange(1))
+    assert np.array_equal(tsp.solve_tsp(x=x2, time_limit=1), np.arange(2))
 
 
 def test_order_q_with_tsp_small_identity():
@@ -27,7 +27,7 @@ def test_order_q_with_tsp_no_anchor_matches_direct_tsp():
     q = rng.normal(size=(20, 3))
 
     q_ord, route = tsp.order_q_with_tsp(q=q, anchor_q=None, time_limit_sec=1)
-    route_direct = np.asarray(tsp.solve_tsp(x=q.astype(np.float32), time_limit=1, verbose=0), dtype=int)
+    route_direct = np.asarray(tsp.solve_tsp(x=q.astype(np.float32), time_limit=1), dtype=int)
 
     assert route.shape == (q.shape[0],)
     assert np.array_equal(np.sort(route), np.arange(q.shape[0], dtype=int))
@@ -46,7 +46,6 @@ def test_order_q_with_tsp_with_anchor_matches_manual():
         tsp.solve_tsp(
             x=np.concatenate([anchor_q.reshape(1, -1).astype(np.float32), q.astype(np.float32)], axis=0),
             time_limit=1,
-            verbose=0,
         ),
         dtype=int,
     )
@@ -68,3 +67,17 @@ def test_order_q_with_tsp_alias():
 
     assert np.array_equal(route_a, route_b)
     assert np.allclose(q_ord_a, q_ord_b)
+
+
+def test_solve_tsp_with_home_and_distance_matrix():
+    rng = np.random.default_rng(3)
+    x = rng.normal(size=(18, 3)).astype(np.float32)
+    x_home = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+
+    # Build pairwise distances for x only; solve_tsp must augment this for x_home.
+    diff = x[:, np.newaxis, :] - x[np.newaxis, :, :]
+    dist_mat = np.linalg.norm(diff, axis=-1)
+
+    route = np.asarray(tsp.solve_tsp(x=x, dist_mat=dist_mat, x_home=x_home, time_limit=1), dtype=int)
+    assert route.shape == (x.shape[0],)
+    assert np.array_equal(np.sort(route), np.arange(x.shape[0], dtype=int))

@@ -12,7 +12,10 @@ import numpy as np
 
 from scipy.io import loadmat as load_mat, savemat as save_mat  # noqa: F401
 
+from wzk.logger import setup_logger
 from wzk import time2, printing, subprocess2
+
+logger = setup_logger(__name__)
 
 
 __open_cmd_dict = {"Linux": "xdg-open",
@@ -311,13 +314,11 @@ def combine_npy_files2(directory: str,
 
 def combine_npy_files(directory: str,
                       new_name: str = "combined_{new_len}",
-                      delete_singles: bool = False,
-                      verbose: int = 0) -> np.ndarray:
+                      delete_singles: bool = False) -> np.ndarray:
 
     directory = os.path.normpath(path=directory)
     file_list = [file for file in os.listdir(directory) if ".npy" in file]
-    if verbose:
-        print(file_list)
+    logger.debug("Combining npy files from %s: %s", directory, file_list)
 
     arr = np.concatenate([np.load(f"{directory}/{file}", allow_pickle=True)[np.newaxis, :]
                           for file in file_list], axis=0)
