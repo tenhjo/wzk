@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import os
 import re
 import uuid
@@ -132,7 +134,7 @@ def str2eval(s):
     try:
         s = eval(s, {"__builtins__": None}, {})
     except TypeError:
-        print(s)
+        log_print(s)
         raise TypeError
     return s
 

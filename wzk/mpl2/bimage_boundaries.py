@@ -1,4 +1,6 @@
 """Get boundaries (edges/faces) of boolean images"""
+
+from wzk.logger import log_print
 import numpy as np
 
 
@@ -205,7 +207,7 @@ def __is_neighbor(face_plane_1, face_plane_2):
                 free_1 = set(face_1[:, free_direction])
                 free_2 = set(face_2[:, free_direction])
                 if not free_1.isdisjoint(free_2):
-                    # print(face_1, '\n', face_2, '\n\
+                    # log_print(face_1, '\n', face_2, '\n\
                     return free_direction
 
         return -1
@@ -213,7 +215,7 @@ def __is_neighbor(face_plane_1, face_plane_2):
         return -1
 
 
-def combine_faces(face_vtx, verbose=0):
+def combine_faces(face_vtx, log_level=0):
     """
     Combine neighboring surfaces with bigger surfaces to compress the representation of the object.
     """
@@ -223,8 +225,8 @@ def combine_faces(face_vtx, verbose=0):
     for i in range(n_faces):
         planes[i] = __get_plane(face_vtx[i, ...])
 
-    if verbose >= 1:
-        print("Initial number of faces: ", n_faces)
+    if log_level >= 1:
+        log_print("Initial number of faces: ", n_faces)
 
     while True:
         combine_count = 0
@@ -240,8 +242,8 @@ def combine_faces(face_vtx, verbose=0):
                     free_direction = __is_neighbor(face_plane_1=(face_vtx[i, ...], planes[i]),
                                                    face_plane_2=(face_vtx[j, ...], planes[j]))
                 except IndexError:
-                    print(i, j, n_faces)
-                    print(face_vtx.shape, planes.shape)
+                    log_print(i, j, n_faces)
+                    log_print(face_vtx.shape, planes.shape)
                     raise IndexError
 
                 if free_direction != -1:
@@ -266,13 +268,13 @@ def combine_faces(face_vtx, verbose=0):
 
             i += 1
 
-        if verbose >= 1:
-            print(n_faces, combine_count)
+        if log_level >= 1:
+            log_print(n_faces, combine_count)
         if combine_count == 0:
             break
 
-    if verbose >= 1:
-        print("Final number of faces: ", n_faces)
+    if log_level >= 1:
+        log_print("Final number of faces: ", n_faces)
 
     return face_vtx
 

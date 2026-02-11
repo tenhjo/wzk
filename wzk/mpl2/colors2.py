@@ -88,7 +88,9 @@ _7 = ["#ffe119", "#4363d8", "#f58231", "#dcbeff", "#800000", "#000075", "#a9a9a9
 def arr2rgba(img, cmap, vmin=None, vmax=None, mask=None, axis_order=None):
     img = __arr2rgba(arr=img, cmap=cmap, vmin=vmin, vmax=vmax)
     if mask is not None:
-        img[mask.astype(bool), 3] = 0
+        mask = np.asarray(mask, dtype=bool)
+        if mask.shape == img.shape[:2]:
+            img[mask, 3] = 0
     if axis_order == "ij->yx":
         img = np.swapaxes(img, axis1=0, axis2=1)
     return img
@@ -134,4 +136,3 @@ def rgb2hex(rgb):
          int(rgb[1] * 255) * 256 ** 1 +
          int(rgb[2] * 255) * 256 ** 0)
     return h
-

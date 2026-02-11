@@ -1,3 +1,4 @@
+
 from unittest import TestCase
 import numpy as np
 from wzk import training
@@ -14,7 +15,7 @@ class Test(TestCase):
 
     def __assert(self, res, s, n):
         for x_train, x_test in zip(*res):
-            # print(x_train, x_test)
+            # log_print(x_train, x_test)
             self.assertTrue(len(x_test) == s)
             self.assertTrue(len(x_test) + len(x_train) == n or
                             len(x_test) + len(x_train) == 2*n)

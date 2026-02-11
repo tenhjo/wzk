@@ -58,7 +58,7 @@ def tic(name: str = None):
         __start_named[name] = time()
 
 
-def toc(text: str = None, decimals: int = 6, verbose=None) -> float:
+def toc(text: str = None, decimals: int = 6, log_level=None) -> float:
     if text is None:
         start = __start_stack.pop()
     else:
@@ -74,19 +74,19 @@ def toc(text: str = None, decimals: int = 6, verbose=None) -> float:
     elif text == "":
         return elapsed
 
-    print2(f"{text}: {elapsed:.{decimals + 1}}s", verbose=verbose)
+    print2(f"{text}: {elapsed:.{decimals + 1}}s", log_level=log_level)
     return elapsed
 
 
 class tictoc:
-    def __init__(self, text: str = None, decimals: int = 6, verbose=None):
-        self.verbose = verbose_level_wrapper(verbose)
+    def __init__(self, text: str = None, decimals: int = 6, log_level=None):
+        self.log_level = verbose_level_wrapper(log_level)
         self.text = "" if text is None else text
         self.decimals = decimals
 
     def __enter__(self):
         tic()
-        print2(self.text+"...", verbose=self.verbose)
+        print2(self.text+"...", log_level=self.log_level)
 
     def __exit__(self, *args):
-        toc(text=None, decimals=self.decimals, verbose=self.verbose.add_level(1))
+        toc(text=None, decimals=self.decimals, log_level=self.log_level.add_level(1))

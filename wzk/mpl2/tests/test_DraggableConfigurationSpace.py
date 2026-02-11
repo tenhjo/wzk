@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 from unittest import TestCase
 
 import numpy as np
@@ -16,7 +18,7 @@ class Test(TestCase):
         limits[:, 1] = 1
         dcs = DraggableConfigSpace(x=x, limits=limits, circle_ratio=1 / 4, color="k")
 
-        print(dcs.get_x().shape)
+        log_print(dcs.get_x().shape)
 
         dcs.set_x(x=np.zeros((20, 3)))
         dcs.set_x(x=np.ones((20, 3)))

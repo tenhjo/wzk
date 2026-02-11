@@ -71,3 +71,6 @@ uv.lock
 /.idea/
 *.pt
 *.h5
+*.png
+*.pdf
+*.jpeg

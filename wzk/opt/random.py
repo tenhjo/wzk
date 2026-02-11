@@ -1,8 +1,10 @@
+
+from wzk.logger import log_print
 import numpy as np
 from wzk import mp2
 
 
-def random_ball_search(fun, n_outer, n_inner, x0, eps=1e-9, n_processes=1, verbose=0):
+def random_ball_search(fun, n_outer, n_inner, x0, eps=1e-9, n_processes=1, log_level=0):
     x0 = x0.ravel()
     n_x = len(x0)
 
@@ -43,10 +45,10 @@ def random_ball_search(fun, n_outer, n_inner, x0, eps=1e-9, n_processes=1, verbo
             x_outer[-1] = x_outer[i]
             break
 
-        if verbose > 1:
-            print(f"iteration: {i} | objective: {o_outer[i+1]:.5}")
+        if log_level > 1:
+            log_print(f"iteration: {i} | objective: {o_outer[i+1]:.5}")
 
-    if verbose == 1:
-        print(f"iteration: {n_outer} | objective: {o_outer[-1]:.5}")
+    if log_level == 1:
+        log_print(f"iteration: {n_outer} | objective: {o_outer[-1]:.5}")
 
     return x_outer[-1], o_outer[-1]

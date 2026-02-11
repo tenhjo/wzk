@@ -44,11 +44,17 @@ __all__ = [
     "toc",
     "tictoc",
     "get_timestamp",
+    "new_fig",
     "progress_bar",
     "print2",
     "check_verbosity",
     *_LAZY_MODULES.keys(),
 ]
+
+
+def new_fig(*args: Any, **kwargs: Any) -> Any:
+    from wzk.mpl2.figure import new_fig as _new_fig
+    return _new_fig(*args, **kwargs)
 
 
 def __getattr__(name: str) -> Any:

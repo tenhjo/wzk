@@ -1,3 +1,4 @@
+
 import numpy as np
 
 # try:
@@ -14,7 +15,7 @@ monitors = [[2560, 1600]]
 #         # monitors = [[1440, 900]]
 #         # from screeninfo import get_monitors, Enumerator
 #         # for matrix in get_monitors(Enumerator.OSX):
-#         #     print(str(matrix))
+#         #     log_print(str(matrix))
 #         # ( ModuleNotFoundError, NotImplementedError, NameError, screeninfo.common.ScreenInfoError):
 
 
@@ -110,8 +111,14 @@ def __move_fig(fig, width=None, height=None, offset_x=None, offset_y=None):
     Coordinate system starts in the upper-left corner of the monitor
     """
 
+    manager = fig.canvas.manager
+    window = getattr(manager, "window", None)
+    # Non-interactive backends (e.g. Agg) have no GUI window to move.
+    if window is None or not hasattr(window, "wm_geometry"):
+        return
+
     # Get the current position of the figure 'fig_width_inch'x'height'+'offset_x'+'offset_y'
-    current_geometry = fig.canvas.manager.window.wm_geometry()
+    current_geometry = window.wm_geometry()
     c_width, current_geometry = current_geometry.split("x")
     c_height, c_offset_x, c_offset_y = current_geometry.split("+")
 
@@ -125,4 +132,4 @@ def __move_fig(fig, width=None, height=None, offset_x=None, offset_y=None):
     if offset_y is None:
         offset_y = c_offset_y
 
-    fig.canvas.manager.window.wm_geometry(f"{width}x{height}+{offset_x}+{offset_y}")
+    window.wm_geometry(f"{width}x{height}+{offset_x}+{offset_y}")

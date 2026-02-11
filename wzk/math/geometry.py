@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import math
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -100,9 +102,9 @@ def cube(limits: np.ndarray = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]
     #     return np.nonzero((v == x).sum(axis=-1) == 3)[0][0]
     # for s, e in combinations(v, 2):
     #     if np.any(np.sum(np.abs(s - e)) == d):
-    #         print(get_vi(s), get_vi(e))
+    #         log_print(get_vi(s), get_vi(e))
     # for a, b, c, d in combinations(v, 4):
-    #     print(a, b, c, d)
+    #     log_print(a, b, c, d)
     e = np.array([[0, 1], [0, 2], [0, 4],
                   [1, 3], [1, 5],
                   [2, 3], [2, 6],
@@ -528,7 +530,7 @@ def sample_spheres(n, r, limits):
     u = math2.get_upper(n)
 
     for i in range(max_iter):
-        x = random2.random_uniform_ndim(low=limits[:, 0], high=limits[:, 1], shape=n)
+        x = random_uniform_ndim(low=limits[:, 0], high=limits[:, 1], shape=n)
         dx = x[:, np.newaxis, :] - x[np.newaxis, :, :]
         dxn = np.linalg.norm(dx, axis=-1)
         dxn = dxn[u]
@@ -816,7 +818,7 @@ def discretize_triangle(x=None,
 
 
 def get_x_intersections(x_a, x_b, threshold=0.001,
-                        map_i_ab=True, verbose=0):
+                        map_i_ab=True, log_level=0):
     if len(x_a) * len(x_b) < 1000000:
         dn_ab = np.linalg.norm(x_a[:, np.newaxis, :] - x_b[np.newaxis, :, :], axis=-1)
 
@@ -826,7 +828,7 @@ def get_x_intersections(x_a, x_b, threshold=0.001,
     else:
         i_ab = np.zeros((0, 2), dtype=int)
         for i_a in range(len(x_a)):
-            if verbose > 0:
+            if log_level > 0:
                 printing.progress_bar(i=i_a, n=len(x_a), )
             dn_ab = np.linalg.norm(x_a[i_a, :] - x_b[:, :], axis=-1)
             intersection = dn_ab < threshold
@@ -871,7 +873,7 @@ def string_of_pearls2surface(x, r):
     # alternate between arcs and intersections depending on if the angles are obtuse or acute
     p = [k[[0], 0]]
     for i in range(len(r)-2):
-        print(np.linalg.norm(ki[0][i] - ki[1][i]))
+        log_print(np.linalg.norm(ki[0][i] - ki[1][i]))
         if np.linalg.norm(ki[0][i] - ki[1][i]) < eps0:
             p.append(ki[[0], i])
 

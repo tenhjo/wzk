@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import warnings
 import numpy as np
 
@@ -283,9 +285,9 @@ def crop_bimg_to_fit(bimg: np.ndarray, pad: int = 1):
 
     i_max = np.max(idx, axis=1)
     i_max = np.minimum(np.array(bimg.shape), i_max + pad + 1).astype(int)
-    print("a", bimg.shape)
+    log_print("a", bimg.shape)
     bimg = bimg[np2.slicen(i_min, i_max)]
-    print("b", bimg.shape)
+    log_print("b", bimg.shape)
     return bimg
 
 

@@ -5,6 +5,7 @@ by Alvin Wan, per:
 Scaling iterative closest point algorithm for registration of m–D point sets
  - Du et al. (https://doi.org/10.1016/j.jvcir.2010.02.005)
 """
+from wzk.logger import log_print
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
@@ -127,7 +128,7 @@ def icp(A, B, init_pose=None, max_iterations=100, tolerance=1e-10):
         return T, s, distances
 
     except (ValueError, np.linalg.LinAlgError) as e:
-        print(e)
+        log_print(e)
         return np.eye(n_dim+1), 1, np.array([np.inf])
 
 
@@ -139,7 +140,7 @@ def try_random():
 
     A, s, d = icp(A=x0.copy(), B=x1.copy())
 
-    print(A)
+    log_print(A)
     A = spatial.invert(A)
     x11 = spatial.Ax(A=A, x=x1)
     x0 = x0[:, :2]

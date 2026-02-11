@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 
 from wzk import math2, mpl2
@@ -21,7 +23,7 @@ def create_ramp(delta, timestep_size):
     return math2.smoother_step(x=np.linspace(0, 1, n_ramp))
 
 
-def add_ramps(a, ramp, verbose=0):
+def add_ramps(a, ramp, log_level=0):
 
     n_ramp = len(ramp)
     n_ramp2 = min(n_ramp//2, len(a)//2)
@@ -32,7 +34,7 @@ def add_ramps(a, ramp, verbose=0):
 
     a_with_ramps = np.concatenate([ramp_start, a[n_ramp2:-n_ramp2], ramp_end])
 
-    if verbose > 0:
+    if log_level > 0:
         fig, axes = mpl2.new_fig(n_rows=2, title="a + s")
         axes[0].plot(np.arange(n_ramp2, n_ramp2+len(a)), a, c="r", label="Without Ramps")
         axes[0].plot(a_with_ramps, c="b", label="With Ramps")
@@ -61,7 +63,7 @@ def calculate_slowing_factor(q, mean_vel, max_vel, timestep_size, weighting=None
     return factor
 
 
-def transform_slowing_factor(factor, verbose=0):
+def transform_slowing_factor(factor, log_level=0):
     """
     This slowing factor increases the waypoints not uniform along the whole path but
     adapts them depending on the factor indicating how much more points are needed for each segment of the path
@@ -81,7 +83,7 @@ def transform_slowing_factor(factor, verbose=0):
 
     assert np.isclose(sum(a), 1)
 
-    if verbose > 0:
+    if log_level > 0:
         fig, axes = mpl2.new_fig(n_rows=2)
         axes[0].plot(a, c="b")
         axes[1].plot(np.cumsum(a), c="b")
@@ -155,12 +157,14 @@ def slow_down_q_path(q,
     return warp_time_with_ramps(q=q, a=a, ramp=ramp, is_vel=None)
 
 
-def slow_down_q_path_list(q_path_list,
-                          timestep_sec: float = TIMESTEP_SEC,
-                          ramps_sec: float = RAMPS_SEC,
-                          mean_vel: float = 0.5,           # rad/s
-                          max_vel: float = 1,              # rad/s
-                          verbose=1):
+def slow_down_q_path_list(
+    q_path_list,
+    ramps_sec: float = RAMPS_SEC,
+    mean_vel: float = 0.5,  # rad/s
+    max_vel: float = 1,  # rad/s
+    timestep_sec: float = TIMESTEP_SEC,
+    log_level=1,
+):
 
     q_path_list_smooth = []
     for i, q_path in enumerate(q_path_list):
@@ -171,8 +175,8 @@ def slow_down_q_path_list(q_path_list,
                                            ramps_sec=ramps_sec/2, timestep_size=timestep_sec)
 
         q_path_list_smooth.append(path_smooth.tolist())
-        if verbose > 0:
-            print(f"{i} | shape: {path_smooth.shape}")
+        if log_level > 0:
+            log_print(f"{i} | shape: {path_smooth.shape}")
 
     return q_path_list_smooth
 
@@ -184,5 +188,5 @@ def test_calculate_slowing_factor():
     calculate_slowing_factor(q=q, mean_vel=mean_vel, max_vel=max_vel, timestep_size=0.001)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_calculate_slowing_factor()

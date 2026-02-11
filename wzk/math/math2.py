@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import math
 from itertools import product
 
@@ -334,7 +336,7 @@ def d_rosenbrock2d(xy, a=1, b=100):
     return np.concatenate([dx[..., np.newaxis], dy[..., np.newaxis]], axis=-1)
 
 
-def bisection(f, a, b, tol, max_depth=50, verbose=0, _depth=0, ):
+def bisection(f, a, b, tol, max_depth=50, log_level=0, _depth=0, ):
     """
     aka binary search
 
@@ -351,15 +353,15 @@ def bisection(f, a, b, tol, max_depth=50, verbose=0, _depth=0, ):
 
     # HEURISTIC
     if np.sign(fa) == np.sign(fb):
-        print(f"The scalars a {a} and b {b} do not bound a root.\n"
+        log_print(f"The scalars a {a} and b {b} do not bound a root.\n"
               f"A heuristic is tried to shift the limits, but this is not guaranteed to work; "
               f"only if the function is monotonic.\n"
               f"Check the limits again manually!.")
 
         if (np.sign(fa) == +1 and fa < fb) or (np.sign(fa) == -1 and fa > fb):
-            return bisection(f=f, a=a/2, b=a, tol=tol, verbose=verbose, _depth=_depth + 1)
+            return bisection(f=f, a=a/2, b=a, tol=tol, log_level=log_level, _depth=_depth + 1)
         else:
-            return bisection(f=f, a=b, b=2*b, tol=tol, verbose=verbose, _depth=_depth + 1)
+            return bisection(f=f, a=b, b=2*b, tol=tol, log_level=log_level, _depth=_depth + 1)
 
         # else:
         #     if fa < fb:
@@ -371,17 +373,17 @@ def bisection(f, a, b, tol, max_depth=50, verbose=0, _depth=0, ):
     m = (a + b) / 2
     fm = f(m)
 
-    if verbose > 0:
-        print(f"depth {_depth}: a {a}, b {b}, m {m}, f(m) {fm}")
+    if log_level > 0:
+        log_print(f"depth {_depth}: a {a}, b {b}, m {m}, f(m) {fm}")
 
     if np.abs(fm) <= tol or _depth > max_depth:  # stopping condition, report m as root
         return m
 
     elif np.sign(fa) == np.sign(fm):  # m is an improvement on a
-        return bisection(f=f, a=m, b=b, tol=tol, verbose=verbose, _depth=_depth + 1)
+        return bisection(f=f, a=m, b=b, tol=tol, log_level=log_level, _depth=_depth + 1)
 
     elif np.sign(fb) == np.sign(fm):  # m is an improvement on b
-        return bisection(f=f, a=a, b=m, tol=tol, verbose=verbose, _depth=_depth + 1)
+        return bisection(f=f, a=a, b=m, tol=tol, log_level=log_level, _depth=_depth + 1)
 
     else:
         raise ValueError("Should not happen!")
@@ -559,7 +561,7 @@ def irwin_hall_distribution(x, n=2):
 def test_dxnorm_dx():
     x = np.vstack([magic(3).T]*3)
     j = dxnorm_dx(x)
-    print(j[0])
+    log_print(j[0])
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -609,7 +611,7 @@ def solve_pinv(A, b, _rcond=__RCOND):
         x = (np.linalg.pinv(A, rcond=_rcond) @ b[..., np.newaxis])[..., 0]
 
     except np.linalg.LinAlgError:
-        print("solve_pinv: np.linalg.LinAlgError")
+        log_print("solve_pinv: np.linalg.LinAlgError")
         x0 = np.zeros(b.shape[:-1] + (A.shape[-2],))
         return x0
 

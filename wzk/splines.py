@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 
 
@@ -122,7 +124,7 @@ def try_nurbs_jacobi():
     dx[[1, -2], :] = -1
     dx[25, :] = +1
     for i in range(100):
-        print(i)
+        log_print(i)
         dp = (j[:, :, np.newaxis] * dx[:, np.newaxis, :]).sum(axis=0)
         p = p + 0.01 * dp
         _nurbs = NURBS(p=p)

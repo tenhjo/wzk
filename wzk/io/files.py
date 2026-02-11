@@ -12,7 +12,7 @@ import numpy as np
 
 from scipy.io import loadmat as load_mat, savemat as save_mat  # noqa: F401
 
-from wzk.logger import setup_logger
+from wzk.logger import setup_logger, log_print
 from wzk import time2, printing, subprocess2
 
 logger = setup_logger(__name__)
@@ -51,10 +51,10 @@ def cp(src, dst, a=False):
 
 def mv(src: str, dst: str):
     if src == dst:
-        print(f"mv: src == dst | {src}")
+        log_print(f"mv: src == dst | {src}")
         return
 
-    print(f"mv {src} {dst}")
+    log_print(f"mv {src} {dst}")
     subprocess.call(f"mv {src} {dst}", shell=True)
 
 
@@ -90,7 +90,7 @@ def rm_files_in_dir(directory: str, file_list: list = None):
 def rm_empty_folders(directory: str):
     for d, _, _ in os.walk(directory, topdown=False):
         if len(os.listdir(d)) == 0:
-            print(d)
+            log_print(d)
             os.rmdir(d)
 
 
@@ -271,7 +271,7 @@ def save_object2txt(file: str, obj):
 def combine_npz_files(*, directory,
                       pattern=None, file_list=None,
                       save=True,
-                      verbose=0):
+                      log_level=0):
 
     if file_list is None:
         if pattern is None:
@@ -287,7 +287,7 @@ def combine_npz_files(*, directory,
     new_dict = {}
 
     for i, file in enumerate(file_list):
-        if verbose > 0:
+        if log_level > 0:
             printing.progress_bar(i=i, n=len(file_list))
 
         data = np.load(directory + file)
@@ -401,12 +401,12 @@ def split_files_into_dirs(file_list: list,
 
     if file_list is None and base_dir:
         file_list = os.listdir(base_dir)
-        print(f"Get file_list from {base_dir}")
+        log_print(f"Get file_list from {base_dir}")
 
     for i, d_i in enumerate(dir_list):
         d_i = os.path.normpath(d_i)
 
-        print(f"->{d_i}")
+        log_print(f"->{d_i}")
 
         j = 0
         while j < len(file_list):
@@ -418,15 +418,15 @@ def split_files_into_dirs(file_list: list,
 
                 if mode == "wet":
                     shutil.move(f"{base_dir}/{f_j}", f_j_new)
-                print(f_j)
+                log_print(f_j)
 
                 file_list.pop(j)
             else:
                 j += 1
 
     if mode != "wet":
-        print()
-        print("'dry' mode is activated by default, to apply the changes use mode='wet')")
+        log_print()
+        log_print("'dry' mode is activated by default, to apply the changes use mode='wet')")
 
 
 def dir_dir2file_array(directory: str = None,

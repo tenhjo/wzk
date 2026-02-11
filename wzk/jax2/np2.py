@@ -1,4 +1,5 @@
 from __future__ import annotations
+from wzk.logger import log_print
 
 from types import EllipsisType
 from typing import Any, Literal, Sequence
@@ -228,7 +229,7 @@ def idx2boolmat(idx: ArrayLike, n: int = 100) -> np.ndarray:
     mat = np.zeros(s + (n,), dtype=bool)
 
     for i, idx_i in enumerate(np.asarray(idx).reshape(-1, np.shape(idx)[-1])):
-        print(i, np.unravel_index(i, shape=s))
+        log_print(i, np.unravel_index(i, shape=s))
         mat[np.unravel_index(i, shape=s)][idx_i] = True
     return mat
 
@@ -363,7 +364,7 @@ def verbose_reject_x(title: str, x: ArrayLike, b: np.ndarray) -> np.ndarray:
         mean = 0
     else:
         mean = b.mean()
-    print(f"{title}: {b.sum()}/{b.size} ~ {np.round(mean * 100, 3)}%")
+    log_print(f"{title}: {b.sum()}/{b.size} ~ {np.round(mean * 100, 3)}%")
     return np.asarray(x)[b].copy()
 
 

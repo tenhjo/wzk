@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 
 from scipy.interpolate import CubicSpline, PPoly, splev, splrep
@@ -65,11 +67,11 @@ def get_tangents(x, y, mode="i1"):
     else:
         raise ValueError
 
-    # print('Ab - own')
-    # print(ab)
-    # print(b)
+    # log_print('Ab - own')
+    # log_print(ab)
+    # log_print(b)
     m = solve_banded((1, 1), ab, b)
-    # print(matrix)
+    # log_print(matrix)
 
     return m
 
@@ -230,7 +232,7 @@ def test_i2_natural():
         yy = np.random.random(10)
         b[i] = test(x=xx, y=yy)
 
-    print(b.mean())
+    log_print(b.mean())
 
 
 def cumsum_diff(x0, x_diff):
@@ -246,13 +248,13 @@ def savgol_error():
     xy = np.vstack((x, y)).T
     xy_fine = get_substeps_adjusted(x=xy, n=n_new)
     for window_length in [5, 7, 9, 11, 13, 15, 17, 21]:
-        print(window_length)
+        log_print(window_length)
         y_fine_savgol = savgol_filter(x=xy_fine[:, 1], window_length=window_length, polyorder=3, deriv=0)
         y_fine_savgol2 = savgol_filter(x=y_fine_savgol, window_length=window_length, polyorder=3, deriv=0)
 
         diff = np.abs(xy_fine[:, 1] - y_fine_savgol)
         diff2 = np.abs(xy_fine[:, 1] - y_fine_savgol2)
-        print(np.max(diff), np.max(diff2))
+        log_print(np.max(diff), np.max(diff2))
 
         # fig, ax = new_fig()
         # ax.plot(y_fine_savgol, c='r', marker='o', markersize=5)
@@ -263,8 +265,8 @@ def savgol_error():
 
         # d2_savgol = np.diff(y_fine_savgol, 2)
         # d2_savgol2 = np.diff(y_fine_savgol2, 2)
-        # print(np.sum(np.abs(d2_savgol)), np.max(np.abs(d2_savgol)))
-        # print(np.sum(np.abs(d2_savgol2)), np.max(np.abs(d2_savgol2)))
+        # log_print(np.sum(np.abs(d2_savgol)), np.max(np.abs(d2_savgol)))
+        # log_print(np.sum(np.abs(d2_savgol2)), np.max(np.abs(d2_savgol2)))
 
         # fig, ax = new_fig()
         # ax.plot(d1_savgol, c='r', marker='o', markersize=5)
@@ -305,9 +307,9 @@ def dummy1():
     d2_spline = np.diff(y_fine_spline, 2)
     d2_spline_i0 = np.diff(y_fine_spline_i0, 2)
     # d2_spline_i1 = np.diff(y_fine_spline_i1, 2)
-    print(np.sum(np.abs(d2_filter)), np.max(np.abs(d2_filter)))
-    print(np.sum(np.abs(d2_spline)), np.max(np.abs(d2_spline)))
-    print(np.sum(np.abs(d2_spline_i0)), np.max(np.abs(d2_spline_i0)))
+    log_print(np.sum(np.abs(d2_filter)), np.max(np.abs(d2_filter)))
+    log_print(np.sum(np.abs(d2_spline)), np.max(np.abs(d2_spline)))
+    log_print(np.sum(np.abs(d2_spline_i0)), np.max(np.abs(d2_spline_i0)))
     ax.plot(d2_filter, c="r", marker="o", markersize=5)
     ax.plot(d2_spline, c="b", marker="o", markersize=5)
     # ax.plot(d2_spline_i0, c='matrix', marker='o', markersize=5)
@@ -382,7 +384,7 @@ def dummy2():
     # ax.plot(x_fine_fine, y_fine_diff_fine2_cs, marker='s', markersize=1.5, c='orange', alpha=0.5)
     ax.plot(xy_fine[:, 0], y_fine_diff_cs, marker="o", markersize=1.5, c="matrix", alpha=0.5)
     ax.plot(xy_fine[:, 0], y_fine_diff2_cs, marker="s", markersize=1.5, c="orange", alpha=0.5)
-    # print(len(xy_fine) / len(x_fine_fine))
+    # log_print(len(xy_fine) / len(x_fine_fine))
 
 
 def dummy3():

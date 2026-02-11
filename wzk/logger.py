@@ -20,3 +20,21 @@ def setup_logger(name, level=logging.DEBUG):
         logger.propagate = False
 
     return logger
+
+
+def log_print(*values,
+              sep: str = " ",
+              end: str = "\n",
+              file=None,
+              flush: bool = False,
+              level: int = logging.INFO,
+              logger: logging.Logger | None = None) -> None:
+    """
+    Logger-backed drop-in replacement for print.
+    """
+    _ = file, flush
+    active_logger = logger or setup_logger(__name__)
+    msg = sep.join(str(v) for v in values)
+    if end not in ("", "\n"):
+        msg += end
+    active_logger.log(level, msg)

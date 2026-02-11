@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 from scipy.stats import norm
 
@@ -68,7 +70,7 @@ def get_n_in2(n_in, n_out,
 
 
 def fun2n(fun, n,
-          max_iter=100, max_factor=128, verbose=0):
+          max_iter=100, max_factor=128, log_level=0):
     """
     Wrapper to repeatedly call a function fun(n_i) -> x and concatenate its outputs until len(x) >= n
     Useful for function which samples randomly
@@ -86,8 +88,8 @@ def fun2n(fun, n,
         x_new = fun(n_in)
         x = np.concatenate([x, x_new], axis=0)
 
-        if verbose > 0:
-            print(f"{i}: total:{n} | current:{len(x)} | new:{len(x_new)}/{n_in}")
+        if log_level > 0:
+            log_print(f"{i}: total:{n} | current:{len(x)} | new:{len(x_new)}/{n_in}")
 
         if len(x) >= n:
             return x[:n]
@@ -119,7 +121,7 @@ def choose_from_uniform_grid(x, n):
         _u = np.unique(_i, axis=0)
         return len(_u) - n
 
-    s = math2.bisection(f=fun, a=2, b=100, tol=0, verbose=0)
+    s = math2.bisection(f=fun, a=2, b=100, tol=0, log_level=0)
     shape = (int(np.ceil(s)),) * n_dim
 
     ix = grid.x2i(x=x, limits=limits, shape=shape)

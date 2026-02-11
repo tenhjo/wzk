@@ -74,12 +74,13 @@ class Test(unittest.TestCase):
 
         h1 = mpl2.plot_coordinate_frames(ax=ax, x=[1, 1], dcm=spatial.twod.trans_theta2frame(theta=1)[:-1, :-1],
                                          color="bb")
-        h2 = plot_coordinate_frames(ax=ax, dcm=trans_theta2frame(theta=2)[:-1, :-1], color='ry')  # noqa
+        mpl2.plot_coordinate_frames(ax=ax, dcm=spatial.twod.trans_theta2frame(theta=2)[:-1, :-1], color="ry")
 
         mpl2.plot_coordinate_frames(h=h1, dcm=np.eye(3), x=np.ones(3) * 0.1)
 
         # 3D
-        fig, ax = mpl2.new_fig(aspect="equal", title="3D Coordinate Frames")
+        fig, ax = mpl2.new_fig(aspect="equal", title="3D Coordinate Frames",
+                               kwargs_subplots={"subplot_kw": {"projection": "3d"}})
 
         mpl2.axes.set_ax_limits(ax=ax, limits=np.array([[-1, 1],
                                                         [-1, 1],
@@ -87,7 +88,7 @@ class Test(unittest.TestCase):
 
         dcm = spatial.sample_dcm()
         h1 = mpl2.geometry.plot_coordinate_frames(ax=ax, dcm=dcm)
-        h2 = plot_coordinate_frames(ax=ax, dcm=dcm)  # noqa
+        mpl2.plot_coordinate_frames(ax=ax, dcm=dcm)
 
         mpl2.geometry.plot_coordinate_frames(h=h1, dcm=np.eye(3), x=np.ones(3) * 0.1)
 

@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 
 from .basics import rolling_window, args2arrays
@@ -58,7 +60,7 @@ def find_array_occurrences(a, o):
     return i
 
 
-def get_element_overlap(arr1, arr2=None, verbose=0):
+def get_element_overlap(arr1, arr2=None, log_level=0):
     """
     arr1 is a 2D array (n, m)
     arr2 is a 2D array (l, k)
@@ -72,8 +74,8 @@ def get_element_overlap(arr1, arr2=None, verbose=0):
 
     overlap = np.zeros((len(arr1), len(arr2)), dtype=int)
     for i, arr_i in enumerate(arr1):
-        if verbose > 0:
-            print(f"{i} / {len(arr1)}")
+        if log_level > 0:
+            log_print(f"{i} / {len(arr1)}")
         for j, arr_j in enumerate(arr2):
             for k in arr_i:
                 if k in arr_j:
@@ -225,7 +227,7 @@ def find_largest_consecutives(x):
     return n, find_consecutives(x, n=n)
 
 
-def find_block_shuffled_order(a, b, block_size, threshold, verbose=1):
+def find_block_shuffled_order(a, b, block_size, threshold, log_level=1):
     n = len(a)
     m = len(b)
     assert n == m
@@ -242,8 +244,8 @@ def find_block_shuffled_order(a, b, block_size, threshold, verbose=1):
             d = np.abs(d).max()
             if d < threshold:
                 idx[i] = j
-                if verbose > 0:
-                    print(i, j, d)
+                if log_level > 0:
+                    log_print(i, j, d)
 
     return idx
 
