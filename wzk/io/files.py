@@ -226,7 +226,7 @@ def load_pickle(file: str):
                 obj = pickle.load(f)
             return obj
 
-    raise FileNotFoundError(f"{file} not found")
+    raise FileNotFoundError(f"{file} not found for {ext_list}")
 
 
 # json
