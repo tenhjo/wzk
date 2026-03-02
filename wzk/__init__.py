@@ -36,6 +36,7 @@ _LAZY_MODULES = {
     "bimage": "wzk.bimage",
     "grid": "wzk.grid",
     "ltd": "wzk.ltd",
+    "wandb2": "wzk.wandb2",
 }
 
 
@@ -68,6 +69,10 @@ def __getattr__(name: str) -> Any:
         if name == "jax2":
             raise AttributeError(
                 "module 'wzk' has no attribute 'jax2' (optional JAX dependencies are missing)"
+            ) from exc
+        if name == "wandb2":
+            raise AttributeError(
+                "module 'wzk' has no attribute 'wandb2' (install with: uv pip install 'wzk[wandb]')"
             ) from exc
         raise
 
