@@ -1,8 +1,8 @@
 
-from wzk.logger import log_print
 import numpy as np
 from matplotlib import transforms
 
+from wzk.logger import log_print
 from wzk.np2 import np_isinstance
 
 

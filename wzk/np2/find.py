@@ -1,11 +1,16 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
 import numpy as np
 
-from .basics import rolling_window, args2arrays
+from wzk.logger import setup_logger
+
+from ._types import ArrayLike
+from .basics import args2arrays, rolling_window
+
+logger = setup_logger(__name__)
 
 
-def find_subarray(a, b):
+def find_subarray(a: ArrayLike, b: ArrayLike) -> np.ndarray:
     """
     Find b in a
     Return the index where the overlap begins.
@@ -25,14 +30,14 @@ def find_subarray(a, b):
     return idx
 
 
-def find_values(arr, values):
+def find_values(arr: ArrayLike, values: ArrayLike) -> np.ndarray:
     res = np.zeros_like(arr, dtype=bool)
     for v in values:
         res[~res] = arr[~res] == v
     return res
 
 
-def find_common_values(a, b):
+def find_common_values(a: ArrayLike, b: ArrayLike) -> tuple[np.ndarray, np.ndarray]:
     """if there are multiple elements with the same value, the first one is taken"""
     i_a = []
     i_b = []
@@ -45,7 +50,7 @@ def find_common_values(a, b):
     return np.array(i_a, dtype=int), np.array(i_b, dtype=int)
 
 
-def find_array_occurrences(a, o):
+def find_array_occurrences(a: ArrayLike, o: ArrayLike) -> np.ndarray:
     assert a.ndim == o.ndim
     assert a.shape[-1] == o.shape[-1]
 
@@ -60,7 +65,7 @@ def find_array_occurrences(a, o):
     return i
 
 
-def get_element_overlap(arr1, arr2=None, log_level=0):
+def get_element_overlap(arr1: ArrayLike, arr2: ArrayLike | None = None) -> np.ndarray:
     """
     arr1 is a 2D array (n, m)
     arr2 is a 2D array (l, k)
@@ -74,8 +79,7 @@ def get_element_overlap(arr1, arr2=None, log_level=0):
 
     overlap = np.zeros((len(arr1), len(arr2)), dtype=int)
     for i, arr_i in enumerate(arr1):
-        if log_level > 0:
-            log_print(f"{i} / {len(arr1)}")
+        logger.debug("get_element_overlap progress: %s / %s", i, len(arr1))
         for j, arr_j in enumerate(arr2):
             for k in arr_i:
                 if k in arr_j:
@@ -84,7 +88,7 @@ def get_element_overlap(arr1, arr2=None, log_level=0):
     return overlap
 
 
-def get_first_row_occurrence(bool_arr):
+def get_first_row_occurrence(bool_arr: ArrayLike) -> np.ndarray:
     """
 
     array([[ True,  True, False,  True,  True,  True],
@@ -101,7 +105,7 @@ def get_first_row_occurrence(bool_arr):
     return res
 
 
-def fill_interval_indices(interval_list, n):
+def fill_interval_indices(interval_list: list[list[int]] | np.ndarray, n: int) -> np.ndarray:
     if isinstance(interval_list, np.ndarray):
         interval_list = interval_list.tolist()
 
@@ -123,7 +127,7 @@ def fill_interval_indices(interval_list, n):
     return np.array(interval_list)
 
 
-def get_interval_indices(bool_array, expand=False):
+def get_interval_indices(bool_array: ArrayLike, expand: bool = False) -> np.ndarray | list[list[int]]:
     """
     Get a list of start and end indices, which indicate the sections of True values in the array.
 
@@ -153,7 +157,9 @@ def get_interval_indices(bool_array, expand=False):
     return interval_list
 
 
-def get_cropping_indices(pos, shape_small, shape_big, mode="lower_left"):
+def get_cropping_indices(
+    pos: ArrayLike, shape_small: ArrayLike, shape_big: ArrayLike, mode: str = "lower_left"
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Adjust the boundaries to fit a small array in a larger array.
     pos:  idx where the small image should be set in the bigger picture, option A
@@ -186,12 +192,8 @@ def get_cropping_indices(pos, shape_small, shape_big, mode="lower_left"):
     else:
         raise ValueError(f"Invalid position mode {mode}")
 
-    ll_small = np.where(ll_big < 0,
-                        -ll_big,
-                        0)
-    ur_small = np.where(shape_big - ur_big < 0,
-                        shape_small + (shape_big - ur_big),
-                        shape_small)
+    ll_small = np.where(ll_big < 0, -ll_big, 0)
+    ur_small = np.where(shape_big - ur_big < 0, shape_small + (shape_big - ur_big), shape_small)
 
     ll_big = np.where(ll_big < 0, 0, ll_big)
     ur_big = np.where(shape_big - ur_big < 0, shape_big, ur_big)
@@ -199,14 +201,14 @@ def get_cropping_indices(pos, shape_small, shape_big, mode="lower_left"):
     return ll_big, ur_big, ll_small, ur_small
 
 
-def find_closest(x, y):
+def find_closest(x: ArrayLike, y: ArrayLike) -> tuple[np.ndarray, np.ndarray]:
     d = np.linalg.norm(x[:, np.newaxis, :] - y[np.newaxis, :, :], axis=-1)
     i_x = np.argmin(d, axis=0)
     i_y = np.argmin(d, axis=1)
     return i_x, i_y
 
 
-def find_consecutives(x, n):
+def find_consecutives(x: ArrayLike, n: int) -> np.ndarray:
     if n == 1:
         return np.arange(len(x))
     assert n > 1
@@ -214,7 +216,7 @@ def find_consecutives(x, n):
     return np.nonzero(np.equal(c, 0))[0]
 
 
-def find_largest_consecutives(x):
+def find_largest_consecutives(x: ArrayLike) -> tuple[int, np.ndarray]:
     c = np.convolve(np.abs(np.diff(x)), v=np.ones(2 - 1), mode="valid")
     i2 = np.nonzero(np.equal(c, 0))[0]
     i2 -= np.arange(len(i2))
@@ -227,7 +229,7 @@ def find_largest_consecutives(x):
     return n, find_consecutives(x, n=n)
 
 
-def find_block_shuffled_order(a, b, block_size, threshold, log_level=1):
+def find_block_shuffled_order(a: ArrayLike, b: ArrayLike, block_size: int, threshold: float) -> np.ndarray:
     n = len(a)
     m = len(b)
     assert n == m
@@ -238,20 +240,18 @@ def find_block_shuffled_order(a, b, block_size, threshold, log_level=1):
 
     for i in range(nn):
         for j in range(nn):
-            d = (a[i * block_size:(i + 1) * block_size] -
-                 b[j * block_size:(j + 1) * block_size])
+            d = a[i * block_size : (i + 1) * block_size] - b[j * block_size : (j + 1) * block_size]
 
             d = np.abs(d).max()
             if d < threshold:
                 idx[i] = j
-                if log_level > 0:
-                    log_print(i, j, d)
+                logger.debug("find_block_shuffled_order match: i=%s j=%s d=%s", i, j, d)
 
     return idx
 
 
 # uses
-def align_shapes(a, b):
+def align_shapes(a: ArrayLike, b: ArrayLike) -> np.ndarray:
     """
     a = np.array((2, 3, 4, 3, 5, 1))
     b = np.array((3, 4, 3))
@@ -259,5 +259,5 @@ def align_shapes(a, b):
     """
     idx = find_subarray(a=a, b=b).item()
     aligned_shape = np.full(shape=len(a), fill_value=-1, dtype=int)
-    aligned_shape[idx:idx + len(b)] = 1
+    aligned_shape[idx : idx + len(b)] = 1
     return aligned_shape

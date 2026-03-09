@@ -2,11 +2,15 @@ from unittest import TestCase
 
 import numpy as np
 
-from wzk.mpl2 import new_fig, close_all
-from wzk.mpl2.DraggablePatches import (DraggableCircle, DraggableRectangle, DraggableEllipse,
-                                       DraggableEllipseList, DraggableRectangleList,
-                                       DraggableFrame)
-
+from wzk.mpl2 import close_all, new_fig
+from wzk.mpl2.DraggablePatches import (
+    DraggableCircle,
+    DraggableEllipse,
+    DraggableEllipseList,
+    DraggableFrame,
+    DraggableRectangle,
+    DraggableRectangleList,
+)
 
 verbose = 1
 
@@ -22,8 +26,8 @@ class TestDraggableCircle(TestCase):
         c1.set_limits(limits=np.array(((0.1, 0.2),
                                        (0.1, 0.2))))
         c2.set_color("g")
-        c2.set_center(xy=(0.4, 0.4))  # noqa
-        c2.set_radius(radius=0.02)  # noqa
+        c2.set_center(xy=(0.4, 0.4))
+        c2.set_radius(radius=0.02)
 
         if verbose == 0:
             close_all()

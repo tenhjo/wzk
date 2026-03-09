@@ -1,11 +1,14 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
 import numpy as np
 
 from wzk import math2
+from wzk.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
-def dh2frame(q, d, theta, a, alpha):
+def dh2frame(q: float, d: float, theta: float, a: float, alpha: float) -> np.ndarray:
     """Craig
     From wikipedia (https://en.wikipedia.org/wiki/Denavit–Hartenberg_parameters):
         d: offset along previous z to the common normal
@@ -26,13 +29,13 @@ def dh2frame(q, d, theta, a, alpha):
                      [0, 0, 0, 1]])
 
 
-def dh2frame_all(dh):
+def dh2frame_all(dh: np.ndarray) -> np.ndarray:
     d, theta, a, alpha = dh.T
     f = np.array([dh2frame(q=0, d=d[i], theta=theta[i], a=a[i], alpha=alpha[i]) for i in range(len(dh))])
     return f
 
 
-def dh2frame2(q, d, theta, a, alpha):
+def dh2frame2(q: float, d: float, theta: float, a: float, alpha: float) -> np.ndarray:
 
     cos_th = np.cos(theta + q)
     sin_th = np.sin(theta + q)
@@ -56,9 +59,9 @@ def dh2frame2(q, d, theta, a, alpha):
     return frames
 
 
-def frame2dh(f):
+def frame2dh(f: np.ndarray) -> tuple[float, float, float, float]:
     if f[0, 2] != 0:
-        log_print("frame does not match DH formalism")
+        logger.debug("frame does not match DH formalism")
     theta = np.arctan2(-f[0, 1], f[0, 0])
     alpha = np.arctan2(-f[1, 2], f[2, 2])
 
@@ -73,12 +76,12 @@ def frame2dh(f):
     a = f[0, 3]
     f1 = dh2frame(q=0, d=d, theta=theta, a=a, alpha=alpha)
     if not np.allclose(f1, f):
-        log_print("frame does not match DH formalism")
+        logger.debug("frame does not match DH formalism")
 
     return d, theta, a, alpha
 
 
-def dh2frame_2d(q, theta, a):
+def dh2frame_2d(q: float, theta: float, a: float) -> np.ndarray:
     cos_th = np.cos(theta + q)
     sin_th = np.sin(theta + q)
 

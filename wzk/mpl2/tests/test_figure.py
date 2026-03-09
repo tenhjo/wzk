@@ -1,8 +1,8 @@
-from unittest import TestCase
 import os
+from unittest import TestCase
 
-from wzk.mpl2.figure import new_fig, save_fig
 from wzk import files
+from wzk.mpl2.figure import new_fig, save_fig
 
 _dir = os.path.abspath(os.path.dirname(__file__)) + "/"
 _file = "temp__test_mpl_latex"

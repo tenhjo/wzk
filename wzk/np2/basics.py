@@ -1,17 +1,23 @@
-import numpy as np
+from __future__ import annotations
+
+from collections.abc import Callable
 from itertools import product
+from typing import Any
+
+import numpy as np
 
 from . import shape as sh
+from ._types import ArrayLike, AxisLike, ShapeLike
 
 
-def object2numeric_array(arr):
+def object2numeric_array(arr: ArrayLike) -> np.ndarray:
     s = np.shape(arr)
-    arr = np.array([v for v in np.ravel(arr)])
+    arr = np.array(list(np.ravel(arr)))
     arr = np.reshape(arr, s + np.shape(arr)[1:])
     return arr
 
 
-def numeric2object_array(arr):
+def numeric2object_array(arr: np.ndarray) -> np.ndarray:
     n = arr.shape[0]
     arr_obj = np.zeros(n, dtype=object)
     for i in range(n):
@@ -20,14 +26,13 @@ def numeric2object_array(arr):
     return arr_obj
 
 
-def scalar2array(*val_or_arr, shape, squeeze=True, safe=True):
+def scalar2array(*val_or_arr: Any, shape: ShapeLike, squeeze: bool = True, safe: bool = True) -> Any:
     # standard numpy broadcasting rules apply
     shape = sh.shape_wrapper(shape)
 
     res = []
     for voa in val_or_arr:
         try:
-
             if isinstance(voa, str):
                 dtype = np.array(voa).dtype
             elif isinstance(voa, np.ndarray):
@@ -51,18 +56,18 @@ def scalar2array(*val_or_arr, shape, squeeze=True, safe=True):
         return res
 
 
-def args2arrays(*args):
+def args2arrays(*args: Any) -> list[np.ndarray]:
     return [np.array(a) for a in args]
 
 
-def unify(x):
+def unify(x: ArrayLike) -> np.generic:
     x = np.atleast_1d(x)
     assert np.allclose(x, x.mean())
     x_mean = np.mean(x)
     return x_mean.astype(x.dtype)
 
 
-def __fill_index_with(idx, axis, shape, mode="slice"):
+def __fill_index_with(idx: Any, axis: AxisLike, shape: tuple[int, ...], mode: str = "slice") -> tuple[Any, ...] | Any:
     """
     orange <-> orth-range
     sorry but 'orange', 'slice' was just too delicious
@@ -82,22 +87,22 @@ def __fill_index_with(idx, axis, shape, mode="slice"):
 
     idx = np.array(idx)
     for i, ax in enumerate(axis):
-        idx_with_.insert(ax, idx[..., i])  # noqa
+        idx_with_.insert(ax, idx[..., i])
 
     return tuple(idx_with_)
 
 
-def insert(a, val, idx, axis, mode="slice"):
+def insert(a: np.ndarray, val: Any, idx: Any, axis: AxisLike, mode: str = "slice") -> None:
     idx = __fill_index_with(idx=idx, axis=axis, shape=a.shape, mode=mode)
     a[idx] = val
 
 
-def extract(a, idx, axis, mode="slice"):
+def extract(a: np.ndarray, idx: Any, axis: AxisLike, mode: str = "slice") -> np.ndarray:
     idx = __fill_index_with(idx=idx, axis=axis, shape=a.shape, mode=mode)
     return a[idx]
 
 
-def __argfun(a, axis, fun):
+def __argfun(a: np.ndarray, axis: AxisLike, fun: Callable[..., np.ndarray]) -> np.ndarray | tuple[np.ndarray, ...]:
     axis = sh.axis_wrapper(axis=axis, n_dim=a.ndim)
     if len(axis) == 1:
         return fun(a, axis=axis)
@@ -117,15 +122,17 @@ def __argfun(a, axis, fun):
         return np.transpose(idx, axes=np.roll(np.arange(idx.ndim), -1))
 
 
-def argmax(a, axis=None):
+def argmax(a: np.ndarray, axis: AxisLike = None) -> np.ndarray | tuple[np.ndarray, ...]:
     return __argfun(a=a, axis=axis, fun=np.argmax)
 
 
-def argmin(a, axis=None):
+def argmin(a: np.ndarray, axis: AxisLike = None) -> np.ndarray | tuple[np.ndarray, ...]:
     return __argfun(a=a, axis=axis, fun=np.argmin)
 
 
-def allclose(a, b, rtol=1.e-5, atol=1.e-8, axis=None):
+def allclose(
+    a: np.ndarray, b: np.ndarray, rtol: float = 1.0e-5, atol: float = 1.0e-8, axis: AxisLike = None
+) -> np.ndarray | bool:
     assert a.shape == b.shape, f"{a.shape} != {b.shape}"
     axis = np.array(sh.axis_wrapper(axis=axis, n_dim=a.ndim))
     assert len(axis) <= len(a.shape)
@@ -134,14 +141,12 @@ def allclose(a, b, rtol=1.e-5, atol=1.e-8, axis=None):
     shape = np.array(a.shape)[axis]
     bool_arr = np.zeros(shape, dtype=bool)
     for i in product(*(range(s) for s in shape)):
-        bool_arr[i] = np.allclose(extract(a, idx=i, axis=axis),
-                                  extract(b, idx=i, axis=axis),
-                                  rtol=rtol, atol=atol)
+        bool_arr[i] = np.allclose(extract(a, idx=i, axis=axis), extract(b, idx=i, axis=axis), rtol=rtol, atol=atol)
 
     return bool_arr
 
 
-def __wrapper_pair2list_fun(*args, fun):
+def __wrapper_pair2list_fun(*args: ArrayLike, fun: Callable[[Any, Any], Any]) -> Any:
     assert len(args) >= 2
     res = fun(args[0], args[1])
     for a in args[2:]:
@@ -149,53 +154,52 @@ def __wrapper_pair2list_fun(*args, fun):
     return res
 
 
-def minimum(*args):
+def minimum(*args: ArrayLike) -> np.ndarray:
     return __wrapper_pair2list_fun(*args, fun=np.minimum)
 
 
-def maximum(*args):
+def maximum(*args: ArrayLike) -> np.ndarray:
     return __wrapper_pair2list_fun(*args, fun=np.maximum)
 
 
-def logical_or(*args):
+def logical_or(*args: ArrayLike) -> np.ndarray:
     return __wrapper_pair2list_fun(*args, fun=np.logical_or)
 
 
-def logical_and(*args):
+def logical_and(*args: ArrayLike) -> np.ndarray:
     return __wrapper_pair2list_fun(*args, fun=np.logical_and)
 
 
-def max_size(*args):
+def max_size(*args: ArrayLike | ShapeLike | None) -> int:
     return int(np.max([np.size(a) for a in args]))
 
 
-def min_size(*args):
+def min_size(*args: ArrayLike | ShapeLike | None) -> int:
     return int(np.min([np.size(a) for a in args]))
 
 
-def argmax_size(*args):
+def argmax_size(*args: ArrayLike | ShapeLike | None) -> int:
     return int(np.argmax([np.size(a) for a in args]))
 
 
-def max_len(*args):
+def max_len(*args: ArrayLike | ShapeLike | None) -> int:
     return int(np.max([len(a) for a in args]))
 
 
-def squeeze_all(*args):
+def squeeze_all(*args: ArrayLike) -> list[np.ndarray]:
     return [np.squeeze(a) for a in args]
 
 
-def round2(x,
-           decimals=None):
+def round2(x: ArrayLike, decimals: int | None = None) -> np.ndarray:
     # noinspection PyProtectedMember
     try:
         return np.round(x, decimals=decimals)
 
-    except (TypeError, np.core._exceptions.UFuncTypeError):  # noqa
+    except (TypeError, np._core._exceptions.UFuncTypeError):
         return np.array(x)
 
 
-def clip_periodic(x, a_min, a_max):
+def clip_periodic(x: ArrayLike, a_min: float, a_max: float) -> np.ndarray:
     try:
         x = x.copy()
     except AttributeError:
@@ -207,7 +211,7 @@ def clip_periodic(x, a_min, a_max):
     return x
 
 
-def clip2(x, clip: float, mode: str, axis=-1):
+def clip2(x: ArrayLike, clip: float, mode: str, axis: int = -1) -> np.ndarray | ArrayLike:
     if mode:
         if mode == "value":
             return np.clip(x, a_min=-clip, a_max=+clip)
@@ -227,7 +231,7 @@ def clip2(x, clip: float, mode: str, axis=-1):
     return x
 
 
-def load_dict(file: str) -> dict:
+def load_dict(file: str) -> dict[str, Any]:
     d = np.load(file, allow_pickle=True)
     try:
         d = d.item()
@@ -239,7 +243,7 @@ def load_dict(file: str) -> dict:
     return d
 
 
-def round_dict(d, decimals=None):
+def round_dict(d: dict[str, Any], decimals: int | None = None) -> dict[str, Any]:
     for key in d.keys():
         value = d[key]
         if isinstance(value, dict):
@@ -250,7 +254,7 @@ def round_dict(d, decimals=None):
     return d
 
 
-def rolling_window(a, window):
+def rolling_window(a: ArrayLike, window: int) -> np.ndarray:
     """https://stackoverflow.com/a/6811241/7570817"""
     a = np.array(a)
     shape = a.shape[:-1] + (a.shape[-1] - window + 1, window)

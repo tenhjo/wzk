@@ -1,18 +1,17 @@
 from __future__ import annotations
-from wzk.logger import log_print
 
+from collections.abc import Sequence
 from types import EllipsisType
-from typing import Any, Literal, Sequence
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 
+from wzk.logger import log_print
+
+from . import basics, dtypes2, find, reshape
 from ._types import ArrayLike, AxisLike, ShapeLike, float32, int32
-from . import basics
-from . import dtypes2
-from . import find
-from . import reshape
 from .range import slicen
 
 

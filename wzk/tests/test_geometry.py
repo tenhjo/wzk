@@ -1,6 +1,8 @@
 import unittest
 from itertools import combinations
+
 import numpy as np
+
 from wzk import geometry, testing
 
 

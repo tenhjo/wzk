@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import numpy as np
+from numpy.typing import ArrayLike
 
 
-def binary_table(a, b):
+def binary_table(a: ArrayLike, b: ArrayLike) -> np.ndarray:
     a, b = np.atleast_1d(a, b)
     assert np.all(a.shape == b.shape)
 

@@ -1,8 +1,7 @@
 import os
 import sys
-
-from subprocess import call
 from importlib import metadata
+from subprocess import call
 
 
 def upgrade_all():

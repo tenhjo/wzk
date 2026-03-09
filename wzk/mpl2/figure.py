@@ -1,21 +1,19 @@
-from typing import Literal
-
 import os
 import shutil
-from typing import Union, Optional
+from typing import Literal, Optional, Union
 
+import matplotlib as mpl
 import numpy as np
-
-from wzk.mpl2.backend import plt
-from wzk.mpl2.axes import set_ax_limits
-from wzk.mpl2.move_figure import move_fig
+from matplotlib import (
+    axes,  # noqa
+    figure,  # noqa
+)
 
 from wzk import files, ltd, math2, printing, strings
 from wzk.logger import setup_logger
-
-import matplotlib as mpl
-from matplotlib import axes  # noqa
-from matplotlib import figure  # noqa
+from wzk.mpl2.axes import set_ax_limits
+from wzk.mpl2.backend import plt
+from wzk.mpl2.move_figure import move_fig
 
 shape_1c_ieee = [3 + 1 / 2, (3 + 1 / 2) / math2.GOLDEN_RATIO]
 shape_2c_ieee = [7 + 1 / 16, (7 + 1 / 16) / math2.GOLDEN_RATIO]
@@ -24,7 +22,7 @@ axes_type = mpl.axes.Axes
 logger = setup_logger(__name__)
 
 
-def ax_wrapper(ax: Union[dict, mpl.axes.Axes]):
+def ax_wrapper(ax: dict | mpl.axes.Axes):
     if ax is None:
         return new_fig()[1]
 
@@ -73,7 +71,7 @@ def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
     if kwargs_subplots is None:
         kwargs_subplots = {}
 
-    ax = fig.subplots(nrows=n_rows, ncols=n_cols, sharex=share_x, sharey=share_y, **kwargs_subplots)  # noqa
+    ax = fig.subplots(nrows=n_rows, ncols=n_cols, sharex=share_x, sharey=share_y, **kwargs_subplots)
 
     if isinstance(ax, np.ndarray):
         for i in np.ndindex(*np.shape(ax)):
@@ -93,8 +91,8 @@ def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
     return fig, ax
 
 
-def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: Union[str, tuple] = None,
-             dpi: int = 600, bbox: Optional[str] = "tight", pad: float = 0.1,
+def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: str | tuple = None,
+             dpi: int = 600, bbox: str | None = "tight", pad: float = 0.1,
              save: bool = True, replace: bool = True, show: bool = False, copy2cb: bool = False,
              **kwargs: object) -> object:
     """
@@ -159,7 +157,7 @@ def save_ani(file: str, fig: mpl.figure.Figure, ani,
     for nn in n:
         printing.progress_bar(i=nn, n=n[-1] + 1)
         ani(nn)
-        save_fig(file="{}/frame{:0>6}".format(dir_temp, nn), fig=fig, formats=("png", ), dpi=dpi, bbox=bbox,
+        save_fig(file=f"{dir_temp}/frame{nn:0>6}", fig=fig, formats=("png", ), dpi=dpi, bbox=bbox,
                  )
 
     os.system(f"ffmpeg -r {fps} -i {dir_temp}/"

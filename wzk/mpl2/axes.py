@@ -1,5 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 from wzk import ltd
 
@@ -155,7 +155,7 @@ def size_units2points_listener(ax, h, size, reference="y", mode="ms"):
 
     h, mode = ltd.atleast_list(h, mode)
 
-    def on_change(*args):  # noqa
+    def on_change(*args):
         size_new = size_units2points(ax=ax, size=size, reference=reference)
         for hh in h:
             if "ms" in mode or "markersize" in mode:

@@ -1,11 +1,12 @@
 
-from wzk.logger import log_print
 import zlib
-import numpy as np
-from skimage.io import imread, imsave  # noqa
-from PIL import Image
 
-from wzk import np2, math2, files, bimage
+import numpy as np
+from PIL import Image
+from skimage.io import imread, imsave  # noqa
+
+from wzk import bimage, files, math2, np2
+from wzk.logger import log_print
 
 
 def imread_bw(file, threshold):
@@ -182,7 +183,7 @@ def check_overlap(a, b, return_arr=False):
         return np.logical_and(a, b).any()
 
 
-def sample_from_img(img, range, n, replace=False):   # noqa
+def sample_from_img(img, range, n, replace=False):
     bimg = np.logical_and(range[0] < img, img < range[1])
     return bimage.sample_bimg_i(img=bimg, n=n, replace=replace)
 

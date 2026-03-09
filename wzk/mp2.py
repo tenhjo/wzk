@@ -1,6 +1,8 @@
-from time import sleep
-import numpy as np
 import multiprocessing
+from time import sleep
+
+import numpy as np
+
 from wzk import ltd
 
 # Error under Python3.8 /macOS -> AttributeError: Can't pickle a local object 'mp_wrapper.<locals>.__fun_wrapper'
@@ -77,7 +79,7 @@ def mp_wrapper(*args, fun,
         n_samples = args[0]
         # args = []
     else:
-        n_samples = len((args[0]))
+        n_samples = len(args[0])
 
     n_processes = n_processes_wrapper(n_processes=n_processes, n_samples=n_samples)
 

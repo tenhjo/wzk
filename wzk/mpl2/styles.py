@@ -1,4 +1,5 @@
 import matplotlib as mpl
+
 # noinspection PyUnresolvedReferences
 from wzk.mpl2.figure import shape_1c_ieee, shape_2c_ieee  # noqa
 

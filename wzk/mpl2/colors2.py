@@ -1,6 +1,5 @@
 import numpy as np
-from matplotlib import colors, cm
-
+from matplotlib import cm, colors
 
 # Use :
 # import cycler

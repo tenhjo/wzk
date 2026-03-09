@@ -3,22 +3,20 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-from .environ import __multiprocessing2  # must be imported before multiprocessing / numpy  # noqa: F401
+from .environ import __multiprocessing2  # must be imported before multiprocessing / numpy
 
 try:  # optional dependency
-    from pyOpt.pySLSQP.pySLSQP import SLSQP as _  # noqa: F401
+    from pyOpt.pySLSQP.pySLSQP import SLSQP as _
 except ImportError:
     pass
 
-from .time2 import (tic as tic,
-                    toc as toc,
-                    tictoc as tictoc,
-                    get_timestamp as get_timestamp)
-
-from .printing import (progress_bar as progress_bar,
-                       print2 as print2,
-                       check_verbosity as check_verbosity)
-
+from .printing import check_verbosity as check_verbosity
+from .printing import print2 as print2
+from .printing import progress_bar as progress_bar
+from .time2 import get_timestamp as get_timestamp
+from .time2 import tic as tic
+from .time2 import tictoc as tictoc
+from .time2 import toc as toc
 
 _LAZY_MODULES = {
     "files": "wzk.io.files",

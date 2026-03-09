@@ -1,5 +1,6 @@
 import numpy as np
-from wzk import mpl2, bimage
+
+from wzk import bimage, mpl2
 
 n = 4
 shape = (64, 64)
@@ -17,7 +18,7 @@ h_x = ax.plot(*x.T, marker="o", color="blue")[0]
 h_img = mpl2.imshow(img=img, mask=~img, limits=limits, ax=ax, cmap="binary", zorder=-1)
 
 
-def callback(*args):  # noqa
+def callback(*args):
     x_cur = dcl.get_xy()
     img_cur = bimage.spheres2bimg(x=x_cur, r=r, shape=shape, limits=limits)
 

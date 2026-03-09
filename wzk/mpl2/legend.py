@@ -1,6 +1,5 @@
 import numpy as np
-
-from matplotlib import patches, collections, transforms
+from matplotlib import collections, patches, transforms
 from matplotlib.legend_handler import HandlerPatch, HandlerPathCollection
 
 from wzk.np2 import flatten_without_last
@@ -17,10 +16,10 @@ class HandlerMultiPathCollection(HandlerPathCollection):
     def create_collection(self, orig_handle, sizes, offsets, offset_transform):
 
         if offsets is not None:
-            center = np.mean([(o[0]) for o in offsets])  # noqa
-            offsets = [(center, o[1]) for o in offsets]  # noqa
+            center = np.mean([(o[0]) for o in offsets])
+            offsets = [(center, o[1]) for o in offsets]
 
-        p = type(orig_handle)(orig_handle.get_paths(), sizes=sizes,  # noqa
+        p = type(orig_handle)(orig_handle.get_paths(), sizes=sizes,
                               offsets=offsets,
                               offset_transform=offset_transform,
                               )
@@ -70,11 +69,11 @@ def annotate_arrow(ax, xy0, xy1, offset=0.,
 
 
 # Legends
-def make_legend_arrow_lr(legend, orig_handle, xdescent, ydescent, width, height, fontsize):  # noqa
+def make_legend_arrow_lr(legend, orig_handle, xdescent, ydescent, width, height, fontsize):
     return patches.FancyArrow(x=0, y=height/2, dx=width, dy=0, length_includes_head=True, head_width=0.75*height)
 
 
-def make_legend_arrow_rl(legend, orig_handle, xdescent, ydescent, width, height, fontsize):  # noqa
+def make_legend_arrow_rl(legend, orig_handle, xdescent, ydescent, width, height, fontsize):
     return patches.FancyArrow(x=width, y=height/2, dx=-width, dy=0, length_includes_head=True, head_width=0.75*height)
 
 
@@ -87,7 +86,7 @@ def make_legend_arrow_wrapper(theta, label2theta_dict=None):
         else:
             raise ValueError
 
-    def make_legend_arrow(legend, orig_handle, xdescent, ydescent, width, height, fontsize):  # noqa
+    def make_legend_arrow(legend, orig_handle, xdescent, ydescent, width, height, fontsize):
         if label2theta_dict is not None and orig_handle.get_label() in label2theta_dict:
             theta2 = label2theta_dict[orig_handle.get_label()]
         else:

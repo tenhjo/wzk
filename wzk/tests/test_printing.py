@@ -1,10 +1,10 @@
 
-from wzk.logger import log_print
 from unittest import TestCase
 
 import numpy as np
 
 from wzk import printing
+from wzk.logger import log_print
 
 
 class Test(TestCase):

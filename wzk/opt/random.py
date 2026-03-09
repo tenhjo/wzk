@@ -1,10 +1,21 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
+from collections.abc import Callable
+
 import numpy as np
+
 from wzk import mp2
+from wzk.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
-def random_ball_search(fun, n_outer, n_inner, x0, eps=1e-9, n_processes=1, log_level=0):
+def random_ball_search(fun: Callable[[np.ndarray], float],
+                       n_outer: int, n_inner: int,
+                       x0: np.ndarray,
+                       eps: float = 1e-9,
+                       n_processes: int = 1,
+                       log_level: int = 0) -> tuple[np.ndarray, float]:
     x0 = x0.ravel()
     n_x = len(x0)
 
@@ -16,7 +27,7 @@ def random_ball_search(fun, n_outer, n_inner, x0, eps=1e-9, n_processes=1, log_l
     n_termination = 20
     radius = 0.1
 
-    def fun_loop(x_list):
+    def fun_loop(x_list: np.ndarray) -> np.ndarray:
         o_list = np.zeros(len(x_list))
         for l, x in enumerate(x_list):
             o_list[l] = fun(x)
@@ -46,9 +57,9 @@ def random_ball_search(fun, n_outer, n_inner, x0, eps=1e-9, n_processes=1, log_l
             break
 
         if log_level > 1:
-            log_print(f"iteration: {i} | objective: {o_outer[i+1]:.5}")
+            logger.debug("iteration: %d | objective: %.5g", i, o_outer[i+1])
 
     if log_level == 1:
-        log_print(f"iteration: {n_outer} | objective: {o_outer[-1]:.5}")
+        logger.debug("iteration: %d | objective: %.5g", n_outer, o_outer[-1])
 
     return x_outer[-1], o_outer[-1]

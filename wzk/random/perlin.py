@@ -1,19 +1,24 @@
 """https://github.com/pvigier/perlin-numpy/blob/master/perlin_numpy/perlin3d.py"""
+from __future__ import annotations
+
+from collections.abc import Callable
 
 import numpy as np
+from numpy.typing import ArrayLike
+
 from wzk.np2 import scalar2array
 
-from scipy.signal import savgol_filter as savgol
-from scipy.interpolate import interp1d
 
-
-def __interpolant(t):
+def __interpolant(t: np.ndarray) -> np.ndarray:
     return t*t*t*(t*(t*6 - 15) + 10)
 
 
-def perlin_noise_1d(n, m, scale):
+def perlin_noise_1d(n: int, m: int, scale: float) -> np.ndarray:
     # https://stackoverflow.com/questions/8798771/perlin-noise-for-1d
     # this is not really perlin
+    from scipy.interpolate import interp1d
+    from scipy.signal import savgol_filter as savgol
+
     x = np.linspace(0, 1, m)
     y = np.random.normal(scale=scale, size=m)
     x2 = np.linspace(0, 1, n)
@@ -25,7 +30,11 @@ def perlin_noise_1d(n, m, scale):
     return y2
 
 
-def perlin_noise_2d(shape, res, tileable=(False, False), interpolant=__interpolant, seed=None):
+def perlin_noise_2d(shape: tuple[int, int],
+                    res: tuple[int, int],
+                    tileable: tuple[bool, bool] = (False, False),
+                    interpolant: Callable[[np.ndarray], np.ndarray] = __interpolant,
+                    seed: int | None = None) -> np.ndarray:
     """Generate a 2D numpy array of perlin noise.
     Args:
         shape: The shape of the generated array (tuple of two ints).
@@ -77,7 +86,11 @@ def perlin_noise_2d(shape, res, tileable=(False, False), interpolant=__interpola
     return np.sqrt(2)*((1-t[:, :, 1])*n0 + t[:, :, 1]*n1)
 
 
-def __input_wrapper(n_dim, shape, res, tileable, seed):
+def __input_wrapper(n_dim: int,
+                    shape: tuple[int, ...],
+                    res: ArrayLike,
+                    tileable: tuple[bool, ...] | None,
+                    seed: int | None) -> tuple[np.ndarray, np.ndarray, tuple[bool, ...], np.ndarray, np.ndarray]:
     if seed is not None:
         np.random.seed(seed)
 
@@ -92,11 +105,11 @@ def __input_wrapper(n_dim, shape, res, tileable, seed):
     return shape, res, tileable, delta, d
 
 
-def perlin_noise_3d(shape,
-                    res: tuple[int, int, int] = 1,
-                    tileable: tuple[bool, bool, bool] = None,
-                    interpolant=__interpolant,
-                    seed=None):
+def perlin_noise_3d(shape: tuple[int, int, int],
+                    res: tuple[int, int, int] | int = 1,
+                    tileable: tuple[bool, bool, bool] | None = None,
+                    interpolant: Callable[[np.ndarray], np.ndarray] = __interpolant,
+                    seed: int | None = None) -> np.ndarray:
     """Generate a 3D numpy array of perlin noise.
     Args:
         shape: The shape of the generated array (tuple of three ints).
@@ -157,17 +170,22 @@ def perlin_noise_3d(shape,
 
     # Interpolation
     t = interpolant(grid)
-    n00 = n000*(1-t[:, :, :, 0]) + t[:, :, :, 0]*n100  # noqa
+    n00 = n000*(1-t[:, :, :, 0]) + t[:, :, :, 0]*n100
     n10 = n010*(1-t[:, :, :, 0]) + t[:, :, :, 0]*n110
-    n01 = n001*(1-t[:, :, :, 0]) + t[:, :, :, 0]*n101  # noqa
+    n01 = n001*(1-t[:, :, :, 0]) + t[:, :, :, 0]*n101
     n11 = n011*(1-t[:, :, :, 0]) + t[:, :, :, 0]*n111
     n0 = (1-t[:, :, :, 1])*n00 + t[:, :, :, 1]*n10
     n1 = (1-t[:, :, :, 1])*n01 + t[:, :, :, 1]*n11
     return (1-t[:, :, :, 2])*n0 + t[:, :, :, 2]*n1
 
 
-def fractal_noise(shape, res, octaves=1, persistence=0.5, lacunarity=2,
-                  tileable=None, interpolant=__interpolant):
+def fractal_noise(shape: tuple[int, int, int],
+                  res: tuple[int, int, int] | int = 1,
+                  octaves: int = 1,
+                  persistence: float = 0.5,
+                  lacunarity: int = 2,
+                  tileable: tuple[bool, bool, bool] | None = None,
+                  interpolant: Callable[[np.ndarray], np.ndarray] = __interpolant) -> np.ndarray:
     """Generate a numpy array of fractal noise.
     Args:
         shape: The shape of the generated array (tuple of three ints).
@@ -193,7 +211,7 @@ def fractal_noise(shape, res, octaves=1, persistence=0.5, lacunarity=2,
     frequency = 1
     amplitude = 1
     for _ in range(octaves):
-        noise += amplitude * perlin_noise_3d(shape=shape, res=tuple(np.array(res)*frequency),  # noqa
+        noise += amplitude * perlin_noise_3d(shape=shape, res=tuple(np.array(res)*frequency),
                                              tileable=tileable, interpolant=interpolant)
         frequency *= lacunarity
         amplitude *= persistence

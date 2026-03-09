@@ -4,8 +4,8 @@ from typing import Any
 
 import numpy as np
 
-from .basics import max_size, scalar2array
 from ._types import ArrayLike, ShapeLike, int32
+from .basics import max_size, scalar2array
 
 
 def arangen(start: ArrayLike | ShapeLike | None = None,

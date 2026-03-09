@@ -1,7 +1,6 @@
 import numpy as np
 
-from wzk import jax2
-from wzk import math2
+from wzk import jax2, math2
 
 
 def test_normalize_and_discretize():

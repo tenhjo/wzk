@@ -1,9 +1,9 @@
 from unittest import TestCase
 
 import numpy as np
+
+from wzk.mpl2 import Patches2, size_units2points
 from wzk.mpl2.figure import new_fig, plt
-from wzk.mpl2 import Patches2
-from wzk.mpl2 import size_units2points
 
 
 class Test(TestCase):
@@ -21,9 +21,9 @@ class Test(TestCase):
         ax.add_patch(rec)
 
         Patches2.do_aff_trafo(patch=rec, xy=(0, 0), por=(0, 0.1), theta=90)
-        plt.pause(1)
+        plt.draw()
         Patches2.do_aff_trafo(patch=rec, xy=(0, 1), por=(0.5, 0.1), theta=45)
-        plt.pause(1)
+        plt.draw()
         Patches2.do_aff_trafo(patch=rec, xy=(0, 0), por=(0.5, 0.05), theta=135)
         self.assertTrue(True)
 

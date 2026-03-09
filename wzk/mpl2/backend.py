@@ -1,10 +1,11 @@
 
-from wzk.logger import log_print
+import importlib.util
 import os
 import platform
-import importlib.util
+
 import matplotlib as mpl
 
+from wzk.logger import log_print
 
 headless = False
 
@@ -42,7 +43,7 @@ elif platform.system() == "Linux":
 
 elif platform.system() == "Darwin":
     if __has_qt_bindings():
-        mpl.use("QtAgg")  # Alternative for Mac: 'Qt5Agg', interplay with Pyvista often a bit tricky otherwise
+        mpl.use("QtAgg", force=True)  # Alternative for Mac: 'Qt5Agg', interplay with Pyvista often a bit tricky otherwise
         # mpl.use("macosx")
         # mpl.use("Qt5Agg")
     else:

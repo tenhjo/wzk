@@ -1,8 +1,8 @@
 
-from wzk.logger import log_print
 import numpy as np
 
-from wzk import trajectory, splines, mpl2
+from wzk import mpl2, splines, trajectory
+from wzk.logger import log_print
 
 
 def test_basis_function():
@@ -68,7 +68,7 @@ def test_random_jac():
 
         hx.set_data(*x.T)
         hp.set_data(*nurbs.p.T)
-        mpl2.plt.pause(0.1)
+        mpl2.plt.draw()
         # input ('press key for next gradient step')
 
 
@@ -109,7 +109,7 @@ def test_gui():
     h_base = ax.plot(*p.T, color="r", marker="o", lw=2)[0]
     h_uv = ax.plot(*uv.T, color="b", marker="o", lw=2)[0]
 
-    def update(*args):  # noqa
+    def update(*args):
         x_base = dcl.get_xy()
 
         nurbs.p = x_base

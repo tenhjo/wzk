@@ -18,7 +18,7 @@ class Test(TestCase):
             return x[b]
 
         nn = 1000
-        y = random2.fun2n(fun, n=nn, log_level=1)
+        y = random2.fun2n(fun, n=nn)
 
         self.assertTrue(len(y) == nn)
 

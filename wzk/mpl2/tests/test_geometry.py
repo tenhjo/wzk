@@ -48,7 +48,7 @@ class Test(unittest.TestCase):
         circle1 = mpl2.DraggableCircle(ax=ax, xy=tuple(xy1), radius=r1, alpha=0.5,
                                        facecolor="red", edgecolor="k", zorder=30)
 
-        def update(*args):  # noqa
+        def update(*args):
             mpl2.fill_circle_intersection(xy0=circle0.get_xy_drag(), r0=r0,
                                           xy1=circle1.get_xy_drag(), r1=r1, color="y")
 

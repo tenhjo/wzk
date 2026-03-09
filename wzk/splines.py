@@ -1,6 +1,7 @@
 
-from wzk.logger import log_print
 import numpy as np
+
+from wzk.logger import log_print
 
 
 class NURBS:
@@ -17,7 +18,7 @@ class NURBS:
         else:
             self.w = np.atleast_1d(w)
 
-        assert len(self.k) == self.degree + self.n_points + 1  # noqa
+        assert len(self.k) == self.degree + self.n_points + 1
         assert len(self.p) == len(self.w)
 
     def __repr__(self):

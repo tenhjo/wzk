@@ -2,8 +2,7 @@ from itertools import combinations
 
 import numpy as np
 
-from wzk import geometry
-from wzk import jax2
+from wzk import geometry, jax2
 
 
 def test_rotation_between_vectors():

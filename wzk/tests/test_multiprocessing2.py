@@ -2,8 +2,9 @@ import time
 from unittest import TestCase
 
 import numpy as np
+
+from wzk import ltd, mp2
 from wzk.time2 import tic, toc
-from wzk import mp2, ltd
 
 
 class Test(TestCase):

@@ -1,7 +1,7 @@
 
-from wzk.logger import log_print
 import numpy as np
 
+from wzk.logger import log_print
 from wzk.np2 import allclose
 
 

@@ -1,5 +1,5 @@
-import numpy as np
 import einops as eo
+import numpy as np
 
 from wzk import tictoc
 

@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 import numpy as np
-from wzk import spatial, geometry, random2, np2
+from numpy.typing import ArrayLike
+
+from wzk import geometry, np2, random2, spatial
 from wzk.spatial.transform_2d import theta2dcm
 
 
-def grid_quaternions(n3, flatten=False):
+def grid_quaternions(n3: int, flatten: bool = False) -> np.ndarray:
     s = np.linspace(0, 1, n3)
     theta1 = np.linspace(0, 2 * np.pi, n3, endpoint=False)
     theta2 = np.linspace(0, 2 * np.pi, n3, endpoint=False)
@@ -16,7 +20,9 @@ def grid_quaternions(n3, flatten=False):
     return res
 
 
-def _sigma_theta2quaternions(s, theta1, theta2):
+def _sigma_theta2quaternions(s: ArrayLike,
+                             theta1: ArrayLike,
+                             theta2: ArrayLike) -> np.ndarray:
     sigma1 = np.sqrt(1 - s)
     sigma2 = np.sqrt(s)
     w = np.cos(theta2) * sigma2
@@ -26,7 +32,7 @@ def _sigma_theta2quaternions(s, theta1, theta2):
     return np.stack([w, x, y, z], axis=-1)
 
 
-def sample_quaternions(shape=None):
+def sample_quaternions(shape: int | tuple[int, ...] | None = None) -> np.ndarray:
     """
     Effective Sampling and Distance Metrics for 3D Rigid Body Path Planning, James J. Kuffner (2004)
     https://ri.cmu.edu/pub_files/pub4/kuffner_james_2004_1/kuffner_james_2004_1.pdf
@@ -38,12 +44,15 @@ def sample_quaternions(shape=None):
     return _sigma_theta2quaternions(s=s, theta1=theta1, theta2=theta2)
 
 
-def sample_dcm(shape=None):
+def sample_dcm(shape: int | tuple[int, ...] | None = None) -> np.ndarray:
     quat = sample_quaternions(shape=shape)
     return spatial.quaternions2dcm(quat=quat)
 
 
-def sample_dcm_noise(shape=None, scale=0.01, mode="normal", n_dim=3):
+def sample_dcm_noise(shape: int | tuple[int, ...] | None = None,
+                     scale: float = 0.01,
+                     mode: str = "normal",
+                     n_dim: int = 3) -> np.ndarray:
     """
     samples rotation dcm where the absolute value of the rotation relates to 'scale' in rad
     """
@@ -64,7 +73,7 @@ def sample_dcm_noise(shape=None, scale=0.01, mode="normal", n_dim=3):
         raise ValueError(f"n_dim={n_dim} not supported, only [2, 3]")
 
 
-def round_dcm(dcm, decimals=0):
+def round_dcm(dcm: np.ndarray, decimals: int = 0) -> np.ndarray:
     """Round dcm to degrees
     See numpy.round for more information
     decimals=+2: 123.456 -> 123.45
@@ -80,7 +89,9 @@ def round_dcm(dcm, decimals=0):
     return spatial.euler2dcm(euler)
 
 
-def sample_frames(x_low=np.zeros(3), x_high=np.ones(3), shape=None):
+def sample_frames(x_low: ArrayLike = np.zeros(3),
+                  x_high: ArrayLike = np.ones(3),
+                  shape: int | tuple[int, ...] | None = None) -> np.ndarray:
     if isinstance(x_low, (float, int)):
         x_low = np.ones(3) * x_low
 
@@ -94,7 +105,10 @@ def sample_frames(x_low=np.zeros(3), x_high=np.ones(3), shape=None):
                                     quat=sample_quaternions(shape=shape))
 
 
-def apply_noise(f, trans, rot, mode="normal"):
+def apply_noise(f: np.ndarray,
+                trans: float,
+                rot: float,
+                mode: str = "normal") -> np.ndarray:
     n_dim = f.shape[-1] - 1
     s = tuple(np.array(np.shape(f))[:-2])
 
@@ -104,21 +118,32 @@ def apply_noise(f, trans, rot, mode="normal"):
     return f2
 
 
-def sample_around_f(f, trans, rot, mode="normal", shape=None):
+def sample_around_f(f: np.ndarray,
+                    trans: float,
+                    rot: float,
+                    mode: str = "normal",
+                    shape: int | tuple[int, ...] | None = None) -> np.ndarray:
     shape = np2.shape_wrapper(shape)
     f0 = np.zeros(shape+f.shape)
     f0[:] = f.copy()
     return apply_noise(f=f0, trans=trans, rot=rot, mode=mode)
 
 
-def sample_frame_noise(trans, rot, shape=None, mode="normal"):
+def sample_frame_noise(trans: float,
+                       rot: float,
+                       shape: int | tuple[int, ...] | None = None,
+                       mode: str = "normal") -> np.ndarray:
     f = spatial.initialize_frames(shape=shape, n_dim=3, mode="eye")
     return apply_noise(f=f, trans=trans, rot=rot, mode=mode)
 
 
-def sample_frames_on_noisy_grid(x_grid, y_grid, z_grid,
-                                f0, noise_trans, noise_rot,
-                                n_samples):
+def sample_frames_on_noisy_grid(x_grid: np.ndarray,
+                                y_grid: np.ndarray,
+                                z_grid: np.ndarray,
+                                f0: np.ndarray,
+                                noise_trans: float,
+                                noise_rot: float,
+                                n_samples: int) -> np.ndarray:
     f_list = []
     n_total = len(x_grid) * len(y_grid) * len(z_grid)
     n_per_cell = int(np.ceil(n_samples / n_total))
@@ -126,7 +151,7 @@ def sample_frames_on_noisy_grid(x_grid, y_grid, z_grid,
     for x in x_grid:
         for y in y_grid:
             for z in z_grid:
-                for n_noise in range(n_per_cell):
+                for _n_noise in range(n_per_cell):
                     f = f0.copy()
                     f[..., :3, -1] = [x, y, z]
                     f = apply_noise(f, trans=noise_trans, rot=noise_rot)

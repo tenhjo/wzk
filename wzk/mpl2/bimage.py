@@ -2,9 +2,8 @@ import numpy as np
 from matplotlib.collections import LineCollection, PatchCollection
 from matplotlib.patches import Rectangle
 
-from wzk.mpl2.bimage_boundaries import get_combined_edges
-
 from wzk import grid
+from wzk.mpl2.bimage_boundaries import get_combined_edges
 
 
 def plot_img_patch(img, limits,

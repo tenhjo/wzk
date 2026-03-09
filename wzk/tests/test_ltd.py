@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from wzk import ltd, files
+from wzk import files, ltd
 
 directory = f"{os.path.split(__file__)[0]}/tmp"
 

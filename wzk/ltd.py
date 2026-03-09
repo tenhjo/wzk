@@ -1,13 +1,13 @@
 # Lists, Tuples, Dicts
-import json
-from collections.abc import Iterable
-from collections import namedtuple
 import copy
+import json
+from collections import namedtuple
+from collections.abc import Iterable
 
 import numpy as np
 
 
-class CopyableObject(object):
+class CopyableObject:
     __slots__ = ()
 
     def copy(self):
@@ -58,7 +58,7 @@ class AttrDict(dict):
             else:
                 return AttrDict({key_: from_nested_dict(data[key_]) for key_ in data})
 
-        super(AttrDict, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__dict__ = self
 
         for key in self.keys():
@@ -374,7 +374,7 @@ def write_dict2json(file, d, **kwargs):
 
 
 def read_json2dict(file):
-    with open(file=file, mode="r") as f:
+    with open(file=file) as f:
         d = json.load(f)
     return d
 

@@ -9,8 +9,8 @@ from scipy.spatial import ConvexHull
 
 from wzk.logger import setup_logger
 
-from ._types import ArrayLike, ShapeLike, float32, int32
 from . import np2
+from ._types import ArrayLike, ShapeLike, float32, int32
 
 logger = setup_logger(__name__)
 

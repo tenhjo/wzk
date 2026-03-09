@@ -1,0 +1,66 @@
+# Shared Ruff configuration for /Users/tenhjo/dev/python/src repositories
+target-version = "py313"
+line-length = 120
+indent-width = 4
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".ipynb_checkpoints",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pyenv",
+  ".pytest_cache",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  ".vscode",
+  ".pixi",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "site-packages",
+  "venv",
+]
+
+[lint]
+select = ["E4", "E7", "E9", "Q", "F", "W", "I", "UP", "B", "C4", "PERF", "RUF"]
+ignore = [
+    "E741",    # ambiguous variable names (common in math: l, I, O)
+    "F722",    # forward annotation syntax
+    "DOC501",  # docstring missing exception
+    "B008",    # mutable default args (common in scientific code)
+    "RUF005",  # collection-literal-concatenation (a + [b] is clear in math code)
+    "RUF059",  # unused-unpacked-variable (common in tuple unpacking)
+    "RUF002",  # ambiguous-unicode-character-docstring
+    "RUF003",  # ambiguous-unicode-character-comment
+]
+unfixable = ["F401", "F841"]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "E402", "F403"]
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.flake8-type-checking]
+strict = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+preview = true
+docstring-code-line-length = "dynamic"

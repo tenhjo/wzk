@@ -1,7 +1,6 @@
 import numpy as np
 
-from wzk import jax2
-from wzk import np2
+from wzk import jax2, np2
 
 
 def test_initialize_array():

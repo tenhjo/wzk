@@ -1,17 +1,29 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
+from collections.abc import Callable
+
 import numpy as np
-from scipy.stats import norm
+from numpy.typing import ArrayLike
 
-from wzk import np2, limits as limits2, math2, grid
+from wzk import grid, math2, np2
+from wzk import limits as limits2
+from wzk.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
-def p_normal_skew(x, loc=0.0, scale=1.0, a=0.0):
+def p_normal_skew(x: ArrayLike, loc: float = 0.0, scale: float = 1.0, a: float = 0.0) -> np.ndarray:
+    from scipy.stats import norm
     t = (x - loc) / scale
     return 2 * norm.pdf(t) * norm.cdf(a*t)
 
 
-def normal_skew_int(loc=0.0, scale=1.0, a=0.0, low=None, high=None, size=1):
+def normal_skew_int(loc: float = 0.0,
+                    scale: float = 1.0,
+                    a: float = 0.0,
+                    low: int | None = None,
+                    high: int | None = None,
+                    size: int = 1) -> np.ndarray | int:
     if low is None:
         low = loc-10*scale
     if high is None:
@@ -34,12 +46,12 @@ def normal_skew_int(loc=0.0, scale=1.0, a=0.0, low=None, high=None, size=1):
     return samples
 
 
-def random_uniform_ndim(low, high, shape=None):
+def random_uniform_ndim(low: ArrayLike, high: ArrayLike, shape: int | tuple[int, ...] | None = None) -> np.ndarray:
     n_dim = np.shape(low)[0]
     return np.random.uniform(low=low, high=high, size=np2.shape_wrapper(shape) + (n_dim,))
 
 
-def noise(shape, scale, mode="normal"):
+def noise(shape: int | tuple[int, ...], scale: float, mode: str = "normal") -> np.ndarray:
     shape = np2.shape_wrapper(shape)
 
     if mode == "constant":  # could argue that this is no noise
@@ -54,10 +66,10 @@ def noise(shape, scale, mode="normal"):
         raise ValueError(f"Unknown mode '{mode}'")
 
 
-def get_n_in2(n_in, n_out,
-              n_total, n_current,
-              safety_factor=1.01,
-              max_factor=128):
+def get_n_in2(n_in: int, n_out: int,
+              n_total: int, n_current: int,
+              safety_factor: float = 1.01,
+              max_factor: int = 128) -> int:
 
     if n_out == 0:
         n_in2 = n_in*2
@@ -69,8 +81,8 @@ def get_n_in2(n_in, n_out,
     return n_in2
 
 
-def fun2n(fun, n,
-          max_iter=100, max_factor=128, log_level=0):
+def fun2n(fun: Callable[[int], np.ndarray], n: int,
+          max_iter: int = 100, max_factor: int = 128) -> np.ndarray:
     """
     Wrapper to repeatedly call a function fun(n_i) -> x and concatenate its outputs until len(x) >= n
     Useful for function which samples randomly
@@ -88,8 +100,7 @@ def fun2n(fun, n,
         x_new = fun(n_in)
         x = np.concatenate([x, x_new], axis=0)
 
-        if log_level > 0:
-            log_print(f"{i}: total:{n} | current:{len(x)} | new:{len(x_new)}/{n_in}")
+        logger.debug("%d: total:%d | current:%d | new:%d/%d", i, n, len(x), len(x_new), n_in)
 
         if len(x) >= n:
             return x[:n]
@@ -99,17 +110,19 @@ def fun2n(fun, n,
         return x
 
 
-def choose_from_sections(n_total, n_sections, n_choose_per_section, flatten=True):
+def choose_from_sections(n_total: int, n_sections: int,
+                         n_choose_per_section: int | ArrayLike,
+                         flatten: bool = True) -> np.ndarray:
     n_i = np.array_split(np.arange(n_total), n_sections)
 
     n_choose_per_section = np2.scalar2array(n_choose_per_section, shape=n_sections)
-    i = [np.random.choice(arr, size=m) for arr, m in zip(n_i, n_choose_per_section)]
+    i = [np.random.choice(arr, size=m) for arr, m in zip(n_i, n_choose_per_section, strict=True)]
     if flatten:
         i = np.concatenate(i, axis=0)
     return i
 
 
-def choose_from_uniform_grid(x, n):
+def choose_from_uniform_grid(x: np.ndarray, n: int) -> np.ndarray:
     n_samples, n_dim = x.shape
 
     limits = limits2.x2limits(x=x, axis=1)
@@ -121,7 +134,7 @@ def choose_from_uniform_grid(x, n):
         _u = np.unique(_i, axis=0)
         return len(_u) - n
 
-    s = math2.bisection(f=fun, a=2, b=100, tol=0, log_level=0)
+    s = math2.bisection(f=fun, a=2, b=100, tol=0)
     shape = (int(np.ceil(s)),) * n_dim
 
     ix = grid.x2i(x=x, limits=limits, shape=shape)
@@ -132,7 +145,7 @@ def choose_from_uniform_grid(x, n):
     return np.array(i, dtype=int)
 
 
-def block_shuffle(arr, block_size, inside=False):
+def block_shuffle(arr: np.ndarray | int, block_size: int, inside: bool = False) -> np.ndarray:
     """
     Shuffle the array along the first dimension,
     if block_size > 1, keep as many elements together and shuffle the n // block_size blocks

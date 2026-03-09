@@ -1,31 +1,28 @@
-from .backend import mpl as mpl, plt as plt
-from .figure import (new_fig as new_fig,
-                     save_fig as save_fig,
-                     subplot_grid as subplot_grid,
-                     close_all as close_all)
-
-
-from .axes import *  # noqa: F403
-from .colors2 import *  # noqa: F403
-from .legend import *  # noqa: F403
-from .ticks import *  # noqa: F403
-from .styles import *  # noqa: F403
-
-from .threed import *  # noqa: F403
-from .bimage import *  # noqa: F403
-from .bimage_boundaries import *  # noqa: F403
-from .plotting import *  # noqa: F403
-from .geometry import *  # noqa: F403
-
-from .Patches2 import *  # noqa: F403
-from .DraggablePatches import *  # noqa: F403
-from .widgets import *  # noqa: F403
-
-from .specific import *  # noqa: F403
+# Keep module-level handle available even after star-import name collisions.
+import importlib as _importlib
 
 from matplotlib.animation import FuncAnimation as FuncAnimation
 
-# Keep module-level handle available even after star-import name collisions.
-import importlib as _importlib  # noqa: E402
-geometry = _importlib.import_module(".geometry", __name__)  # noqa: E402,F401
+from .axes import *
+from .backend import mpl as mpl
+from .backend import plt as plt
+from .bimage import *
+from .bimage_boundaries import *
+from .colors2 import *
+from .DraggablePatches import *
+from .figure import close_all as close_all
+from .figure import new_fig as new_fig
+from .figure import save_fig as save_fig
+from .figure import subplot_grid as subplot_grid
+from .geometry import *
+from .legend import *
+from .Patches2 import *
+from .plotting import *
+from .specific import *
+from .styles import *
+from .threed import *
+from .ticks import *
+from .widgets import *
+
+geometry = _importlib.import_module(".geometry", __name__)
 del _importlib

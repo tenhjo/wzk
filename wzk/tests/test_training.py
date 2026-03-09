@@ -1,6 +1,8 @@
 
 from unittest import TestCase
+
 import numpy as np
+
 from wzk import training
 
 
@@ -54,6 +56,6 @@ class Test(TestCase):
         self.__assert(train_test_tuple, s=split*n, n=n)
 
         b = np.hstack((train_test_tuple[0], train_test_tuple[1]))
-        self.assertTrue(~np.allclose(a, b))
+        self.assertTrue(not np.allclose(a, b))
         b.sort()
         self.assertTrue(np.allclose(a, b))

@@ -1,7 +1,6 @@
 import numpy as np
 
-from wzk import jax2
-from wzk import random2
+from wzk import jax2, random2
 
 
 def test_p_normal_skew():
@@ -54,7 +53,7 @@ def test_fun2n():
 
     nn = 500
     np.random.seed(4)
-    y0 = random2.fun2n(fun=fun, n=nn, log_level=0)
+    y0 = random2.fun2n(fun=fun, n=nn)
     np.random.seed(4)
     y1 = jax2.fun2n(fun=fun, n=nn)
     assert np.allclose(np.asarray(y0), np.asarray(y1), atol=1e-6, rtol=1e-6)

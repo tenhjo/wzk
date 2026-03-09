@@ -1,13 +1,12 @@
 
-from wzk.logger import log_print
-from unittest import TestCase
 import os
+from unittest import TestCase
 
 import numpy as np
 import pandas as pd
 
-from wzk import sql2, files
-
+from wzk import files, sql2
+from wzk.logger import log_print
 
 directory = f"{os.path.split(__file__)[0]}/tmp"
 

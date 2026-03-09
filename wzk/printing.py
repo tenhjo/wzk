@@ -1,11 +1,12 @@
 import os
-import sys
 import select
+import sys
 import time
+
 import numpy as np
 
-from wzk.logger import log_print
 from wzk import np2
+from wzk.logger import log_print
 
 
 def quiet_mode_on():

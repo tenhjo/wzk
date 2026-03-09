@@ -1,5 +1,6 @@
 from unittest import TestCase
-from wzk.mpl2 import ticks, plt, new_fig
+
+from wzk.mpl2 import new_fig, plt, ticks
 
 
 class Test(TestCase):
@@ -20,13 +21,13 @@ class Test(TestCase):
             ticks.set_labels_position(ax=ax, position=p)
             ax.cla()
             ax.text(0.5, 0.5, "".join(p))
-            plt.pause(0.1)
+            plt.draw()
         self.assertTrue(True)
 
     def test_remove_ticks(self):
         fig, ax = new_fig()
 
-        plt.pause(0.1)
+        plt.draw()
         ticks.remove_ticks(ax=ax, v=[0, 0.4], axis="both")
         self.assertTrue(True)
 
@@ -35,7 +36,7 @@ class Test(TestCase):
 
         ticks.set_ticks_position(ax=ax, position="all")
         ticks.set_labels_position(ax=ax, position="all")
-        plt.pause(0.1)
+        plt.draw()
 
         ticks.add_ticks(ax=ax, ticks=0.55, labels="wow", axis="x")
         ticks.add_ticks(ax=ax, ticks=(0.3, 0.5), labels=("wtf", "ftw"), axis="y")
@@ -46,11 +47,11 @@ class Test(TestCase):
         ticks.set_ticks_position(ax=ax, position="all")
         ticks.set_labels_position(ax=ax, position="all")
 
-        plt.pause(0.05)
+        plt.draw()
         ticks.change_tick_appearance(ax, position="bottom", v=3, size=40, color="red")
         ticks.change_tick_appearance(ax, position="top", v=0.4, size=30, color="blue")
 
-        plt.pause(0.05)
+        plt.draw()
         ticks.change_tick_appearance(ax, position="left", v=2, size=40, color="green")
         ticks.change_tick_appearance(ax, position="right", v=0.6, size=30, color="magenta")
 

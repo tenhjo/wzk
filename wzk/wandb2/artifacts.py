@@ -40,6 +40,7 @@ def log_numpy(name: str, array_dict: dict[str, Any], artifact_type: str = "resul
         artifact_type: Artifact type.
     """
     import tempfile
+
     import numpy as np
 
     assert wandb.run is not None, "No active W&B run."

@@ -1,11 +1,11 @@
 import os
 
-import numpy as np
-
 import meshcat
-from meshcat import geometry as mg, transformations as mt
+import numpy as np
+from meshcat import geometry as mg
+from meshcat import transformations as mt
 
-from wzk import grid, bimage, mpl2, spatial, geometry, np2, strings
+from wzk import bimage, geometry, grid, mpl2, np2, spatial, strings
 
 Visualizer = meshcat.Visualizer
 MeshGeometry_DICT = dict(stl=mg.StlMeshGeometry,
@@ -158,23 +158,23 @@ def plot_faces(x, faces, color=default_color, alpha=1.0,
 
 class SphereCustom(mg.Geometry):
     def __init__(self, radius: float, whSegments: int = 20):
-        super(SphereCustom, self).__init__()
+        super().__init__()
         self.radius: float = radius
         self.whSegments: int = whSegments
 
     def lower(self, object_data):
         return {
-            u"uuid": self.uuid,
-            u"type": u"SphereGeometry",
-            u"radius": self.radius,
-            u"widthSegments" : self.whSegments,
-            u"heightSegments" : self.whSegments
+            "uuid": self.uuid,
+            "type": "SphereGeometry",
+            "radius": self.radius,
+            "widthSegments" : self.whSegments,
+            "heightSegments" : self.whSegments
         }
 
 
 def plot_spheres(x, r, color=default_color, alpha=1.0, wireframe=False, whSegments=20,
                  vis: Visualizer = None, h=None,
-                 **kwargs):  # noqa
+                 **kwargs):
 
     vis = ih_visualizer(vis)
 

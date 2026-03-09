@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 
-
 __str2np = {
     "f": np.float64,
     "f64": np.float64,

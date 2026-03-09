@@ -1,8 +1,9 @@
 
-from wzk.logger import log_print
 import time
 
 import numpy as np
+
+from wzk.logger import log_print
 
 try:
     from pynput import keyboard  # TODO: remove this after linux install works fine
@@ -10,7 +11,7 @@ except ImportError:
     keyboard = None
 
 
-from wzk import np2, printing, ltd
+from wzk import ltd, np2, printing
 
 
 class KeyListener:
@@ -49,9 +50,9 @@ class KeyListener:
 
         if on_press and not on_release:
             # assert hasattr(keyboard, "Listener")
-            self.listener = keyboard.Listener(on_press=self.on_press)  # noqa
+            self.listener = keyboard.Listener(on_press=self.on_press)
         elif on_release and not on_press:
-            self.listener = keyboard.Listener(on_release=self.on_press)  # noqa
+            self.listener = keyboard.Listener(on_release=self.on_press)
         else:
 
             raise NotImplementedError
