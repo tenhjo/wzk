@@ -5,9 +5,9 @@ import jax.numpy as jnp
 import numpy as np
 
 from ._types import ArrayLike, ShapeLike, int32
-from .range import slicen
 from .basics import scalar2array
 from .find import align_shapes
+from .range import slicen
 
 
 def repeat2new_shape(img: ArrayLike, new_shape: ShapeLike) -> jax.Array:

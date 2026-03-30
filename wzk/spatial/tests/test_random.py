@@ -1,9 +1,8 @@
 
-from wzk.logger import log_print
 import numpy as np
 
-
 from wzk import spatial
+from wzk.logger import log_print
 from wzk.spatial.random import _sigma_theta2quaternions
 
 

@@ -1,16 +1,21 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
 import math
+
 import numpy as np
+from numpy.typing import ArrayLike
 from scipy.spatial import ConvexHull
 
-from wzk import printing, np2
-from . import math2
-
+from wzk import np2, printing
+from wzk.logger import setup_logger
 from wzk.random.random2 import random_uniform_ndim
 
+from . import math2
 
-def get_ortho_star_2d(x: np.ndarray):
+logger = setup_logger(__name__)
+
+
+def get_ortho_star_2d(x: np.ndarray) -> np.ndarray:
     assert x.shape[-1] == 2
     x4 = np.zeros(x.shape[:-1] + (4, 2))
     x4[..., 0, :] = x.copy()
@@ -27,12 +32,16 @@ def get_ortho_star_2d(x: np.ndarray):
     return x4
 
 
-def arccos2(c):
+def arccos2(c: ArrayLike) -> np.ndarray:
     c = np.clip(c, a_min=-1, a_max=+1)
     return np.arccos(c)
 
 
-def get_arc(xy, radius, theta0=0., theta1=2 * np.pi, n=0.01):
+def get_arc(xy: ArrayLike,
+            radius: float,
+            theta0: float = 0.,
+            theta1: float = 2 * np.pi,
+            n: int | float = 0.01) -> np.ndarray:
 
     theta0, theta1 = theta_wrapper(theta0=theta0, theta1=theta1)
     n = angle_resolution_wrapper(n, angle=theta1 - theta0)
@@ -43,7 +52,7 @@ def get_arc(xy, radius, theta0=0., theta1=2 * np.pi, n=0.01):
     return np.array([x, y]).T
 
 
-def angle_resolution_wrapper(n, angle):
+def angle_resolution_wrapper(n: int | float, angle: float) -> int:
 
     if isinstance(n, float):
         resolution = n
@@ -53,7 +62,7 @@ def angle_resolution_wrapper(n, angle):
     return n
 
 
-def theta_wrapper(theta0, theta1):
+def theta_wrapper(theta0: float, theta1: float | None) -> tuple[float, float]:
     if theta1 is None:
         theta1 = theta0
 
@@ -65,7 +74,7 @@ def theta_wrapper(theta0, theta1):
     return theta0, theta1
 
 
-def rectangle(limits: np.ndarray):
+def rectangle(limits: np.ndarray | None) -> tuple[np.ndarray, np.ndarray]:
     v = np.array([[0, 0],
                   [0, 1],
                   [1, 0],
@@ -78,11 +87,11 @@ def rectangle(limits: np.ndarray):
     return v, e
 
 
-def get_triangle_center(x):
+def get_triangle_center(x: ArrayLike) -> np.ndarray:
     return x.mean(axis=-2)
 
 
-def cube(limits: np.ndarray = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def cube(limits: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     v = np.array([[0, 0, 0],
                   [0, 0, 1],
                   [0, 1, 0],
@@ -123,7 +132,7 @@ def cube(limits: np.ndarray = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]
     return v, e, f
 
 
-def faces4_to_3(f4):
+def faces4_to_3(f4: np.ndarray) -> np.ndarray:
     # d - c         c     d - c
     # |   |  =    / |  +  | /
     # a - b     a - b     a
@@ -138,7 +147,7 @@ def faces4_to_3(f4):
     return f3
 
 
-def box(limits):
+def box(limits: np.ndarray) -> np.ndarray:
     x = np.array([[limits[0, 0], limits[1, 0]],
                   [limits[0, 1], limits[1, 0]],
                   [limits[0, 1], limits[1, 1]],
@@ -147,7 +156,7 @@ def box(limits):
     return x
 
 
-def fit_plane(x):
+def fit_plane(x: ArrayLike) -> tuple[np.ndarray, np.ndarray]:
     x = np.atleast_2d(x)
     n, _ = x.shape
     assert n >= 3
@@ -169,8 +178,7 @@ def get_parallel_orthogonal(p: np.ndarray, v: np.ndarray) -> tuple[np.ndarray, n
 
 
 def get_orthonormal(v: np.ndarray) -> np.ndarray:
-    """
-    get a 3d vector which ist orthogonal to v.
+    """Get a 3d vector which is orthogonal to v.
     Note that the solution is not unique.
     """
     idx_0 = v == 0
@@ -185,7 +193,7 @@ def get_orthonormal(v: np.ndarray) -> np.ndarray:
     return v_o1
 
 
-def make_rhs(xyz: np.ndarray, order: tuple = (0, 1)) -> np.ndarray:
+def make_rhs(xyz: np.ndarray, order: tuple[int, int] = (0, 1)) -> np.ndarray:
     # rhs = rand-hand coordinate system
     # xyz -> rhs
     # 1. keep rhs[order[0]]
@@ -212,7 +220,7 @@ def make_rhs(xyz: np.ndarray, order: tuple = (0, 1)) -> np.ndarray:
     return xyz
 
 
-def projection_point_line(p: np.ndarray, x0: np.ndarray, x1: np.ndarray, clip: bool = False) -> np.ndarray:
+def projection_point_line(p: ArrayLike, x0: ArrayLike, x1: ArrayLike, clip: bool = False) -> np.ndarray:
     """
     http:#mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
     Projection from point p to the line defined by {x0 + mu*x1}
@@ -225,12 +233,12 @@ def projection_point_line(p: np.ndarray, x0: np.ndarray, x1: np.ndarray, clip: b
     return x0_p
 
 
-def distance_point_line(p: np.ndarray, x0: np.ndarray, x1: np.ndarray, clip: bool = False) -> np.ndarray:
+def distance_point_line(p: ArrayLike, x0: ArrayLike, x1: ArrayLike, clip: bool = False) -> np.ndarray:
     pp = projection_point_line(p=p, x0=x0, x1=x1, clip=clip)
     return np.linalg.norm(pp - p, axis=-1)
 
 
-def __flip_and_clip_mu(mu: np.ndarray):
+def __flip_and_clip_mu(mu: np.ndarray) -> np.ndarray:
     #  x | x | x
     #    0   1
     #  x | 0 | x - 1
@@ -312,7 +320,7 @@ def __line_line(x1: np.ndarray, x3: np.ndarray,
         return xa, xb
 
 
-def two_to_three(*args):
+def two_to_three(*args: np.ndarray) -> list[np.ndarray]:
     res = []
     for a in args:
         a3 = np.zeros(a.shape[:-1] + (3,))
@@ -321,7 +329,7 @@ def two_to_three(*args):
     return res
 
 
-def line_line(line_a: np.ndarray, line_b: np.ndarray, _return_mu: bool = False) -> tuple[np.ndarray, np.ndarray]:
+def line_line(line_a: np.ndarray, line_b: np.ndarray, _return_mu: bool = False) -> tuple:
     """
     line_a, line_b: first dimension is 2, the two endpoints of the lines. the last dimension is xyz
     (x1-x3) --- (x1-x4)
@@ -356,7 +364,7 @@ def line_line(line_a: np.ndarray, line_b: np.ndarray, _return_mu: bool = False) 
                        _return_mu=_return_mu)
 
 
-def line_line_pairs(lines: np.ndarray, pairs: np.ndarray, _return_mu: bool = False) -> tuple[np.ndarray, np.ndarray]:
+def line_line_pairs(lines: np.ndarray, pairs: np.ndarray, _return_mu: bool = False) -> tuple:
     a, b = pairs.T
     x1, x3 = lines[..., a, 0, :], lines[..., b, 0, :]
     uv = lines[..., :, 1, :] - lines[..., :, 0, :]
@@ -370,7 +378,8 @@ def line_line_pairs(lines: np.ndarray, pairs: np.ndarray, _return_mu: bool = Fal
                        _return_mu=_return_mu)
 
 
-def line_line_pairs_d2_jac(lines: np.ndarray, pairs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def line_line_pairs_d2_jac(lines: np.ndarray,
+                           pairs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     (xa, xb), (mua, mub) = line_line_pairs(lines, pairs, _return_mu=False)
 
     dxaxb_dx = np.zeros(mua.shape + (2, 2))
@@ -417,13 +426,19 @@ def capsule_capsule_pairs(lines: np.ndarray,
     return xa, xb, n
 
 
-def distance_point_plane(p, o, u, v,
+def distance_point_plane(p: ArrayLike,
+                         o: ArrayLike,
+                         u: ArrayLike,
+                         v: ArrayLike,
                          clip: bool = False) -> np.ndarray:
     pp = projection_point_plane(p=p, o=o, u=u, v=v, clip=clip)
     return np.linalg.norm(pp - p, axis=-1)
 
 
-def circle_circle_intersection(xy0, r0, xy1, r1):
+def circle_circle_intersection(xy0: ArrayLike,
+                                r0: float,
+                                xy1: ArrayLike,
+                                r1: float) -> tuple[np.ndarray, np.ndarray] | None:
     """
     https:#stackoverflow.com/a/55817881/7570817
     https:#mathworld.wolfram.com/Circle-CircleIntersection.html
@@ -455,7 +470,9 @@ def circle_circle_intersection(xy0, r0, xy1, r1):
         return xy3, xy4
 
 
-def ray_sphere_intersection(rays, spheres, r):
+def ray_sphere_intersection(rays: ArrayLike,
+                             spheres: ArrayLike,
+                             r: ArrayLike | None) -> np.ndarray:
     """
     rays: n x n_rays x 2 x 3    (axis=-2: origin, target)
     spheres: n x n_spheres x 3  (axis=-1: x, y, z)
@@ -483,7 +500,7 @@ def ray_sphere_intersection(rays, spheres, r):
     return res >= 0
 
 
-def angle_between_vectors(a, b):
+def angle_between_vectors(a: ArrayLike, b: ArrayLike) -> np.ndarray:
     an = a / np.linalg.norm(a, axis=-1, keepdims=True)
     bn = b / np.linalg.norm(b, axis=-1, keepdims=True)
 
@@ -491,7 +508,7 @@ def angle_between_vectors(a, b):
     return angle
 
 
-def angle_between_axis_and_point(f, p, axis=2):
+def angle_between_axis_and_point(f: np.ndarray, p: np.ndarray, axis: int = 2) -> np.ndarray:
 
     d = (p - f[..., :-1, -1])
     dn = d / np.linalg.norm(d, axis=-1, keepdims=True)
@@ -502,7 +519,7 @@ def angle_between_axis_and_point(f, p, axis=2):
     return angle
 
 
-def rotation_between_vectors(a, b):
+def rotation_between_vectors(a: ArrayLike, b: ArrayLike) -> np.ndarray:
     a = a / np.linalg.norm(a, axis=-1, keepdims=True)
     b = b / np.linalg.norm(b, axis=-1, keepdims=True)
     v = np.cross(a, b)
@@ -525,11 +542,11 @@ def rotation_between_vectors(a, b):
 
 
 # --- Random -----------------------------------------------------------------------------------------------------------
-def sample_spheres(n, r, limits):
+def sample_spheres(n: int, r: float, limits: np.ndarray) -> np.ndarray:
     max_iter = 100000
     u = math2.get_upper(n)
 
-    for i in range(max_iter):
+    for _i in range(max_iter):
         x = random_uniform_ndim(low=limits[:, 0], high=limits[:, 1], shape=n)
         dx = x[:, np.newaxis, :] - x[np.newaxis, :, :]
         dxn = np.linalg.norm(dx, axis=-1)
@@ -541,7 +558,7 @@ def sample_spheres(n, r, limits):
     raise RuntimeError(f"Not {n} spheres in {limits} found")
 
 
-def sample_points_on_disc(radius, shape=None):
+def sample_points_on_disc(radius: float, shape: int | tuple[int, ...] | None = None) -> np.ndarray:
     rho = np.sqrt(np.random.uniform(low=0, high=radius**2, size=shape))
     theta = np.random.uniform(low=0, high=2*np.pi, size=shape)
     xy = np.empty(np.shape(theta)+(2,))
@@ -551,7 +568,7 @@ def sample_points_on_disc(radius, shape=None):
     return xy
 
 
-def sample_points_on_sphere_3d(shape=None):
+def sample_points_on_sphere_3d(shape: int | tuple[int, ...] | None = None) -> np.ndarray:
     shape = np2.shape_wrapper(shape=shape)
     x = np.empty(tuple(shape) + (3,))
     theta = np.random.uniform(low=0, high=2*np.pi, size=shape)
@@ -564,7 +581,7 @@ def sample_points_on_sphere_3d(shape=None):
     return x
 
 
-def sample_points_in_sphere_nd(shape, n_dim: int):
+def sample_points_in_sphere_nd(shape: int | tuple[int, ...], n_dim: int) -> np.ndarray:
     shape = np2.shape_wrapper(shape=shape)
     r = np.random.uniform(low=0, high=1, size=shape) ** (1/n_dim)
     x = np.random.normal(loc=0, scale=1, size=tuple(shape) + (n_dim,))
@@ -573,14 +590,14 @@ def sample_points_in_sphere_nd(shape, n_dim: int):
     return x
 
 
-def sample_points_in_ellipse_nd(shape, size):
+def sample_points_in_ellipse_nd(shape: int | tuple[int, ...], size: ArrayLike) -> np.ndarray:
     n_dim = len(size)
     x = sample_points_in_sphere_nd(shape=shape, n_dim=n_dim)
     x = x * size
     return x
 
 
-def sample_points_on_sphere_nd(shape, n_dim: int):
+def sample_points_on_sphere_nd(shape: int | tuple[int, ...], n_dim: int) -> np.ndarray:
 
     safety = 1.2
 
@@ -600,7 +617,7 @@ def sample_points_on_sphere_nd(shape, n_dim: int):
     raise NotImplementedError
 
 
-def hyper_sphere_volume(n_dim: int, r: float = 1.):
+def hyper_sphere_volume(n_dim: int, r: float = 1.) -> float:
     """https: # en.wikipedia.org / wiki / Volume_of_an_n - ball"""
     n2 = n_dim  # 2
     if n_dim % 2 == 0:
@@ -609,10 +626,10 @@ def hyper_sphere_volume(n_dim: int, r: float = 1.):
         return 2*(math.factorial(n2)*(4*np.pi)**n2) / math.factorial(n_dim) * r**n_dim
 
 
-def get_points_on_circle(x: np.ndarray | list | tuple,
-                         r: np.ndarray | float | int,
+def get_points_on_circle(x: ArrayLike,
+                         r: ArrayLike,
                          n: int = 10,
-                         endpoint: bool = False):
+                         endpoint: bool = False) -> np.ndarray:
     x = np.array(x)
     r = np.atleast_1d(r)
     theta = np.linspace(0, 2*np.pi, num=n, endpoint=endpoint)
@@ -621,7 +638,11 @@ def get_points_on_circle(x: np.ndarray | list | tuple,
     return points
 
 
-def get_points_on_multicircles(x, r, n=10, endpoint1=False, endpoint2=True):
+def get_points_on_multicircles(x: ArrayLike,
+                               r: ArrayLike,
+                               n: int = 10,
+                               endpoint1: bool = False,
+                               endpoint2: bool = True) -> tuple[np.ndarray, np.ndarray]:
     points = get_points_on_circle(x=x, r=r, n=n, endpoint=endpoint1)
     hull = ConvexHull(points.reshape(-1, 2))
     if endpoint2:
@@ -632,7 +653,11 @@ def get_points_on_multicircles(x, r, n=10, endpoint1=False, endpoint2=True):
     return points, hull
 
 
-def get_points_on_sphere(x=None, r=None, n=None, mode="fibonacci", squeeze=True):
+def get_points_on_sphere(x: np.ndarray | None = None,
+                         r: float | np.ndarray | None = None,
+                         n: int | tuple[int, ...] | None = None,
+                         mode: str = "fibonacci",
+                         squeeze: bool = True) -> np.ndarray:
 
     if x is None:
         x = np.zeros((1, 3))
@@ -673,7 +698,9 @@ def get_points_on_sphere(x=None, r=None, n=None, mode="fibonacci", squeeze=True)
     return x
 
 
-def get_points_on_multisphere(x, r, n):
+def get_points_on_multisphere(x: np.ndarray,
+                              r: float | np.ndarray,
+                              n: int) -> tuple[np.ndarray, ConvexHull]:
     if isinstance(r, float):
         r = np.full(len(x), r)
     points = get_points_on_sphere(x=x, r=r, n=n)
@@ -691,7 +718,7 @@ def fibonacci_sphere(n: int = 100) -> np.ndarray:  # 3d
     return np.array((x, y, z)).T
 
 
-def get_points_on_sphere_nd():
+def get_points_on_sphere_nd() -> None:
     # n=100, d=3
     raise NotImplementedError
     # https://stackoverflow.com/questions/9046106/algorithm-to-rasterize-and-fill-a-hypersphere/21575035#21575035
@@ -747,7 +774,7 @@ def get_distance_to_ellipsoid(x: np.ndarray, shape: np.ndarray) -> np.ndarray:
 
 
 # mesh
-def refine_triangle_mesh(p, f):
+def refine_triangle_mesh(p: np.ndarray, f: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     divide each triangle into 3 new triangles
     works for meshes in 2d and 3d
@@ -770,7 +797,7 @@ def refine_triangle_mesh(p, f):
     return p2, f2
 
 
-def discretize_triangle_mesh(p, f, voxel_size):
+def discretize_triangle_mesh(p: np.ndarray, f: np.ndarray, voxel_size: float) -> np.ndarray:
     pf = p[f]
     d = np.vstack((np.linalg.norm(pf[..., 0, :] - pf[..., 1, :], axis=-1),
                    np.linalg.norm(pf[..., 0, :] - pf[..., 2, :], axis=-1),
@@ -789,9 +816,11 @@ def discretize_triangle_mesh(p, f, voxel_size):
     return x2
 
 
-def discretize_triangle(x=None,
-                        a=None, b=None, c=None,
-                        n=2):
+def discretize_triangle(x: np.ndarray | None = None,
+                        a: np.ndarray | None = None,
+                        b: np.ndarray | None = None,
+                        c: np.ndarray | None = None,
+                        n: int = 2) -> np.ndarray:
     """there is no ordering in the output"""
     if a is None:
         if n <= 2:
@@ -817,8 +846,11 @@ def discretize_triangle(x=None,
     return x2.reshape(shape + [i.sum(), n_dim])
 
 
-def get_x_intersections(x_a, x_b, threshold=0.001,
-                        map_i_ab=True, log_level=0):
+def get_x_intersections(x_a: np.ndarray,
+                        x_b: np.ndarray,
+                        threshold: float = 0.001,
+                        map_i_ab: bool = True,
+                        log_level: int = 0) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     if len(x_a) * len(x_b) < 1000000:
         dn_ab = np.linalg.norm(x_a[:, np.newaxis, :] - x_b[np.newaxis, :, :], axis=-1)
 
@@ -849,7 +881,7 @@ def get_x_intersections(x_a, x_b, threshold=0.001,
     return i_a, i_b, i_ab
 
 
-def string_of_pearls2surface(x, r):
+def string_of_pearls2surface(x: np.ndarray, r: np.ndarray) -> np.ndarray:
     eps0 = 1e-6
     n_arc = 0.05
 
@@ -873,7 +905,7 @@ def string_of_pearls2surface(x, r):
     # alternate between arcs and intersections depending on if the angles are obtuse or acute
     p = [k[[0], 0]]
     for i in range(len(r)-2):
-        log_print(np.linalg.norm(ki[0][i] - ki[1][i]))
+        logger.debug(np.linalg.norm(ki[0][i] - ki[1][i]))
         if np.linalg.norm(ki[0][i] - ki[1][i]) < eps0:
             p.append(ki[[0], i])
 
@@ -887,7 +919,7 @@ def string_of_pearls2surface(x, r):
     return p
 
 
-def test_discretize_triangle():
+def test_discretize_triangle() -> None:
     x0 = np.array([[0, 0],
                   [1, 0],
                   [0, 1]])
@@ -899,7 +931,7 @@ def test_discretize_triangle():
     ax.plot(*x2.T, color="red", marker="x")
 
 
-def test_string_of_pearls2surface():
+def test_string_of_pearls2surface() -> None:
     from wzk.mpl2 import new_fig, plot_circles
     x = np.array([[0, 0],
                   [0.05, 0],

@@ -7,10 +7,9 @@ dbees: scaled difference to the bee-line
 # TODO move to mopla at some point
 
 import numpy as np
-
 from scipy.interpolate import LSQUnivariateSpline, UnivariateSpline
 
-from wzk import printing, math2
+from wzk import math2, printing
 
 
 def full2inner(x):
@@ -363,7 +362,7 @@ def get_spline_coeffs(x, y, n=None, s=None):
 
 
 def set_spline_coeffs(spl, coeffs):
-    data = spl._data  # noqa
+    data = spl._data
     k, n = data[5], data[7]
     data[9][:n - k - 1] = np.ravel(coeffs)
     spl._data = data

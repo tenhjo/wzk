@@ -1,8 +1,9 @@
 
-from wzk.logger import log_print
 from unittest import TestCase
 
 import numpy as np
+
+from wzk.logger import log_print
 from wzk.mpl2 import plotting
 
 

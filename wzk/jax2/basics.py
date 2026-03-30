@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from itertools import product
-from typing import Any, Callable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 
-from ._types import ArrayLike, AxisLike, BoolArray, ShapeLike, float32, int32
 from . import shape as sh
+from ._types import ArrayLike, AxisLike, BoolArray, ShapeLike, float32, int32
 
 
 def object2numeric_array(arr: ArrayLike) -> np.ndarray:
@@ -223,7 +224,7 @@ def round2(x: ArrayLike, decimals: int | None = None) -> jax.Array | np.ndarray:
     try:
         decimals_i = 0 if decimals is None else decimals
         return jnp.round(x, decimals=decimals_i)
-    except Exception:  # noqa: BLE001
+    except Exception:
         return np.array(x)
 
 

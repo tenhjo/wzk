@@ -1,20 +1,21 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from itertools import product
-from typing import Any, Callable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 
-from wzk.logger import setup_logger
 from wzk import ltd
+from wzk.logger import setup_logger
 
-from ._types import ArrayLike, AxisLike, float32, int32
-from . import np2
 from . import basics as b2
+from . import np2
 from . import shape as sh
+from ._types import ArrayLike, AxisLike, float32, int32
 
 logger = setup_logger(__name__)
 
@@ -426,7 +427,7 @@ def solve_pinv(A: ArrayLike, b: ArrayLike, _rcond: float = __RCOND):
         A = jnp.asarray(A)
         b = jnp.asarray(b)
         x = (jnp.linalg.pinv(A, rcond=_rcond) @ b[..., jnp.newaxis])[..., 0]
-    except Exception:  # noqa: BLE001
+    except Exception:
         x = np.zeros(np.shape(b)[:-1] + (np.shape(A)[-2],))
         return jnp.asarray(x)
 

@@ -1,5 +1,6 @@
-import numpy as np
 from itertools import combinations, permutations
+
+import numpy as np
 
 
 def get_tuples(n: np.ndarray | list | tuple | int, m: int):

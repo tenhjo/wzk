@@ -1,30 +1,35 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
+from collections.abc import Callable
+
 import numpy as np
 
+from wzk.logger import setup_logger
 from wzk.math2.math2 import random_subset
 
+logger = setup_logger(__name__)
 
-def rank(x):
+
+def rank(x: np.ndarray) -> np.ndarray:
     temp = x.argsort()
     res = np.empty_like(temp)
     res[temp] = np.arange(len(x))
     return res
 
 
-def rank_2d(x):
+def rank_2d(x: np.ndarray) -> np.ndarray:
     temp = x.argsort(axis=1)
     res = np.empty_like(temp)
     res[np.arange(x.shape[0])[:, np.newaxis], temp] = np.arange(x.shape[1])[np.newaxis, :]
     return res
 
 
-def kofn(n, k, fitness_fun,
-         pop_size=200, pop0=None, n_gen=500,
-         n_keep_best=None, tourney_size=None,
-         mut_prob=0.01, mut_frac=None,
-         mutate_best=0,
-         log_level=0):
+def kofn(n: int, k: int, fitness_fun: Callable[[np.ndarray], np.ndarray],
+         pop_size: int = 200, pop0: np.ndarray | None = None, n_gen: int = 500,
+         n_keep_best: int | None = None, tourney_size: int | None = None,
+         mut_prob: float = 0.01, mut_frac: float | None = None,
+         mutate_best: int = 0,
+         log_level: int = 0) -> tuple[np.ndarray, np.ndarray]:
 
     tourney_size = int(max(np.ceil(pop_size / 10), 2)) if tourney_size is None else tourney_size
     n_keep_best = int(np.floor(pop_size / 10)) if n_keep_best is None else n_keep_best
@@ -32,8 +37,8 @@ def kofn(n, k, fitness_fun,
 
     hall_of_fame = np.empty((n_gen + 1, k), dtype=int)
     hall_of_all = np.empty((n_gen + 1, pop_size, k), dtype=int)
-    fitness_best = np.empty((n_gen + 1))
-    fitness_avg = np.empty((n_gen + 1))
+    fitness_best = np.empty(n_gen + 1)
+    fitness_avg = np.empty(n_gen + 1)
 
     if pop0 is None:
         pop = np.array([np.random.choice(n, size=k, replace=False) for _ in range(pop_size)])
@@ -54,7 +59,7 @@ def kofn(n, k, fitness_fun,
 
     for g in range(n_gen):
         if log_level > 2:
-            log_print(f"Generation {g}/{n_gen} | best: {fitness_best[g]} | avg: {fitness_avg[g]}")
+            logger.debug("Generation %d/%d | best: %s | avg: %s", g, n_gen, fitness_best[g], fitness_avg[g])
         parents1, parents2 = parents_tournament(fitness=fitness, tourney_size=tourney_size)
 
         offspring = create_offspring(pop=pop, parents1=parents1, parents2=parents2)
@@ -95,8 +100,8 @@ def kofn(n, k, fitness_fun,
     return hall_of_fame[np.argmin(fitness_best)], hall_of_all
 
 
-def parents_tournament(fitness, tourney_size):
-    def tournament_rank(t, f):
+def parents_tournament(fitness: np.ndarray, tourney_size: int) -> tuple[np.ndarray, np.ndarray]:
+    def tournament_rank(t: np.ndarray, f: np.ndarray) -> np.ndarray:
         ts = t.shape[-1]
         return (ts - rank_2d(x=f[t])) / (ts * (ts + 1) / 2)
 
@@ -112,14 +117,14 @@ def parents_tournament(fitness, tourney_size):
     return parents1, parents2
 
 
-def create_offspring(pop, parents1, parents2):
+def create_offspring(pop: np.ndarray, parents1: np.ndarray, parents2: np.ndarray) -> np.ndarray:
     pop_size, k = pop.shape
     parents12 = np.concatenate([pop[parents1], pop[parents2]], axis=-1)
     offspring = np.array([np.random.choice(np.unique(parents12), k, replace=False) for _ in range(pop_size)])
     return offspring
 
 
-def mutate(pop, n, mut_prob):
+def mutate(pop: np.ndarray, n: int, mut_prob: float) -> np.ndarray:
     pop_size, k = pop.shape
 
     chosen = np.random.random(size=(pop_size, k)) < mut_prob
@@ -134,7 +139,9 @@ def mutate(pop, n, mut_prob):
     return pop
 
 
-def keep_best(*, pop, pop_old, fitness, fitness_old, n_keep_best=0):
+def keep_best(*, pop: np.ndarray, pop_old: np.ndarray,
+              fitness: np.ndarray, fitness_old: np.ndarray,
+              n_keep_best: int = 0) -> tuple[np.ndarray, np.ndarray]:
 
     pop_size, k = pop_old.shape
     if n_keep_best != 0:
@@ -150,10 +157,10 @@ def keep_best(*, pop, pop_old, fitness, fitness_old, n_keep_best=0):
     return pop, fitness
 
 
-def test_kofn():
-    def dummy_fitness(i):
+def test_kofn() -> None:
+    def dummy_fitness(i: np.ndarray) -> np.ndarray:
         return np.sum(i, axis=-1)
 
     best, last_gen = kofn(n=10000, k=10, pop_size=100, fitness_fun=dummy_fitness, n_gen=1000, log_level=3,
                           mut_prob=0.1, mutate_best=2, n_keep_best=50)
-    log_print(np.sort(best))
+    logger.debug(np.sort(best))

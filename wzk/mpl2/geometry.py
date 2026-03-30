@@ -1,5 +1,7 @@
 import numpy as np
-from matplotlib import pyplot as plt, patches, colors as mcolors
+from matplotlib import colors as mcolors
+from matplotlib import patches
+from matplotlib import pyplot as plt
 
 from wzk.math import geometry as _geometry
 from wzk.mpl2 import Patches2, axes, plotting

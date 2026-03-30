@@ -1,4 +1,5 @@
 import os
+
 # Numpy uses multiprocessing to speed up matrix calculations
 # https://stackoverflow.com/questions/30791550/limit-number-of-threads-in-numpy/31622299#31622299
 # https://stackoverflow.com/questions/17053671/how-do-you-stop-numpy-from-multithreading

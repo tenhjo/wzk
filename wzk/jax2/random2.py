@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -11,9 +11,8 @@ from wzk import grid
 from wzk import limits as limits2
 from wzk.logger import setup_logger
 
-from . import math2
-from . import np2
-from ._types import ArrayLike, ShapeLike, Scalar, float32, int32
+from . import math2, np2
+from ._types import ArrayLike, Scalar, ShapeLike, float32, int32
 from .basics import scalar2array
 from .shape import shape_wrapper
 

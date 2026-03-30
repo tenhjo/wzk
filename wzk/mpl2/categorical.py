@@ -1,13 +1,9 @@
 import numpy as np
 import pandas as pd
-
-from wzk.mpl2 import (set_borders, change_tick_appearance, elongate_ticks_and_labels,
-                      CurlyBrace, make_every_box_fancy)
-
-from wzk import ltd
-
 from matplotlib import ticker
 
+from wzk import ltd
+from wzk.mpl2 import CurlyBrace, change_tick_appearance, elongate_ticks_and_labels, make_every_box_fancy, set_borders
 
 __style = dict(newline_size=1,
                perc_in_label=False, abs_in_xt=False,
@@ -107,7 +103,7 @@ def mosaic_plot(ax, df, col_x, col_y,
         vy = vy.replace("u.", "undecided")
 
         ax.bar(x_idx, temp, width=width, bottom=bottom,
-               label=vy + " ({:.1f}%)".format(bool_y.mean()*100) if style["perc_in_label"] else vy,
+               label=vy + f" ({bool_y.mean()*100:.1f}%)" if style["perc_in_label"] else vy,
                color=colors[i])
 
         curly_hl = style["curly_highlight"]
@@ -120,7 +116,7 @@ def mosaic_plot(ax, df, col_x, col_y,
                                 x1=(x_idx[j] - width[j]/3 + 1, bottom[j]+temp[j]/2),
                                 zorder=10)
                 ax.add_patch(cb)
-                ax.annotate(xy=(x_idx[j] - width[j]/3+1, bottom[j] + temp[j]/2), s="  {:.1f}%".format(temp[j]),
+                ax.annotate(xy=(x_idx[j] - width[j]/3+1, bottom[j] + temp[j]/2), s=f"  {temp[j]:.1f}%",
                             va="center", ha="left")
 
         bottom += temp
@@ -130,7 +126,7 @@ def mosaic_plot(ax, df, col_x, col_y,
     labels_xb = [lxb.replace("\n", style["newline_in_label"]) for lxb in val_x.tolist()]
     labels_xb = [lxb.replace(".u", "undecided") for lxb in labels_xb]
 
-    labels_xt = ["{} ({:.1f}%)".format(c, c_perc) if style["abs_in_xt"] else "{:.1f}%".format(c_perc)
+    labels_xt = [f"{c} ({c_perc:.1f}%)" if style["abs_in_xt"] else f"{c_perc:.1f}%"
                  for c, c_perc in zip(counts_x, counts_x/sum(counts_x)*100)]
     for i, (lb, lt) in enumerate(zip(labels_xb, labels_xt)):
         if newline[i]:
@@ -202,7 +198,7 @@ def bar_plot(ax, df, col, ordering=None, x_label="", newline=None,
 def multi_bar_plot(ax, df, cols, ordering=None, colors=None, newline=None):
 
     bar_width = 0.8
-    labels, counts = ltd.change_tuple_order((value_counts(df[col], ordering=ordering) for col in cols))
+    labels, counts = ltd.change_tuple_order(value_counts(df[col], ordering=ordering) for col in cols)
     labels = labels[0]
     c_max = max([c.sum() for c in counts])
     heights = [c / c_max for c in counts]
@@ -229,7 +225,7 @@ def multi_bar_overlay_plot(ax, df, cols, ordering=None, colors=None, newline=Non
     bar_width = 0.8
 
     colors = np.array(colors)
-    labels, counts = ltd.change_tuple_order((value_counts(df[col], ordering=ordering) for col in cols))
+    labels, counts = ltd.change_tuple_order(value_counts(df[col], ordering=ordering) for col in cols)
     labels = labels[0]
     c_max = max([c.sum() for c in counts])
     heights = np.array([c / c_max for c in counts])
@@ -258,7 +254,7 @@ def multi_bar_overlay_plot(ax, df, cols, ordering=None, colors=None, newline=Non
 
 
 def multiple_choice_bar(ax, df, cols, ordering=None, colors=None, x_label="", newline=None):
-    labels, counts = ltd.change_tuple_order((value_counts(df[col], ordering=ordering) for col in cols))
+    labels, counts = ltd.change_tuple_order(value_counts(df[col], ordering=ordering) for col in cols)
 
     labels = np.array([la[0] for la in labels])
     counts = np.array([co[0] for co in counts])

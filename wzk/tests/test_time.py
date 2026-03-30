@@ -1,9 +1,8 @@
 
-from wzk.logger import log_print
 from unittest import TestCase
 
-from wzk import tic, toc, tictoc
-from wzk import time2
+from wzk import tic, tictoc, time2, toc
+from wzk.logger import log_print
 
 
 class Test(TestCase):

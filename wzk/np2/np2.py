@@ -1,35 +1,38 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
-from typing import Literal
+from collections.abc import Generator, Sequence
+from typing import Any, Literal
 
 import numpy as np
 
-from . import dtypes2
-from . import basics
-from . import find
-from . import reshape
+from wzk.logger import setup_logger
+
+from . import basics, dtypes2, find, reshape
+from ._types import ArrayLike, AxisLike, DTypeLike, ShapeLike
 from .range import slicen
 
-np._core.arrayprint._line_width = 80  # noqa
+logger = setup_logger(__name__)
+
+np._core.arrayprint._line_width = 80
 
 
 class DummyArray:
     """Allows indexing but always returns the same 'dummy' value"""
 
-    def __init__(self, arr, shape):
+    def __init__(self, arr: Any, shape: ShapeLike) -> None:
         self.arr = arr
         self.shape = shape
 
-    def __assert_int(self, item, i):
+    def __assert_int(self, item: int, i: int) -> None:
         assert item in range(-self.shape[i], self.shape[i])
 
-    def __assert_slice(self, item, i):
+    def __assert_slice(self, item: slice, i: int) -> None:
         pass
 
-    def __assert_ellipsis(self, item, i):
+    def __assert_ellipsis(self, item: type[...], i: int) -> None:
         pass
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: Any) -> Any:
         if isinstance(item, int):
             self.__assert_int(item=item, i=0)
         elif isinstance(item, slice):
@@ -52,10 +55,9 @@ class DummyArray:
         return self.arr
 
 
-def initialize_array(shape: tuple | list | np.ndarray,
-                     mode: str = "zeros",
-                     dtype=None,
-                     order: Literal["C", "F"] = "C"):
+def initialize_array(
+    shape: tuple | list | np.ndarray, mode: str = "zeros", dtype: DTypeLike = None, order: Literal["C", "F"] = "C"
+) -> np.ndarray:
     if mode == "zeros":
         return np.zeros(shape, dtype=dtype, order=order)
     elif mode == "ones":
@@ -69,7 +71,7 @@ def initialize_array(shape: tuple | list | np.ndarray,
 
 
 # Checks
-def np_isinstance(o, c):
+def np_isinstance(o: Any, c: Any) -> bool:
     """
     # Like isinstance if o is not np.ndarray
     np_isinstance(('this', 'that'), tuple)  # True
@@ -90,12 +92,12 @@ def np_isinstance(o, c):
         return isinstance(o, c)
 
 
-def delete_args(*args, i, axis=None):
+def delete_args(*args: ArrayLike, i: int, axis: int | None = None) -> tuple[np.ndarray, ...]:
     return tuple(np.delete(a, obj=i, axis=axis) for a in args)
 
 
 # Combine
-def interleave(arrays, axis=0, out=None):
+def interleave(arrays: Sequence[ArrayLike], axis: int = 0, out: np.ndarray | None = None) -> np.ndarray:
     """
     https://stackoverflow.com/questions/5347065/interweaving-two-numpy-arrays
     """
@@ -105,38 +107,38 @@ def interleave(arrays, axis=0, out=None):
         axis += len(shape)
     assert 0 <= axis < len(shape), "'axis' is out of bounds"
     if out is not None:
-        out = out.reshape(shape[:axis + 1] + [len(arrays)] + shape[axis + 1:])
+        out = out.reshape(shape[: axis + 1] + [len(arrays)] + shape[axis + 1 :])
     shape[axis] = -1
     return np.stack(arrays, axis=axis + 1, out=out).reshape(shape)
 
 
 # Functions
-def digitize_group(x, bins, right=False):
+def digitize_group(x: ArrayLike, bins: ArrayLike, right: bool = False) -> list[np.ndarray]:
     """
     https://stackoverflow.com/a/26888164/7570817
     Similar to scipy.stats.binned_statistic but just return the indices corresponding to each bin.
     Same signature as numpy.digitize()
     """
-    from scipy.sparse import csr_matrix  # TODO
+    from scipy.sparse import csr_matrix
 
     idx_x = np.digitize(x=x, bins=bins, right=right)
     n, m = len(x), len(bins) + 1
     s = csr_matrix((np.arange(n), [idx_x, np.arange(n)]), shape=(m, n))
-    return [group for group in np.split(s.data, s.indptr[1:-1])]
+    return list(np.split(s.data, s.indptr[1:-1]))
 
 
-def sort_args(idx, *args):
+def sort_args(idx: ArrayLike, *args: ArrayLike) -> list[np.ndarray]:
     return [a[idx] for a in args]
 
 
-def make_odd(arr):
+def make_odd(arr: ArrayLike) -> np.ndarray:
     mo = (np.array(arr.shape) + 1) % 2
     arr_new = np.zeros(np.array(arr.shape) + mo, dtype=bool)
     arr_new[slicen(end=arr.shape)] = arr
     return arr_new
 
 
-def convolve_2d(img, kernel):
+def convolve_2d(img: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     s = np.array(img.shape)
     ks = np.array(kernel.shape)
     assert np.all(ks % 2 == 1)
@@ -145,12 +147,14 @@ def convolve_2d(img, kernel):
     out = np.zeros(s, float)
     for i0 in range(ks2[0], s[0] - ks2[0]):
         for i1 in range(ks2[1], s[1] - ks2[1]):
-            out[i0, i1] = np.sum(img[i0-ks2[0]:i0+ks2[0]+1, i1-ks2[1]:i1+ks2[1]+1] * kernel)
+            out[i0, i1] = np.sum(img[i0 - ks2[0] : i0 + ks2[0] + 1, i1 - ks2[1] : i1 + ks2[1] + 1] * kernel)
 
     return out
 
 
-def add_small2big(idx, small, big, mode_crop="center", mode_add="add"):
+def add_small2big(
+    idx: ArrayLike, small: np.ndarray, big: np.ndarray, mode_crop: str = "center", mode_add: str = "add"
+) -> None:
     """
     Insert a small array into a bigger array at the position 'idx'
     Assumption: all dimension of the small_img are odd, and idx indicates the center of the image,
@@ -159,30 +163,29 @@ def add_small2big(idx, small, big, mode_crop="center", mode_add="add"):
 
     idx = reshape.flatten_without_last(idx)
     n_samples, n_dim = idx.shape
-    ll_big, ur_big, ll_small, ur_small = find.get_cropping_indices(pos=idx, mode=mode_crop,
-                                                                   shape_small=small.shape[-n_dim:],
-                                                                   shape_big=big.shape)
+    ll_big, ur_big, ll_small, ur_small = find.get_cropping_indices(
+        pos=idx, mode=mode_crop, shape_small=small.shape[-n_dim:], shape_big=big.shape
+    )
 
     if small.ndim > n_dim:
-        for ll_b, ur_b, ll_s, ur_s, s in zip(ll_big, ur_big, ll_small, ur_small, small):
+        for ll_b, ur_b, ll_s, ur_s, s in zip(ll_big, ur_big, ll_small, ur_small, small, strict=True):
             big[slicen(ll_b, ur_b)] += s[slicen(ll_s, ur_s)]
     else:
-        for ll_b, ur_b, ll_s, ur_s in zip(ll_big, ur_big, ll_small, ur_small):
-
+        for ll_b, ur_b, ll_s, ur_s in zip(ll_big, ur_big, ll_small, ur_small, strict=True):
             try:
                 if mode_add == "add":
                     big[slicen(ll_b, ur_b)] += small[slicen(ll_s, ur_s)]
                 elif mode_add == "replace":
                     big[slicen(ll_b, ur_b)] = small[slicen(ll_s, ur_s)]
             except ValueError:
-                log_print("idx", idx)
-                log_print("big ll-ur", ll_b, ur_b)  # TODO sometimes this fails, check
-                log_print("big slice shape", big[slicen(ll_b, ur_b)].shape)
-                log_print("small ll-ur", ll_s, ur_s)
-                log_print("small slice shape", small[slicen(ll_s, ur_s)].shape)
+                logger.error("idx: %s", idx)
+                logger.error("big ll-ur: %s %s", ll_b, ur_b)
+                logger.error("big slice shape: %s", big[slicen(ll_b, ur_b)].shape)
+                logger.error("small ll-ur: %s %s", ll_s, ur_s)
+                logger.error("small slice shape: %s", small[slicen(ll_s, ur_s)].shape)
 
 
-def get_exclusion_mask(a, exclude_values):
+def get_exclusion_mask(a: ArrayLike, exclude_values: ArrayLike) -> np.ndarray:
     exclude_values = np.atleast_1d(exclude_values)
     bool_a = np.ones_like(a, dtype=bool)
     for v in exclude_values:
@@ -191,28 +194,28 @@ def get_exclusion_mask(a, exclude_values):
     return bool_a
 
 
-def matmul(a, b, axes_a=(-2, -1), axes_b=(-2, -1)):
+def matmul(
+    a: np.ndarray, b: np.ndarray, axes_a: tuple[int, int] = (-2, -1), axes_b: tuple[int, int] = (-2, -1)
+) -> np.ndarray:
     if axes_a == (-2, -1) and axes_b == (-2, -1):
         return a @ b
 
     if axes_a == (-3, -2) and axes_b == (-2, -1) and np.ndim(a) == np.ndim(b) + 1:
-        return np.concatenate([(a[..., i] @ b)[..., np.newaxis]
-                               for i in range(a.shape[-1])], axis=-1)
+        return np.concatenate([(a[..., i] @ b)[..., np.newaxis] for i in range(a.shape[-1])], axis=-1)
     elif axes_a == (-2, -1) and axes_b == (-3, -2) and np.ndim(b) == np.ndim(a) + 1:
-        return np.concatenate([(a @ b[..., i])[..., np.newaxis]
-                               for i in range(b.shape[-1])], axis=-1)
+        return np.concatenate([(a @ b[..., i])[..., np.newaxis] for i in range(b.shape[-1])], axis=-1)
     else:
         raise NotImplementedError
 
 
-def matsort(mat, order_j=None):
+def matsort(mat: np.ndarray, order_j: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     mat = np.where(np.random.random((500, 500)) > 0.01, 1, 0)
     ax[0].imshow(mat, cmap='gray_r')
     ax[1].imshow(matsort(mat)[0], cmap='gray_r')
     """
 
-    def idx2interval(idx):
+    def idx2interval(idx: np.ndarray) -> np.ndarray:
         idx = np.sort(idx)
         interval = np.zeros((len(idx) - 1, 2), dtype=int)
         interval[:, 0] = idx[:-1]
@@ -229,8 +232,7 @@ def matsort(mat, order_j=None):
     interval_idx = np.zeros(2, dtype=int)
     interval_idx[1] = n
     for i in range(0, m - 1):
-        interval_idx = np.unique(np.hstack([interval_idx,
-                                            find.get_interval_indices(mat[order_i, order_j[i]]).ravel()]))
+        interval_idx = np.unique(np.hstack([interval_idx, find.get_interval_indices(mat[order_i, order_j[i]]).ravel()]))
 
         for j, il in enumerate(idx2interval(idx=interval_idx)):
             slice_j = slice(il[0], il[1])
@@ -242,7 +244,7 @@ def matsort(mat, order_j=None):
     return mat[order_i, :][:, order_j], order_i, order_j
 
 
-def idx2boolmat(idx, n=100):
+def idx2boolmat(idx: np.ndarray, n: int = 100) -> np.ndarray:
     """
     The last dimension of idx contains the indices. n-1 is the maximal possible index
     Returns matrix with shape 'np.shape(idx)[:-1] + (n, )'
@@ -254,20 +256,29 @@ def idx2boolmat(idx, n=100):
     mat = np.zeros(s + (n,), dtype=bool)
 
     for i, idx_i in enumerate(idx.reshape(-1, idx.shape[-1])):
-        log_print(i, (np.unravel_index(i, shape=s)))
+        logger.debug("idx2boolmat: %s %s", i, np.unravel_index(i, shape=s))
         mat[np.unravel_index(i, shape=s)][idx_i] = True
     return mat
 
 
-def construct_array(shape, val, idx, init_mode="zeros", dtype=None,
-                    axis=None, insert_mode=None):
+def construct_array(
+    shape: ShapeLike,
+    val: Any,
+    idx: Any,
+    init_mode: str = "zeros",
+    dtype: DTypeLike = None,
+    axis: AxisLike = None,
+    insert_mode: str | None = None,
+) -> np.ndarray:
     a = initialize_array(shape=shape, mode=init_mode, dtype=dtype)
     basics.insert(a=a, val=val, idx=idx, axis=axis, mode=insert_mode)
     return a
 
 
 # Blocklists
-def block_view(a, shape, aslist=False, require_aligned_blocks=True):
+def block_view(
+    a: np.ndarray, shape: ShapeLike, aslist: bool = False, require_aligned_blocks: bool = True
+) -> np.ndarray | list[np.ndarray]:
     """
     Return a 2N-D view of the given N-D array, rearranged so each ND block (tile)
     of the original array is indexed by its block address using the first N
@@ -316,8 +327,7 @@ def block_view(a, shape, aslist=False, require_aligned_blocks=True):
     view_shape = outershape + shape
 
     if require_aligned_blocks:
-        assert np.all(np.mod(a.shape, shape) == 0), (
-            "blockshape {} must divide evenly into array shape {}".format(shape, a.shape))
+        assert np.all(np.mod(a.shape, shape) == 0), f"blockshape {shape} must divide evenly into array shape {a.shape}"
 
     # inner strides: strides within each block (same as original array)
     intra_block_strides = a.strides
@@ -327,14 +337,14 @@ def block_view(a, shape, aslist=False, require_aligned_blocks=True):
 
     # This is where the magic happens.
     # Generate a view with our new strides (outer+inner).
-    view = np.lib.stride_tricks.as_strided(a, shape=view_shape, strides=(inter_block_strides + intra_block_strides))  # noqa
+    view = np.lib.stride_tricks.as_strided(a, shape=view_shape, strides=(inter_block_strides + intra_block_strides))
 
     if aslist:
-        return list(map(view.__getitem__, np.ndindex(outershape)))  # noqa
+        return list(map(view.__getitem__, np.ndindex(outershape)))
     return view
 
 
-def expand_block_indices(idx_block, block_size, squeeze=True):
+def expand_block_indices(idx_block: ArrayLike, block_size: int, squeeze: bool = True) -> np.ndarray:
     """
     Expand the indices to get an index for each element
 
@@ -365,7 +375,7 @@ def expand_block_indices(idx_block, block_size, squeeze=True):
             return idx2
 
 
-def replace(arr, r_dict, copy=True, dtype=None):
+def replace(arr: np.ndarray, r_dict: dict[Any, Any], copy: bool = True, dtype: DTypeLike = None) -> np.ndarray | None:
     if copy:
         arr2 = arr.copy()
         if dtype is not None:
@@ -379,7 +389,7 @@ def replace(arr, r_dict, copy=True, dtype=None):
         return None
 
 
-def replace_tail_roll(a, b):
+def replace_tail_roll(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     """
     Replace the last elements of the array with the new array and roll the new ones to the start
     So that a repeated call of this function cycles through the array
@@ -395,12 +405,12 @@ def replace_tail_roll(a, b):
     return np.roll(a, n_b, axis=0)
 
 
-def replace_tail_roll_list(arr_list, arr_new_list):
+def replace_tail_roll_list(arr_list: list[np.ndarray], arr_new_list: list[np.ndarray]) -> Generator[np.ndarray]:
     assert len(arr_list) == len(arr_new_list)
-    return (replace_tail_roll(a=arr, b=arr_new) for (arr, arr_new) in zip(arr_list, arr_new_list))
+    return (replace_tail_roll(a=arr, b=arr_new) for (arr, arr_new) in zip(arr_list, arr_new_list, strict=True))
 
 
-def diag_wrapper(x, n=None):
+def diag_wrapper(x: ArrayLike, n: int | None = None) -> np.ndarray:
     x = np.asarray(x)
     if n is None:
         n = x.shape[0]
@@ -414,14 +424,14 @@ def diag_wrapper(x, n=None):
     return d
 
 
-def create_constant_diagonal(n, m, v, k):
+def create_constant_diagonal(n: int, m: int, v: ArrayLike, k: int) -> np.ndarray:
     diag = np.eye(N=n, M=m, k=k) * v[0]
     for i in range(1, len(v)):
         diag += np.eye(N=n, M=m, k=k + i) * v[i]
     return diag
 
 
-def banded_matrix(v_list, k0):
+def banded_matrix(v_list: list[ArrayLike], k0: int) -> np.ndarray:
     m = np.diag(v_list[0], k=k0)
     for i, v in enumerate(v_list[1:], start=1):
         m += np.diag(v, k=k0 + i)
@@ -429,18 +439,20 @@ def banded_matrix(v_list, k0):
     return m
 
 
-def get_stats(x, axis=None, return_array=False):
+def get_stats(x: ArrayLike, axis: AxisLike = None, return_array: bool = False) -> dict[str, Any] | np.ndarray:
     """
     order :size, mean, std, median, min, max
 
     """
 
-    stats = {"size": int(np.size(x, axis=axis)),
-             "mean": np.mean(x, axis=axis),
-             "std": np.std(x, axis=axis),
-             "median": np.median(x, axis=axis),
-             "min": np.min(x, axis=axis),
-             "max": np.max(x, axis=axis)}
+    stats = {
+        "size": int(np.size(x, axis=axis)),
+        "mean": np.mean(x, axis=axis),
+        "std": np.std(x, axis=axis),
+        "median": np.median(x, axis=axis),
+        "min": np.min(x, axis=axis),
+        "max": np.max(x, axis=axis),
+    }
 
     if return_array:
         return np.array([stats["size"], stats["mean"], stats["std"], stats["median"], stats["min"], stats["max"]])
@@ -448,16 +460,16 @@ def get_stats(x, axis=None, return_array=False):
     return stats
 
 
-def verbose_reject_x(title, x, b):
+def verbose_reject_x(title: str, x: ArrayLike, b: np.ndarray) -> np.ndarray:
     if b.size == 0:
         mean = 0
     else:
         mean = b.mean()
-    log_print(f"{title}: {b.sum()}/{b.size} ~ {np.round(mean * 100, 3)}%")
+    logger.info("%s: %s/%s ~ %s%%", title, b.sum(), b.size, np.round(mean * 100, 3))
     return x[b].copy()
 
 
-def get_points_inbetween(x, extrapolate=False):
+def get_points_inbetween(x: np.ndarray, extrapolate: bool = False) -> np.ndarray:
     assert x.ndim == 1
 
     delta = x[1:] - x[:-1]

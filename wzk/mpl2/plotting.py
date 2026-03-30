@@ -1,19 +1,19 @@
 
-from wzk.logger import log_print
 import datetime
-from typing import Literal
-import numpy as np
-
 from itertools import combinations
-from scipy.stats import linregress
+from typing import Literal
+
+import numpy as np
 from matplotlib import collections, patches
+from scipy.stats import linregress
 
-from wzk.mpl2.figure import plt, new_fig, subplot_grid
+from wzk import limits as limits2
+from wzk import ltd, math2, np2, printing
+from wzk.logger import log_print
+from wzk.mpl2.axes import limits2extent, limits4axes, set_ax_limits
 from wzk.mpl2.colors2 import arr2rgba
-from wzk.mpl2.axes import limits4axes, limits2extent, set_ax_limits
+from wzk.mpl2.figure import new_fig, plt, subplot_grid
 from wzk.mpl2.legend import rectangle_legend
-
-from wzk import math2, np2, ltd, limits as limits2, printing
 
 
 def imshow(img: np.ndarray, ax: plt.Axes = None, h=None,
@@ -389,7 +389,7 @@ def correlation_plot(a, b, name_a, name_b,
         a += (x_reg,)
         b += (y_reg,)
         if log_level > 0:
-            log_print("slope: {:.4} | correlation: {:.4} | p {:.4}".format(s, r, p))
+            log_print(f"slope: {s:.4} | correlation: {r:.4} | p {p:.4}")
     else:
         r = None
 

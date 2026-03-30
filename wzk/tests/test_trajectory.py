@@ -1,7 +1,8 @@
 from unittest import TestCase
+
 import numpy as np
 
-from wzk import trajectory, testing
+from wzk import testing, trajectory
 
 
 class Test(TestCase):

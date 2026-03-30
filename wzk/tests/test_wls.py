@@ -1,6 +1,7 @@
 
-from wzk.logger import log_print
 import numpy as np
+
+from wzk.logger import log_print
 from wzk.opt import wls
 
 

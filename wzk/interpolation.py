@@ -1,14 +1,13 @@
 
-from wzk.logger import log_print
 import numpy as np
-
 from scipy.interpolate import CubicSpline, PPoly, splev, splrep
-from scipy.signal import savgol_filter
 from scipy.linalg import solve_banded
+from scipy.signal import savgol_filter
 from scipy.stats import norm
 
-from wzk.trajectory import get_substeps_adjusted, get_substeps
 from wzk import new_fig
+from wzk.logger import log_print
+from wzk.trajectory import get_substeps, get_substeps_adjusted
 
 
 def get_cubic_spline(x, y, mode="i2"):

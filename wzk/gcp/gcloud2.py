@@ -1,12 +1,13 @@
 import os
-import fire
 import socket
 import subprocess
-import pandas as pd
 from io import StringIO
 
-from wzk.subprocess2 import call2
+import fire
+import pandas as pd
+
 from wzk.ltd import atleast_list
+from wzk.subprocess2 import call2
 
 PROJECT = os.environ["GCP_PROJECT"]
 ACCOUNT_NR = os.environ["GCP_ACCOUNT_NR"]
@@ -62,7 +63,7 @@ def add_local_disks_flag(disks):
 def get_disks():
     cmd = "gcloud compute disks list"
     s = call2(cmd)
-    disks = pd.read_table(StringIO(s), delim_whitespace=True)  # noqa
+    disks = pd.read_table(StringIO(s), delim_whitespace=True)
     return disks
 
 
@@ -149,7 +150,7 @@ def mount_disk(sdx, directory):
 
 def lsblk():
     s = call2("lsblk")
-    blk = pd.read_table(StringIO(s), delim_whitespace=True)  # noqa
+    blk = pd.read_table(StringIO(s), delim_whitespace=True)
     return blk
 
 

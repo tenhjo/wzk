@@ -1,12 +1,15 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
 import numpy as np
 
 from wzk import printing
+from wzk.logger import setup_logger
 from wzk.spatial.transform import dcm2rotvec, frame2trans_dcm
 
+logger = setup_logger(__name__)
 
-def frame_logarithm(f0, f1, log_level=0):
+
+def frame_logarithm(f0: np.ndarray, f1: np.ndarray, log_level: int = 0) -> np.ndarray:
     # https://github.com/CarletonABL/QuIK/blob/main/C%2B%2B/QuIK/IK/hgtDiff.cpp
 
     x0, dcm0 = frame2trans_dcm(f0)
@@ -50,11 +53,12 @@ def frame_logarithm(f0, f1, log_level=0):
 
 # Location
 # ----------------------------------------------------------------------------------------------------------------------
-def location_difference(loc_a, loc_b):
+def location_difference(loc_a: np.ndarray, loc_b: np.ndarray) -> np.ndarray:
     return np.linalg.norm(loc_a - loc_b, axis=-1)
 
 
-def location_difference_cost(loc_a, loc_b):
+def location_difference_cost(loc_a: np.ndarray,
+                             loc_b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     loc_diff = loc_a - loc_b
     lco_diff_sqrd = 0.5 * (loc_diff ** 2).sum(axis=-1)
     return loc_diff, lco_diff_sqrd
@@ -62,7 +66,7 @@ def location_difference_cost(loc_a, loc_b):
 
 # Rotation
 # ----------------------------------------------------------------------------------------------------------------------
-def rotation_cost(rot):
+def rotation_cost(rot: np.ndarray) -> np.ndarray:
     """
     Use cos(alpha) as a cost metric, it is symmetric around zero, and the derivative of arccos is not needed.
 
@@ -81,19 +85,19 @@ def rotation_cost(rot):
     return cost
 
 
-def rotation_cost2dist(cost):
+def rotation_cost2dist(cost: np.ndarray) -> np.ndarray:
     return np.arccos(1 - cost)
 
 
-def rotation_dist2cost(dist):
+def rotation_dist2cost(dist: np.ndarray) -> np.ndarray:
     return 1 - np.cos(dist)
 
 
-def rotation_dist(rot):
+def rotation_dist(rot: np.ndarray) -> np.ndarray:
     return rotation_cost2dist(cost=rotation_cost(rot=rot))
 
 
-def rotation_difference(rot_a, rot_b):
+def rotation_difference(rot_a: np.ndarray, rot_b: np.ndarray) -> np.ndarray:
     rot = rot_b @ rot_a.swapaxes(-2, -1)
     if rot.shape[-1] == 3:
         return np.linalg.norm(dcm2rotvec(rot), axis=-1)  # This is numerically more stable
@@ -101,14 +105,18 @@ def rotation_difference(rot_a, rot_b):
         return np.arccos(rot[..., 0, 0])
 
 
-def rotation_difference_cost(rot_a, rot_b):
+def rotation_difference_cost(rot_a: np.ndarray, rot_b: np.ndarray) -> np.ndarray:
     rot = rot_b @ rot_a.swapaxes(-2, -1)
     return rotation_cost(rot=rot)
 
 
 # Combined
 # ----------------------------------------------------------------------------------------------------------------------
-def frame_difference(f_a, f_b, unit_trans="m", unit_rot="rad", log_level=0):
+def frame_difference(f_a: np.ndarray,
+                     f_b: np.ndarray,
+                     unit_trans: str = "m",
+                     unit_rot: str = "rad",
+                     log_level: int = 0) -> tuple[np.ndarray, np.ndarray]:
     loc = location_difference(loc_a=f_a[..., :-1, -1],
                               loc_b=f_b[..., :-1, -1])
 
@@ -116,8 +124,8 @@ def frame_difference(f_a, f_b, unit_trans="m", unit_rot="rad", log_level=0):
                               rot_b=f_b[..., :-1, :-1])
 
     if log_level > 0:
-        log_print(f"Max : {np.max(loc*1000):.3f}mm, {np.max(np.rad2deg(rot)):.3f}deg")
-        log_print(f"Mean: {np.mean(loc*1000):.3f}mm, {np.mean(np.rad2deg(rot)):.3f}deg")
+        logger.debug("Max : %.3fmm, %.3fdeg", np.max(loc*1000), np.max(np.rad2deg(rot)))
+        logger.debug("Mean: %.3fmm, %.3fdeg", np.mean(loc*1000), np.mean(np.rad2deg(rot)))
 
     if unit_trans == "mm":
         loc *= 1000
@@ -128,7 +136,8 @@ def frame_difference(f_a, f_b, unit_trans="m", unit_rot="rad", log_level=0):
     return loc, rot
 
 
-def frame_difference_cost(f_a, f_b):
+def frame_difference_cost(f_a: np.ndarray,
+                          f_b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     loc = location_difference_cost(loc_a=f_a[..., :-1, -1],
                                    loc_b=f_b[..., :-1, -1])[1]
 

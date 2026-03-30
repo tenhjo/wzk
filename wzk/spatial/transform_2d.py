@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import numpy as np
+from numpy.typing import ArrayLike
 
-from wzk.spatial.util import initialize_frames, fill_frames_trans
+from wzk.spatial.util import fill_frames_trans, initialize_frames
 
 
-def x2_to_3(xy, z, axis=2):
+def x2_to_3(xy: ArrayLike, z: ArrayLike, axis: int = 2) -> np.ndarray:
     s = np.array(np.shape(xy))
     s[-1] = 3
     x = np.zeros(s)
@@ -16,7 +19,7 @@ def x2_to_3(xy, z, axis=2):
     return x
 
 
-def theta2dcm(theta):
+def theta2dcm(theta: ArrayLike) -> np.ndarray:
     theta, shape = __theta_wrapper(theta)
 
     dcm = initialize_frames(shape=shape, n_dim=1)
@@ -24,7 +27,7 @@ def theta2dcm(theta):
     return dcm
 
 
-def v2dcm(v):
+def v2dcm(v: ArrayLike) -> np.ndarray:
     v = v / np.linalg.norm(v, axis=-1, keepdims=True)  # v /= does not allow int /= float
     dcm = np.zeros(v.shape[:-1] + (2, 2))
     dcm[..., 0, 0] = +v[..., 0]
@@ -34,14 +37,14 @@ def v2dcm(v):
     return dcm
 
 
-def fill_frames_2d_sc(f, sin, cos):
+def fill_frames_2d_sc(f: np.ndarray, sin: ArrayLike, cos: ArrayLike) -> None:
     f[..., 0, 0] = cos
     f[..., 0, 1] = -sin
     f[..., 1, 0] = sin
     f[..., 1, 1] = cos
 
 
-def __theta_wrapper(theta):
+def __theta_wrapper(theta: ArrayLike) -> tuple[ArrayLike, tuple[int, ...]]:
     if np.isscalar(theta):
         shape = ()
     else:
@@ -52,7 +55,8 @@ def __theta_wrapper(theta):
     return theta, shape
 
 
-def trans_theta2frame(trans=None, theta=None):
+def trans_theta2frame(trans: ArrayLike | None = None,
+                      theta: ArrayLike | None = None) -> np.ndarray:
     theta, shape = __theta_wrapper(theta)
 
     f = initialize_frames(shape=shape, n_dim=2)
@@ -61,7 +65,7 @@ def trans_theta2frame(trans=None, theta=None):
     return f
 
 
-def dframe_dtheta(theta):
+def dframe_dtheta(theta: ArrayLike) -> np.ndarray:
     theta, shape = __theta_wrapper(theta)
     sin, cos = np.sin(theta), np.cos(theta)
 
@@ -70,7 +74,7 @@ def dframe_dtheta(theta):
     return j
 
 
-def from_2d_to_3d(f_2d):
+def from_2d_to_3d(f_2d: np.ndarray) -> np.ndarray:
     shape = np.array(f_2d.shape)
     shape[-2:] += 1
     frames_3d = np.zeros(shape)
@@ -83,19 +87,19 @@ def from_2d_to_3d(f_2d):
     return frames_3d
 
 
-def dcm2theta(dcm):
+def dcm2theta(dcm: np.ndarray) -> np.ndarray:
     #                  sin              cos
     theta = np.arctan2(dcm[..., 1, 0], dcm[..., 0, 0])[..., np.newaxis]
     return theta
 
 
-def frame2trans_theta(f_2d):
+def frame2trans_theta(f_2d: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     trans = f_2d[..., :-1, -1]
     theta = dcm2theta(dcm=f_2d[..., :-1, :-1])
     return trans, theta
 
 
-def frame_logarithm_2d(f0, f1):
+def frame_logarithm_2d(f0: np.ndarray, f1: np.ndarray) -> np.ndarray:
     x0, dcm0 = f0[..., :-1, -1], f0[..., :-1, :-1]
     x1, dcm1 = f1[..., :-1, -1], f1[..., :-1, :-1]
 

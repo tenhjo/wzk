@@ -5,13 +5,18 @@ by Alvin Wan, per:
 Scaling iterative closest point algorithm for registration of m–D point sets
  - Du et al. (https://doi.org/10.1016/j.jvcir.2010.02.005)
 """
-from wzk.logger import log_print
+from __future__ import annotations
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
+from wzk.logger import setup_logger
 
-def best_fit_transform(A, B, scaling=False):
+logger = setup_logger(__name__)
+
+
+def best_fit_transform(A: np.ndarray, B: np.ndarray,
+                       scaling: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """
     Calculates the least-squares best-fit transform between corresponding 3D points A->B
     Input:
@@ -44,7 +49,7 @@ def best_fit_transform(A, B, scaling=False):
 
     # compute scaling
     if scaling:
-        s = sum(b.T.dot(a) for a, b in zip(AA, BB)) / sum(a.T.dot(a) for a in AA)
+        s = sum(b.T.dot(a) for a, b in zip(AA, BB, strict=True)) / sum(a.T.dot(a) for a in AA)
     else:
         s = 1.0
 
@@ -59,7 +64,7 @@ def best_fit_transform(A, B, scaling=False):
     return T, R, t, s
 
 
-def nearest_neighbor(src, dst):
+def nearest_neighbor(src: np.ndarray, dst: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     Find the nearest (Euclidean) neighbor in dst for each point in src
     Input:
@@ -76,7 +81,10 @@ def nearest_neighbor(src, dst):
     return distances.ravel(), indices.ravel()
 
 
-def icp(A, B, init_pose=None, max_iterations=100, tolerance=1e-10):
+def icp(A: np.ndarray, B: np.ndarray,
+        init_pose: np.ndarray | None = None,
+        max_iterations: int = 100,
+        tolerance: float = 1e-10) -> tuple[np.ndarray, float, np.ndarray]:
     """
     The Iterative Closest Point method
     Input:
@@ -106,7 +114,7 @@ def icp(A, B, init_pose=None, max_iterations=100, tolerance=1e-10):
     try:
         distances = np.inf
 
-        for i in range(max_iterations):
+        for _i in range(max_iterations):
             # find the nearest neighbors between the current source and destination points
             distances, indices = nearest_neighbor(src[:-1, :].T, dst[:-1, :].T)
 
@@ -128,11 +136,11 @@ def icp(A, B, init_pose=None, max_iterations=100, tolerance=1e-10):
         return T, s, distances
 
     except (ValueError, np.linalg.LinAlgError) as e:
-        log_print(e)
+        logger.debug(e)
         return np.eye(n_dim+1), 1, np.array([np.inf])
 
 
-def try_random():
+def try_random() -> None:
     from wzk import mpl2, spatial
     n = 10
     x0 = np.random.random((n, 3))
@@ -140,7 +148,7 @@ def try_random():
 
     A, s, d = icp(A=x0.copy(), B=x1.copy())
 
-    log_print(A)
+    logger.debug(A)
     A = spatial.invert(A)
     x11 = spatial.Ax(A=A, x=x1)
     x0 = x0[:, :2]

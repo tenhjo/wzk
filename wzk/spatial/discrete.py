@@ -1,14 +1,16 @@
+from __future__ import annotations
+
 import numpy as np
 
 
-def sample_24cube_rotations(n=None, i=None):
+def sample_24cube_rotations(n: int | None = None, i: np.ndarray | None = None) -> np.ndarray:
     if i is None:
         i = np.random.randint(low=0, high=24, size=n)
 
     return DCM24.copy()[i]
 
 
-def xy2cube24(x: int, y: int):
+def xy2cube24(x: int, y: int) -> np.ndarray:
     """
     face = [+-1, +-2, +-3]
     in which world axis does the face (x-axis) face
@@ -35,7 +37,7 @@ def xy2cube24(x: int, y: int):
     return dcm
 
 
-def get_all_24_cube_rotations():
+def get_all_24_cube_rotations() -> np.ndarray:
     all_xy = [+1, +2, +3, -1, -2, -3]
     dcm24 = np.zeros((24, 3, 3))
     count = 0

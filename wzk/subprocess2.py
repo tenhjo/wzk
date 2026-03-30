@@ -6,7 +6,7 @@ from wzk.strings import uuid4
 
 
 def __read_and_delete(temp):
-    with open(temp, "r") as f:
+    with open(temp) as f:
         stdout = f.read()
 
     os.remove(temp)

@@ -8,8 +8,8 @@ from scipy.signal import convolve2d
 from wzk import ltd
 
 from ._types import ArrayLike, float32
-from .shape import shape_wrapper
 from .basics import scalar2array
+from .shape import shape_wrapper
 
 
 def tile_offset(a: ArrayLike,

@@ -19,7 +19,7 @@
 #     t = 1
 #
 #
-#     def test0(*args):   # noqa
+#     def test0(*args):
 #         log_print("a")
 #         time.sleep(t)
 #         return np.ones((2, 1))

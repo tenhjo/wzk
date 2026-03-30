@@ -1,6 +1,7 @@
 
-from wzk.logger import log_print
 import pikepdf
+
+from wzk.logger import log_print
 
 file = "/Users/maxmuster/Downloads/test.pdf"
 

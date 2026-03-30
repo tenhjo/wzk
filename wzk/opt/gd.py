@@ -1,47 +1,45 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
-import numpy as np  # noqa
+from collections.abc import Callable
 
-from wzk import np2, mp2, time2, ltd, strings, files
+import numpy as np
 
+from wzk import files, ltd, mp2, np2, strings, time2
+from wzk.logger import setup_logger
 from wzk.opt.optimizer import Naive
 
+logger = setup_logger(__name__)
 
 __DEBUG = False
 __debug_directory = "/Users/jote/Documents/PhD/data/mopla/GD/debug"
 
 
 class OPTimizer(ltd.CopyableObject):
-    __slots__ = ("type",                           # str                 | type of the optimizer: gd, sqp, ...
-                 "type_root",                      # str                 | type of the root search algorithm
+    __slots__ = (
+        "active_dims",                    # bool[n_var]         |
+        "callback",                       # fun()               |
+        "clip",                           # float[n_steps]      |
+        "clip_mode",                      # str                 | "value", "norm", "norm-force" (see np2.clip2)
+        "hesse_inv",                      # float[n_var][n_var] |
+        "hesse_weighting",                # float[n_steps]      |
+        "limits",                         # fun()               | Limits of the variables
+        "limits_mode",                    # str                 | "jump", "clip", "ignore"
+        "n_processes",                    # int                 |
+        "n_samples",                      # int                 | Number of samples
+        "n_steps",                        # int                 | Number of iterations
+        "optimizer",                      # Optimizer           | Adam, RMSProp, ...
+        "return_x_list",                  # bool                | s this a suitable parameter? not really
+        "staircase",                      # OPTStaircase        |
+        "stepsize",                       # float               |
+        "type",                           # str                 | type of the optimizer: gd, sqp, ...
+        "type_root",                      # str                 | type of the root search algorithm
+        "use_loop_instead_of_processes",  # bool                |
+        "verbose"                         # int
+    )
 
-                 "n_samples",                      # int                 | Number of samples
-
-                 "n_steps",                        # int                 | Number of iterations
-                 "stepsize",                       # float               |
-
-                 "optimizer",                      # Optimizer           | Adam, RMSProp, ...
-
-                 "limits",                         # fun()               | Limits of the variables
-                 "limits_mode",                    # str                 | "jump", "clip", "ignore"
-
-                 "clip",                           # float[n_steps]      |
-                 "clip_mode",                      # str                 | "value", "norm", "norm-force" (see np2.clip2)
-
-
-                 "callback",                       # fun()               |
-                 "n_processes",                    # int                 |
-                 "use_loop_instead_of_processes",  # bool                |
-                 "hesse_inv",                      # float[n_var][n_var] |
-                 "hesse_weighting",                # float[n_steps]      |
-                 "active_dims",                    # bool[n_var]         |
-                 "staircase",                      # OPTStaircase        |
-                 "return_x_list",                  # bool                | s this a suitable parameter? not really
-                 "verbose"                         # int
-                 )
-
-    def __init__(self, n_samples=1, n_steps=100, stepsize=1, optimizer=Naive(), clip=0.1, n_processes=1,
-                 clip_mode="value", limits_mode="clip"):
+    def __init__(self, n_samples: int = 1, n_steps: int = 100, stepsize: float = 1,
+                 optimizer: Naive = Naive(), clip: float = 0.1, n_processes: int = 1,
+                 clip_mode: str = "value", limits_mode: str = "clip") -> None:
 
         self.type = None
         self.type_root = "newton"
@@ -73,28 +71,35 @@ class OPTimizer(ltd.CopyableObject):
         self.verbose = 0
 
 
-class OPTStaircase(object):
-    __slots__ = ("n_stairs",        # int
-                 "n_var",           # int[n_stairs]
-                 "n_steps",         # int[n_stairs]
-                 "clip",            # float[n_stairs]
-                 "hesse_inv_dict",  # dict[n_stairs]
-                 )
+class OPTStaircase:
+    __slots__ = (
+        "clip",            # float[n_stairs]
+        "hesse_inv_dict",  # dict[n_stairs]
+        "n_stairs",        # int
+        "n_steps",         # int[n_stairs]
+        "n_var",           # int[n_stairs]
+    )
 
-    def __init__(self, n_stairs=-1):
+    def __init__(self, n_stairs: int = -1) -> None:
         self.n_stairs = n_stairs
 
 
 # Gradient Descent
-def gradient_descent_mp(x, fun, grad, opt):
+def gradient_descent_mp(x: np.ndarray,
+                        fun: Callable[[np.ndarray], np.ndarray],
+                        grad: Callable[[np.ndarray, int], np.ndarray],
+                        opt: OPTimizer) -> np.ndarray:
 
-    def gd_wrapper(xx):
+    def gd_wrapper(xx: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         return gradient_descent(x=xx, fun=fun, grad=grad, opt=opt)
 
     return mp2.mp_wrapper(x, fun=gd_wrapper, n_processes=opt.n_processes)
 
 
-def gradient_descent(x, fun, grad, opt):
+def gradient_descent(x: np.ndarray,
+                     fun: Callable[[np.ndarray], np.ndarray],
+                     grad: Callable[[np.ndarray, int], np.ndarray],
+                     opt: OPTimizer) -> tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, np.ndarray, tuple]:
 
     x = __x_wrapper(x)
 
@@ -141,13 +146,13 @@ def gradient_descent(x, fun, grad, opt):
             o_list[i] = fun(x)  # only for debugging, is inefficient to call separately
 
         if opt.verbose > 0:
-            log_print(i, fun(x))
+            logger.debug("%d %s", i, fun(x))
 
     o = fun(x)
 
     if __DEBUG:
         file = f"{__debug_directory}/gd_{time2.get_timestamp(millisecond=True)}__{strings.uuid4()}"
-        files.save_pickle(file=file, obj=dict(x=x_list, o=o_list))
+        files.save_pickle(file=file, obj={"x": x_list, "o": o_list})
 
     if opt.return_x_list:
         return x, o, (x_list, o_list)
@@ -156,7 +161,7 @@ def gradient_descent(x, fun, grad, opt):
         return x, o
 
 
-def __x_wrapper(x):
+def __x_wrapper(x: np.ndarray) -> np.ndarray:
     x = np.array(x.copy())
     if x.ndim == 1:
         x = x[np.newaxis, :]

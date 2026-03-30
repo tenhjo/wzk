@@ -1,6 +1,7 @@
 import numpy as np
 
-from wzk import math2, limits as limits2
+from wzk import limits as limits2
+from wzk import math2
 from wzk.mpl2 import DraggableEllipseList, new_fig
 
 
@@ -25,7 +26,7 @@ def draggable_configurations(x: np.ndarray, limits, circle_ratio=1/3, **kwargs):
 
         y_ticks = np.linspace(limits_i[0], limits_i[1], 5)
         ax.set_yticks(y_ticks)
-        ax.set_yticklabels(["{:.2f}".format(v) for v in y_ticks])
+        ax.set_yticklabels([f"{v:.2f}" for v in y_ticks])
         ax.set_ylim(limits_i_larger)
 
     x_temp = np.arange(n_wp)

@@ -1,7 +1,8 @@
 """Get boundaries (edges/faces) of boolean images"""
 
-from wzk.logger import log_print
 import numpy as np
+
+from wzk.logger import log_print
 
 
 def clean_grid_line(x, n_dim=2, return_indices=False):

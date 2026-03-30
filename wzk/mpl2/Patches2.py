@@ -1,5 +1,5 @@
 import numpy as np
-from matplotlib import patches, transforms, pyplot, path
+from matplotlib import patches, path, pyplot, transforms
 
 from wzk import geometry
 
@@ -111,7 +111,7 @@ class CurlyBrace(patches.PathPatch):
                                x1])  #
 
         codes = [path.Path.MOVETO] + 6 * [path.Path.CURVE4]
-        super().__init__(patches.Path(self.verts, codes), **kwargs)  # noqa
+        super().__init__(patches.Path(self.verts, codes), **kwargs)
 
 
 # Transformations

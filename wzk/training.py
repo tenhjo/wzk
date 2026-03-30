@@ -1,6 +1,6 @@
 import numpy as np
 
-from wzk import random2, ltd
+from wzk import ltd, random2
 
 
 def n2train_test(n, split=0.2):

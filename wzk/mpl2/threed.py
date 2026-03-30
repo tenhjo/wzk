@@ -1,9 +1,11 @@
-import numpy as np
+from itertools import combinations, product
+
 import mpl_toolkits.mplot3d.art3d as art3d
+import numpy as np
+
 # noinspection PyUnresolvedReferences
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection  # noqa
 
-from itertools import combinations, product
 from wzk.mpl2.figure import save_fig
 
 
@@ -24,7 +26,7 @@ def save_different_views_3d(*, ax, fig_name, azim_lim=(0, 270), elev_lim=(45, 45
         for e in elev_lim:
             ax.azim = a
             ax.elev = e
-            save_fig(fig_name + "_a{:.4}_e{:.4}".format(a, e), ax.get_figure())
+            save_fig(fig_name + f"_a{a:.4}_e{e:.4}", ax.get_figure())
 
 
 def plot_poly_collection_3d(face_vtx, ax, **kwargs):

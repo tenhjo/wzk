@@ -64,7 +64,6 @@ def test_solve_tsp(mode="random"):
 
     route = tsp.solve_tsp(x=points, time_limit=1)
     plot_solution_2d(points=points, route=route)
-    return route
 
 
 def plot_solution_2d(points, route, title="Traveling Salesman Problem"):

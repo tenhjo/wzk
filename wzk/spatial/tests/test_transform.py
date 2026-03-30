@@ -1,10 +1,10 @@
 
-from wzk.logger import log_print
 import unittest
 
 import numpy as np
 
 from wzk import spatial
+from wzk.logger import log_print
 
 
 class Test(unittest.TestCase):

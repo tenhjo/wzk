@@ -1,15 +1,14 @@
 
-from wzk.logger import log_print
 import warnings
-import numpy as np
 
-from scipy.signal import convolve
+import numpy as np
 from scipy import ndimage
+from scipy.signal import convolve
 from skimage import measure
 from skimage.morphology import flood_fill
 
-from wzk import geometry, np2, printing, trajectory, grid, spatial, math2
-
+from wzk import geometry, grid, math2, np2, printing, spatial, trajectory
+from wzk.logger import log_print
 
 __eps = 1e-9
 
@@ -339,7 +338,7 @@ def mesh2bimg(p, shape, limits, f=None):
         if f is None:
             ch = geometry.ConvexHull(p)
             p = ch.points
-            f = ch.simplices  # noqa
+            f = ch.simplices
         p2 = geometry.discretize_triangle_mesh(p=p, f=f, voxel_size=voxel_size)
         i2 = grid.x2i(x=p2, limits=limits, shape=shape)
         img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),

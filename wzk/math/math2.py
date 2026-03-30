@@ -1,46 +1,56 @@
+from __future__ import annotations
 
-from wzk.logger import log_print
 import math
+from collections.abc import Callable
 from itertools import product
+from typing import Any
 
 import numpy as np
+from numpy.typing import ArrayLike
 from scipy.linalg import cho_factor, cho_solve
 
-from wzk import np2, ltd
+from wzk import ltd, np2
+from wzk.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 # a/b = (a+b) / a -> a / b =
 GOLDEN_RATIO = (np.sqrt(5.0) + 1) / 2
 
 
-def make_monotonous_descending(x):
+def make_monotonous_descending(x: ArrayLike) -> np.ndarray:
+    x = np.asarray(x).copy()
     for i in range(len(x)):
         x[i] = x[:i+1].min()
     return x
 
 
-def number2digits(num):
+def number2digits(num: int) -> list[int]:
     return [int(x) for x in str(num)]
 
 
-def make_odd(x, rounding=+1):
+def make_odd(x: ArrayLike, rounding: int = +1) -> ArrayLike:
     return x - rounding * (x % 2 - 1)
 
 
-def make_even(x, rounding=+1):
+def make_even(x: ArrayLike, rounding: int = +1) -> ArrayLike:
     return x + rounding * (x % 2)
 
 
-def make_even_odd(x, mode, rounding=+1):
-    if mode.lower() == "even" or mode.lower() == "e":
+def make_even_odd(x: ArrayLike, mode: str, rounding: int = +1) -> ArrayLike:
+    mode = mode.lower()
+    if mode in ("even", "e"):
         return make_even(x=x, rounding=rounding)
-    elif mode.lower() == "odd" or mode.lower() == "o":
+    if mode in ("odd", "o"):
         return make_odd(x=x, rounding=rounding)
-    else:
-        raise ValueError
+    raise ValueError
 
 
 # Normalize
-def normalize_01(x, low=None, high=None, axis=None):
+def normalize_01(x: ArrayLike,
+                 low: ArrayLike | None = None,
+                 high: ArrayLike | None = None,
+                 axis: int | None = None) -> np.ndarray:
     """
     Normalize [low, high] to [0, 1]
     low and high should either be scalars or have the same dimension as the last dimension of x
@@ -55,11 +65,14 @@ def normalize_01(x, low=None, high=None, axis=None):
     return (x-low) / (high-low)
 
 
-def denormalize_01(x, low, high):
+def denormalize_01(x: ArrayLike, low: ArrayLike, high: ArrayLike) -> np.ndarray:
     return x * (high - low) + low
 
 
-def normalize11(x, low=None, high=None, axis=None):
+def normalize11(x: ArrayLike,
+                low: ArrayLike | None = None,
+                high: ArrayLike | None = None,
+                axis: int | None = None) -> np.ndarray:
     """
     Normalize [low, high] to [-1, 1]
     low and high should either be scalars or have the same dimension as the last dimension of x
@@ -73,7 +86,7 @@ def normalize11(x, low=None, high=None, axis=None):
     return 2 * (x - low) / (high - low) - 1
 
 
-def denormalize11(x, low, high):
+def denormalize11(x: ArrayLike, low: ArrayLike, high: ArrayLike) -> np.ndarray:
     """
     Denormalize [-1, 1] to [low, high]
     low and high should either be scalars or have the same dimension as the last dimension of x
@@ -82,7 +95,10 @@ def denormalize11(x, low, high):
 
 
 # Standardize
-def standardize_01(x, mean, std, axis=None):
+def standardize_01(x: ArrayLike,
+                   mean: ArrayLike | None,
+                   std: ArrayLike | None,
+                   axis: int | None = None) -> np.ndarray:
     if mean is None:
         mean = np.mean(x, axis=axis, keepdims=True)
 
@@ -92,18 +108,18 @@ def standardize_01(x, mean, std, axis=None):
     return (x-mean) / std
 
 
-def destandardize_01(x, mean, std):
+def destandardize_01(x: ArrayLike, mean: ArrayLike, std: ArrayLike) -> np.ndarray:
     return mean + x*std
 
 
-def euclidean_norm(arr, axis=-1, squared=False):
+def euclidean_norm(arr: ArrayLike, axis: int = -1, squared: bool = False) -> np.ndarray:
     if squared:
         return (arr**2).sum(axis=axis)
     else:
         return np.sqrt((arr**2).sum(axis=axis))
 
 
-def discretize(x, step):
+def discretize(x: ArrayLike, step: float) -> ArrayLike:
 
     if np.isinf(step) or np.isnan(step):
         return x
@@ -121,7 +137,7 @@ def discretize(x, step):
         return x - difference
 
 
-def dnorm_dx(x, x_norm=None):
+def dnorm_dx(x: ArrayLike, x_norm: ArrayLike | None = None) -> np.ndarray:
     """ ∂ |x| / ∂ x
      normalization over last dimension
      """
@@ -134,7 +150,7 @@ def dnorm_dx(x, x_norm=None):
     return dn_dx
 
 
-def dxnorm_dx(x, return_norm=False):
+def dxnorm_dx(x: ArrayLike, return_norm: bool = False) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     """
     ∂ (x/|x|) / ∂ x
     normalization over last dimension
@@ -183,7 +199,7 @@ def dxnorm_dx(x, return_norm=False):
 
 
 # Smooth
-def smooth_step(x):
+def smooth_step(x: ArrayLike) -> np.ndarray:
     """
     https://en.wikipedia.org/wiki/Smoothstep
     Interpolation, which has zero 1st-order derivatives at x = 0 and x = 1,
@@ -193,7 +209,7 @@ def smooth_step(x):
     return np.clip(res, 0, 1)
 
 
-def smoother_step(x):
+def smoother_step(x: ArrayLike) -> np.ndarray:
     """
     https://en.wikipedia.org/wiki/Smoothstep+
     Ken Perlin suggests an improved version of the smooth step function,
@@ -204,7 +220,7 @@ def smoother_step(x):
 
 
 # Divisors
-def divisors(n, with_1_and_n=False):
+def divisors(n: int, with_1_and_n: bool = False) -> list[int]:
     """
     https://stackoverflow.com/questions/171765/what-is-the-best-way-to-get-all-the-divisors-of-a-number#171784
     """
@@ -215,9 +231,7 @@ def divisors(n, with_1_and_n=False):
     i = 2
     while i*i <= nn:
         while nn % i == 0:
-            if i not in factors:
-                factors[i] = 0
-            factors[i] += 1
+            factors[i] = factors.get(i, 0) + 1
             nn //= i
         i += 1
     if nn > 1:
@@ -239,13 +253,11 @@ def divisors(n, with_1_and_n=False):
                     yield _factor * prime_to_i
                     prime_to_i *= prime
 
-    if with_1_and_n:
-        return list(generate(0))
-    else:
-        return list(generate(0))[1:-1]
+    vals = list(generate(0))
+    return vals if with_1_and_n else vals[1:-1]
 
 
-def get_mean_divisor_pair(n):
+def get_mean_divisor_pair(n: int) -> tuple[int, int]:
     """
     Calculate the 'mean' pair of divisors. The two divisors should be as close as possible to the sqrt(n).
     The smaller divisor is the first value of output pair
@@ -277,7 +289,7 @@ def get_mean_divisor_pair(n):
         return div[idx_center_minus1], div[idx_center_plus1]
 
 
-def get_divisor(numerator, denominator):
+def get_divisor(numerator: int | float, denominator: int | float) -> int:
     divisor = numerator / denominator
     divisor_int = int(divisor)
 
@@ -285,27 +297,29 @@ def get_divisor(numerator, denominator):
     return divisor_int
 
 
-def doubling_factor(small, big):
+def doubling_factor(small: float, big: float) -> float:
     return np.log2(big / small)
 
 
-def modulo(x, low, high):
+def modulo(x: ArrayLike, low: float, high: float) -> ArrayLike:
     return (x - low) % (high - low) + low
 
 
-def angle2minuspi_pluspi(x):
+def angle2minuspi_pluspi(x: ArrayLike) -> ArrayLike:
     return modulo(x=x, low=-np.pi, high=+np.pi)
     # modulo is faster for larger arrays, for small ones they are similar, but arctan is faster in this region
     #  -> as always, you have to make a trade-off
     # return np.arctan2(np.sin(x), np.cos(x))
 
 
-def log_b(x, base=np.e):
+def log_b(x: ArrayLike, base: float = np.e) -> np.ndarray:
     # https://stackoverflow.com/questions/25169297/numpy-logarithm-with-base-n
     return np.log(x) / np.log(base)
 
 
-def assimilate_orders_of_magnitude(a, b, base=10):
+def assimilate_orders_of_magnitude(a: ArrayLike,
+                                   b: ArrayLike,
+                                   base: int = 10) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     a_mean = np.abs(a).mean()
     b_mean = np.abs(b).mean()
     a_mean_log = np.log(a_mean)
@@ -320,7 +334,7 @@ def assimilate_orders_of_magnitude(a, b, base=10):
 
 
 # Functions
-def rosenbrock2d(xy, a=1, b=100):
+def rosenbrock2d(xy: ArrayLike, a: float = 1, b: float = 100) -> np.ndarray:
     # https://en.wikipedia.org/wiki/Rosenbrock_function
     # Minimum f(a, a**2) = 0
     xy = np.array(xy)
@@ -328,15 +342,20 @@ def rosenbrock2d(xy, a=1, b=100):
     return (a - x)**2 + b*(y - x**2)**2
 
 
-def d_rosenbrock2d(xy, a=1, b=100):
+def d_rosenbrock2d(xy: ArrayLike, a: float = 1, b: float = 100) -> np.ndarray:
     xy = np.array(xy)
     x, y = xy.T
     dx = -2*(a-x) - 4*b*(y-x**2)*x
-    dy =          + 2*b*(y-x**2)  # noqa
+    dy =          + 2*b*(y-x**2)
     return np.concatenate([dx[..., np.newaxis], dy[..., np.newaxis]], axis=-1)
 
 
-def bisection(f, a, b, tol, max_depth=50, log_level=0, _depth=0, ):
+def bisection(f: Callable[[float], float],
+              a: float,
+              b: float,
+              tol: float,
+              max_depth: int = 50,
+              _depth: int = 0) -> float:
     """
     aka binary search
 
@@ -353,46 +372,43 @@ def bisection(f, a, b, tol, max_depth=50, log_level=0, _depth=0, ):
 
     # HEURISTIC
     if np.sign(fa) == np.sign(fb):
-        log_print(f"The scalars a {a} and b {b} do not bound a root.\n"
-              f"A heuristic is tried to shift the limits, but this is not guaranteed to work; "
-              f"only if the function is monotonic.\n"
-              f"Check the limits again manually!.")
+        logger.debug("The scalars a %s and b %s do not bound a root. "
+                     "A heuristic is tried to shift the limits, but this is not guaranteed to work; "
+                     "only if the function is monotonic. "
+                     "Check the limits again manually!.", a, b)
 
         if (np.sign(fa) == +1 and fa < fb) or (np.sign(fa) == -1 and fa > fb):
-            return bisection(f=f, a=a/2, b=a, tol=tol, log_level=log_level, _depth=_depth + 1)
+            return bisection(f=f, a=a/2, b=a, tol=tol, _depth=_depth + 1)
         else:
-            return bisection(f=f, a=b, b=2*b, tol=tol, log_level=log_level, _depth=_depth + 1)
-
-        # else:
-        #     if fa < fb:
-        #         bisection(f=f, a=b, b=2*b, tol=tol)
-        #     else:
-        #         bisection(f=f, a=a/2, b=a, tol=tol)
+            return bisection(f=f, a=b, b=2*b, tol=tol, _depth=_depth + 1)
 
     # get midpoint
     m = (a + b) / 2
     fm = f(m)
 
-    if log_level > 0:
-        log_print(f"depth {_depth}: a {a}, b {b}, m {m}, f(m) {fm}")
+    logger.debug("bisection depth=%s a=%s b=%s m=%s f(m)=%s", _depth, a, b, m, fm)
 
     if np.abs(fm) <= tol or _depth > max_depth:  # stopping condition, report m as root
         return m
 
     elif np.sign(fa) == np.sign(fm):  # m is an improvement on a
-        return bisection(f=f, a=m, b=b, tol=tol, log_level=log_level, _depth=_depth + 1)
+        return bisection(f=f, a=m, b=b, tol=tol, _depth=_depth + 1)
 
     elif np.sign(fb) == np.sign(fm):  # m is an improvement on b
-        return bisection(f=f, a=a, b=m, tol=tol, log_level=log_level, _depth=_depth + 1)
+        return bisection(f=f, a=a, b=m, tol=tol, _depth=_depth + 1)
 
     else:
         raise ValueError("Should not happen!")
 
 
 # Derivative
-def numeric_derivative(fun, x, eps=1e-5, axis=-1, mode="central",
-                       diff=None,
-                       **kwargs_fun):
+def numeric_derivative(fun: Callable[..., ArrayLike],
+                       x: ArrayLike,
+                       eps: float = 1e-5,
+                       axis: int = -1,
+                       mode: str = "central",
+                       diff: Callable[[ArrayLike, ArrayLike], ArrayLike] | None = None,
+                       **kwargs_fun: Any) -> np.ndarray:
     """
     Use the central, forward or backward difference scheme to calculate the numeric derivative of function at point x.
     'axis' indicates the dimensions of the free variables.
@@ -432,7 +448,7 @@ def numeric_derivative(fun, x, eps=1e-5, axis=-1, mode="central",
 
 
 # Magic
-def magic(n, m=None):
+def magic(n: int, m: int | None = None) -> np.ndarray:
     """
     Equivalent of the MATLAB function:
     M = magic(n) returns an n-by-n matrix constructed from integers 1 through n2 with equal row and column sums.
@@ -478,7 +494,10 @@ def magic(n, m=None):
 
 
 # Clustering
-def k_farthest_neighbors(x, k, weighting=None, mode="inverse_sum") :
+def k_farthest_neighbors(x: np.ndarray,
+                         k: int,
+                         weighting: np.ndarray | None = None,
+                         mode: str = "inverse_sum") -> np.ndarray:
     n = len(x)
     eps = 1e-6
     m_dist = x[np.newaxis, :, :] - x[:, np.newaxis, :]
@@ -502,18 +521,6 @@ def k_farthest_neighbors(x, k, weighting=None, mode="inverse_sum") :
         else:
             raise ValueError(f"Unknown mode {mode}")
 
-        # C)
-        # m_dist_cur_sum = m_dist_cur.sum(axis=0)
-        # m_dist_cur_std = np.std(m_dist_cur, axis=0)
-        # obj = m_dist_cur_sum + (m_dist_cur_std.max(initial=0) - m_dist_cur_std) * 1000
-
-        # D
-        # m_dist_cur[np.arange(i+1), idx] = np.inf
-        # jj = np.argmin(m_dist_cur, axis=1)
-        # kk = np.argmax(m_dist_cur[np.arange(i+1), jj])
-        # idx = np.hstack([idx, [jj[kk]]]).astype(int)
-        # continue
-
         idx_new = np.argsort(obj)[::-1]
         for j in range(n):
             if idx_new[j] not in idx:
@@ -523,7 +530,7 @@ def k_farthest_neighbors(x, k, weighting=None, mode="inverse_sum") :
     return idx
 
 
-def vis_k_farthest_neighbors():
+def vis_k_farthest_neighbors() -> None:
     x = np.random.random((500, 2))
     k = 5
     idx = k_farthest_neighbors(x=x, k=k)
@@ -535,16 +542,16 @@ def vis_k_farthest_neighbors():
 
 
 # Combinatorics
-def binomial(n, k):
+def binomial(n: int, k: int) -> int:
     return math.factorial(n) // math.factorial(k) // math.factorial(n - k)
 
 
-def random_subset(n, k, m, dtype=np.uint16):
+def random_subset(n: int, k: int, m: int, dtype: type = np.uint16) -> np.ndarray:
     assert n == np.array(n, dtype=dtype)
     return np.array([np.random.choice(n, k, replace=False) for _ in range(m)]).astype(np.uint16)
 
 
-def irwin_hall_distribution(x, n=2):
+def irwin_hall_distribution(x: ArrayLike, n: int = 2) -> np.ndarray:
     """
     https://en.wikipedia.org/wiki/Irwin-Hall_distribution
     """
@@ -558,10 +565,10 @@ def irwin_hall_distribution(x, n=2):
     return pre_factor * f_xn
 
 
-def test_dxnorm_dx():
+def test_dxnorm_dx() -> None:
     x = np.vstack([magic(3).T]*3)
     j = dxnorm_dx(x)
-    log_print(j[0])
+    logger.debug(j[0])
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -569,7 +576,7 @@ def test_dxnorm_dx():
 __RCOND = 1e-5
 
 
-def get_upper(n):
+def get_upper(n: int) -> np.ndarray:
     u = np.zeros((n, n), dtype=bool)
     for i in range(n):
         for j in range(n):
@@ -579,11 +586,15 @@ def get_upper(n):
     return u
 
 
-def get_lower(n):
+def get_lower(n: int) -> np.ndarray:
     return get_upper(n=n).T
 
 
-def project2null(A, x, clip=None, clip_mode=None, _rcond=__RCOND):
+def project2null(A: np.ndarray,
+                 x: np.ndarray,
+                 clip: float | None = None,
+                 clip_mode: str | None = None,
+                 _rcond: float = __RCOND) -> np.ndarray:
     """
     Clipping happens before and after the projection step.
     If the determinant of the projection is not larger than 1, the second clipping has no effect.
@@ -595,30 +606,23 @@ def project2null(A, x, clip=None, clip_mode=None, _rcond=__RCOND):
     A0 = np.eye(A.shape[-1]) - (AT @ np.linalg.pinv(AT, rcond=_rcond))
     x0 = (A0 @ x[..., np.newaxis])[..., 0]
 
-    # same as:
-    # n, m = A.shape[-2:]
-    # A_big = np.block([[np.eye(m), AT], [A, np.zeros((n, n))]])
-    # b_big = np.zeros(x.shape[:-1] + (n+m,))
-    # b_big[..., :m] = x
-    # x0_cho = solve_cho(A=A_big, b=b_big)
-
     x0 = np2.clip2(x0, clip=clip, mode=clip_mode)  # this is only for safety, normally without effect
     return x0
 
 
-def solve_pinv(A, b, _rcond=__RCOND):
+def solve_pinv(A: np.ndarray, b: np.ndarray, _rcond: float = __RCOND) -> np.ndarray:
     try:
         x = (np.linalg.pinv(A, rcond=_rcond) @ b[..., np.newaxis])[..., 0]
 
     except np.linalg.LinAlgError:
-        log_print("solve_pinv: np.linalg.LinAlgError")
+        logger.debug("solve_pinv: np.linalg.LinAlgError")
         x0 = np.zeros(b.shape[:-1] + (A.shape[-2],))
         return x0
 
     return x
 
 
-def solve_lstsq(A, b, rcond=None):
+def solve_lstsq(A: np.ndarray, b: np.ndarray, rcond: float | None = None) -> np.ndarray:
 
     if A.ndim == 2 and b.ndim == 1:
         return np.linalg.lstsq(A, b, rcond=rcond)[0]
@@ -633,7 +637,7 @@ def solve_lstsq(A, b, rcond=None):
         raise ValueError
 
 
-def solve_halley_damped(h, j, e, damping):
+def solve_halley_damped(h: np.ndarray, j: np.ndarray, e: np.ndarray, damping: float) -> np.ndarray:
     x = solve_cho_damped(A=j, b=e, damping=damping)
     hq = np.sum(h * -x[..., np.newaxis, np.newaxis, :], axis=-1)
     j_hq = j + 0.5 * hq
@@ -641,12 +645,12 @@ def solve_halley_damped(h, j, e, damping):
     return x
 
 
-def solve_newton_damped(j, e, damping):
+def solve_newton_damped(j: np.ndarray, e: np.ndarray, damping: float) -> np.ndarray:
     """Just a name alias for solve_cho_damped"""
     return solve_cho_damped(A=j, b=e, damping=damping)
 
 
-def solve_cho(A, b):
+def solve_cho(A: np.ndarray, b: np.ndarray) -> np.ndarray:
 
     if A.ndim == 2 and b.ndim == 1:
         return cho_solve(cho_factor(A), b)
@@ -660,7 +664,7 @@ def solve_cho(A, b):
         raise ValueError("solve_cho: A and b must be 2D or 3D")
 
 
-def solve_cho_damped(A, b, damping):
+def solve_cho_damped(A: np.ndarray, b: np.ndarray, damping: float) -> np.ndarray:
     n, m = A.shape[-2:]
     AT = np.swapaxes(A, -2, -1)
     AAT = A @ AT
@@ -673,7 +677,7 @@ def solve_cho_damped(A, b, damping):
     return x
 
 
-def matrix_sqrt(A):
+def matrix_sqrt(A: np.ndarray) -> np.ndarray:
     """
     Calculates the principal square root of a matrix.
     """

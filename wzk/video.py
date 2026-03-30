@@ -1,7 +1,7 @@
 import os
-import numpy as np
 
 import fire
+import numpy as np
 
 from wzk import files, strings
 

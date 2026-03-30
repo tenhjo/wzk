@@ -18,14 +18,14 @@ class Test(TestCase):
 
         fig, ax = plt.subplots()
         move_figure.move_fig(fig=fig, position="bottom left")
-        plt.pause(0.1)
+        plt.draw()
         plt.close("all")
 
         for i in range(1, 10):
             fig, ax = plt.subplots()
             move_figure.move_fig(fig=fig, position=(3, 3, i))
 
-        plt.pause(0.1)
+        plt.draw()
         plt.close("all")
 
         self.assertTrue(True)

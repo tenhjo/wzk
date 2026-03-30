@@ -100,9 +100,9 @@ def __position_string_wrapper(position_str="top right"):
     elif position_str == "bottom right":
         return 2, 2, 4
     else:
-        raise NotImplementedError("Unknown position '{}', "
+        raise NotImplementedError(f"Unknown position '{position_str}', "
                                   "Choose from: 'top', 'bottom', 'left', 'right', "
-                                  "'top left', 'top right', 'bottom left', 'bottom right'".format(position_str))
+                                  "'top left', 'top right', 'bottom left', 'bottom right'")
 
 
 def __move_fig(fig, width=None, height=None, offset_x=None, offset_y=None):

@@ -1,19 +1,20 @@
-import os
+from __future__ import annotations
 
-import re
-import pickle
 import json
-import shutil
-from typing import Union
+import os
+import pickle
 import platform
+import re
+import shutil
 import subprocess
+
 import msgpack
 import numpy as np
+from scipy.io import loadmat as load_mat  # noqa: F401
+from scipy.io import savemat as save_mat  # noqa: F401
 
-from scipy.io import loadmat as load_mat, savemat as save_mat  # noqa: F401
-
-from wzk.logger import setup_logger, log_print
-from wzk import time2, printing, subprocess2
+from wzk import printing, subprocess2, time2
+from wzk.logger import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -24,14 +25,14 @@ __open_cmd_dict = {"Linux": "xdg-open",
 
 # ICLOUD = 'Library/Mobile Documents/com~apple~CloudDocs'
 
-EXT_DICT = dict(pkl="pkl", pickle="pickle",
-                json="json",
-                txt="text", text="txt",
-                mat="mat",
-                msgpack="msgpack")
+EXT_DICT = {"pkl": "pkl", "pickle": "pickle",
+            "json": "json",
+            "txt": "text", "text": "txt",
+            "mat": "mat",
+            "msgpack": "msgpack"}
 
 
-def get_pythonpath():
+def get_pythonpath() -> list[str]:
     try:
         return os.environ["PYTHONPATH"].split(os.pathsep)
     except KeyError:
@@ -39,7 +40,7 @@ def get_pythonpath():
 
 
 # --- shell ------------------------------------------------------------------------------------------------------------
-def cp(src, dst, a=False):
+def cp(src: str, dst: str, a: bool = False) -> None:  # TODO: pathlib — shutil.copy2() / shutil.copytree()
     """-a (improved recursive copy, including all files, subfolders and symlinks)"""
     if a:
         if not src.endswith("/."):
@@ -49,23 +50,23 @@ def cp(src, dst, a=False):
         subprocess.call(f"cp {src} {dst}", shell=True)
 
 
-def mv(src: str, dst: str):
+def mv(src: str, dst: str) -> None:  # TODO: pathlib — shutil.move() or Path.rename()
     if src == dst:
-        log_print(f"mv: src == dst | {src}")
+        logger.debug("mv: src == dst | %s", src)
         return
 
-    log_print(f"mv {src} {dst}")
+    logger.debug("mv %s %s", src, dst)
     subprocess.call(f"mv {src} {dst}", shell=True)
 
 
-def rm(file: str):
+def rm(file: str) -> None:  # TODO: pathlib — Path(file).unlink(missing_ok=True)
     try:
         os.remove(file)
     except FileNotFoundError:
         pass
 
 
-def rmdirs(directory: Union[str, list]):
+def rmdirs(directory: str | list[str]) -> None:  # TODO: pathlib — shutil.rmtree(Path(d))
     if isinstance(directory, list):
         for d in directory:
             rmdirs(d)
@@ -76,7 +77,8 @@ def rmdirs(directory: Union[str, list]):
             pass
 
 
-def rm_files_in_dir(directory: str, file_list: list = None):
+def rm_files_in_dir(directory: str, file_list: list[str] | None = None) -> None:
+    # TODO: pathlib — (Path(directory) / file).unlink()
     if file_list is None:
         if os.path.exists(directory):
             file_list = listdir(directory)
@@ -87,20 +89,20 @@ def rm_files_in_dir(directory: str, file_list: list = None):
         rm(os.path.join(directory, file))
 
 
-def rm_empty_folders(directory: str):
+def rm_empty_folders(directory: str) -> None:  # TODO: pathlib — Path.iterdir() + Path.rmdir()
     for d, _, _ in os.walk(directory, topdown=False):
         if len(os.listdir(d)) == 0:
-            log_print(d)
+            logger.debug(d)
             os.rmdir(d)
 
 
-def rm_files_for_each(directory: str, file_list: list = None):
+def rm_files_for_each(directory: str, file_list: list[str] | None = None) -> None:
     directory_list = helper__get_sub_directory_list(directory=directory)
     for d in directory_list:
         rm_files_in_dir(directory=d, file_list=file_list)
 
 
-def mkdirs(directory: Union[str, list]):
+def mkdirs(directory: str | list[str] | None) -> None:  # TODO: pathlib — Path(d).mkdir(parents=True, exist_ok=True)
     if directory is None or directory == "":
         return
 
@@ -111,7 +113,8 @@ def mkdirs(directory: Union[str, list]):
         os.makedirs(directory, exist_ok=True)
 
 
-def mkdir_for_each(directory: str, new_sub_directory: str):
+def mkdir_for_each(directory: str, new_sub_directory: str) -> None:
+    # TODO: pathlib — Path(d) / new_sub_directory
     new_sub_directory = os.path.normpath(new_sub_directory)
     directory_list = helper__get_sub_directory_list(directory=directory)
 
@@ -119,10 +122,8 @@ def mkdir_for_each(directory: str, new_sub_directory: str):
     mkdirs(directory_list)
 
 
-def replace_with_link(src: str, file_list: str):
-    """
-    remove all files in the list and link them to src
-    """
+def replace_with_link(src: str, file_list: list[str]) -> None:
+    # TODO: pathlib — Path(file).unlink() + Path(file).symlink_to(src)
     for file in file_list:
         rm(file)
         os.symlink(src=src, dst=file)
@@ -131,7 +132,8 @@ def replace_with_link(src: str, file_list: str):
 def __read_head_tail(file: str,
                      n: int = 1,
                      squeeze: bool = True,
-                     head_or_tail: str = "head"):
+                     head_or_tail: str = "head") -> str | list[str]:
+    # TODO: pathlib — Path(file).read_text().splitlines() with slicing
     assert head_or_tail == "head" or head_or_tail == "tail"
     s = os.popen(f"{head_or_tail} -n {n} {file}").read()
     s = s.split("\n")[:-1]
@@ -142,17 +144,19 @@ def __read_head_tail(file: str,
     return s
 
 
-def read_head(file: str, n: int = 1, squeeze: bool = True):
+def read_head(file: str, n: int = 1, squeeze: bool = True) -> str | list[str]:
     return __read_head_tail(file=file, n=n, squeeze=squeeze, head_or_tail="head")
 
 
-def read_tail(file: str, n: int = 1, squeeze: bool = True):
+def read_tail(file: str, n: int = 1, squeeze: bool = True) -> str | list[str]:
     return __read_head_tail(file=file, n=n, squeeze=squeeze, head_or_tail="tail")
 
 
 # --- Directories ------------------------------------------------------------------------------------------------------
 def listdir(directory: str, only_files: bool = False, sort: bool = True,
-            ignore_files=(".DS_Store",), ignore_patterns=None) -> list:
+            ignore_files: tuple[str, ...] = (".DS_Store",),
+            ignore_patterns: list[str] | None = None) -> list[str]:
+    # TODO: pathlib — list(Path(directory).iterdir())
 
     fl = os.listdir(directory)
     if only_files:
@@ -170,18 +174,19 @@ def listdir(directory: str, only_files: bool = False, sort: bool = True,
     return fl
 
 
-def list_directories(directory: str):
+def list_directories(directory: str) -> list[str]:
+    # TODO: pathlib — [p.name for p in Path(directory).iterdir() if p.is_dir()]
     return [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
 
 
 # --- File-Extensions -------------------------------------------------------------------------------------------------------
-def __ensure_extension_point(ext: str):
+def __ensure_extension_point(ext: str) -> str:  # TODO: pathlib — use Path.suffix
     if ext[0] != ".":
         ext = "." + ext
     return ext
 
 
-def ensure_file_extension(file: str, ext: str) -> str:
+def ensure_file_extension(file: str, ext: str) -> str:  # TODO: pathlib — Path(file).with_suffix(ext)
     ext = __ensure_extension_point(ext)
 
     if file[-len(ext)] != ext:
@@ -193,7 +198,7 @@ def ensure_file_extension(file: str, ext: str) -> str:
     return file
 
 
-def remove_file_extension(file: str, ext: str) -> str:
+def remove_file_extension(file: str, ext: str) -> str:  # TODO: pathlib — Path(file).stem
     ext = __ensure_extension_point(ext)
     file = ensure_file_extension(file=file, ext=ext)
     file = file[:-len(ext)]
@@ -201,6 +206,7 @@ def remove_file_extension(file: str, ext: str) -> str:
 
 
 def change_file_extension(file: str, ext_old: str, ext_new: str) -> str:
+    # TODO: pathlib — Path(file).with_suffix(ext_new)
     file = remove_file_extension(file=file, ext=ext_old)
     file = ensure_file_extension(file=file, ext=ext_new)
     return file
@@ -209,14 +215,16 @@ def change_file_extension(file: str, ext_old: str, ext_new: str) -> str:
 # –-- IO --- -----------------------------------------------------------------------------------------------------------
 # - pickle
 
-def save_pickle(obj, file: str):
+def save_pickle(obj: object, file: str) -> None:
+    # TODO: pathlib — Path(file).parent.mkdir(...), Path(file).write_bytes(pickle.dumps(obj))
     file = ensure_file_extension(file=file, ext=EXT_DICT["pkl"])
     mkdirs(directory=os.path.split(file)[0])
     with open(file, "wb") as f:
-        pickle.dump(obj, f)  # noqa
+        pickle.dump(obj, f)
 
 
-def load_pickle(file: str):
+def load_pickle(file: str) -> object:
+    # TODO: pathlib — Path(file).with_suffix(...).exists()
     ext_list = [EXT_DICT["pkl"], EXT_DICT["pickle"]]
 
     for ext in ext_list:
@@ -230,28 +238,32 @@ def load_pickle(file: str):
 
 
 # json
-def save_json(obj, file: str):
+def save_json(obj: object, file: str) -> None:
+    # TODO: pathlib — Path(file).parent.mkdir(...), Path(file).write_text(json.dumps(...))
     file = ensure_file_extension(file=file, ext=EXT_DICT["json"])
     mkdirs(directory=os.path.split(file)[0])
     with open(file, "w") as f:
         json.dump(obj, f, indent=4, sort_keys=True)
 
 
-def load_json(file: str):
+def load_json(file: str) -> object:
+    # TODO: pathlib — json.loads(Path(file).read_text())
     file = ensure_file_extension(file=file, ext=EXT_DICT["json"])
-    with open(file, "r") as f:
+    with open(file) as f:
         obj = json.load(f)
     return obj
 
 
 # msgpack
-def load_msgpack(file: str):
+def load_msgpack(file: str) -> object:
+    # TODO: pathlib — Path(file).read_bytes()
     with open(file, "rb") as f:
         b = f.read()
     return msgpack.unpackb(b)
 
 
-def save_msgpack(file: str, nested_list):
+def save_msgpack(file: str, nested_list: list) -> None:
+    # TODO: pathlib — Path(file).parent.mkdir(...), Path(file).write_bytes(...)
     arr_bin = msgpack.packb(nested_list, use_bin_type=True)
     mkdirs(directory=os.path.split(file)[0])
     with open(file, "wb") as f:
@@ -259,19 +271,21 @@ def save_msgpack(file: str, nested_list):
 
 
 # txt
-def save_object2txt(file: str, obj):
+def save_object2txt(file: str, obj: object) -> None:
+    # TODO: pathlib — Path(file).write_text(...)
     file = ensure_file_extension(file=file, ext="txt")
     mkdirs(directory=os.path.split(file)[0])
     with open(file, "w") as f:
-        f.write("".join(["%s: %s\n" % (k, v) for k, v in obj.__dict__.items()]))
+        f.write("".join([f"{k}: {v}\n" for k, v in obj.__dict__.items()]))
 
 
 # --- NPY --------------------------------------------------------------------------------------------------------------
 # *.npy and *.npz files (maybe own module)
-def combine_npz_files(*, directory,
-                      pattern=None, file_list=None,
-                      save=True,
-                      log_level=0):
+def combine_npz_files(*, directory: str,
+                      pattern: str | None = None,
+                      file_list: list[str] | None = None,
+                      save: bool = True,
+                      log_level: int = 0) -> dict[str, np.ndarray]:
 
     if file_list is None:
         if pattern is None:
@@ -305,6 +319,7 @@ def combine_npz_files(*, directory,
 
 def combine_npy_files2(directory: str,
                        new_name: str = "combined_{new_len}") -> None:
+    # TODO: pathlib — Path(directory) / file
     directory = os.path.normpath(path=directory)
     file_list = [file for file in os.listdir(directory) if ".npy" in file]
     arr = np.concatenate([np.load(f"{directory}/{file}", allow_pickle=False)
@@ -315,7 +330,7 @@ def combine_npy_files2(directory: str,
 def combine_npy_files(directory: str,
                       new_name: str = "combined_{new_len}",
                       delete_singles: bool = False) -> np.ndarray:
-
+    # TODO: pathlib — Path(directory) / file, Path.glob("*.npy")
     directory = os.path.normpath(path=directory)
     file_list = [file for file in os.listdir(directory) if ".npy" in file]
     logger.debug("Combining npy files from %s: %s", directory, file_list)
@@ -338,7 +353,8 @@ def combine_npy_files(directory: str,
 
 def clip_npz_file(n_samples: int,
                   file: str,
-                  save: bool = True) -> dict:
+                  save: bool = True) -> dict[str, np.ndarray]:
+    # TODO: pathlib — Path(file).parent, Path(file).stem, Path(file).suffix
     directory, file = os.path.split(file)
     file_name, file_extension = os.path.splitext(file)
     assert file_extension == ".npz"
@@ -353,31 +369,32 @@ def clip_npz_file(n_samples: int,
 
 
 # --- start ---
-def start_open(file: str):
+def start_open(file: str) -> None:
     open_cmd = __open_cmd_dict[platform.system()]
     subprocess.Popen([f"{open_cmd} {file}"], shell=True)
 
 
-def copy2clipboard(file: str):
+def copy2clipboard(file: str) -> None:
     """
     https://apple.stackexchange.com/questions/15318/using-terminal-to-copy-a-file-to-clipboard
     -> works only for mac!
     """
     subprocess.run(["osascript",
                     "-e",
-                    'set the clipboard to POSIX file "{}"'.format(file)])
+                    f'set the clipboard to POSIX file "{file}"'])
 
 
 # --- chmod ---
-def chmod_file(file, mod):
+def chmod_file(file: str, mod: str) -> None:
     subprocess2.call2(cmd=f"sudo chmod {mod} {file}")
 
 
-def chmod_dir(directory, mod):
+def chmod_dir(directory: str, mod: str) -> None:
     subprocess2.call2(cmd=f"sudo chmod {mod} -R {directory}")
 
 
-def are_files_identical(file_a, file_b):
+def are_files_identical(file_a: str, file_b: str) -> bool:
+    # TODO: pathlib — Path(file_a).read_bytes() == Path(file_b).read_bytes()
     with open(file_a, "rb") as f:
         aa = f.read()
 
@@ -388,11 +405,12 @@ def are_files_identical(file_a, file_b):
 
 
 # --- Directory Magic --------------------------------------------------------------------------------------------------
-def split_files_into_dirs(file_list: list,
-                          bool_fun,
-                          dir_list: list,
-                          base_dir: str = None,
-                          mode: str = "dry"):
+def split_files_into_dirs(file_list: list[str] | None,
+                          bool_fun: object,
+                          dir_list: list[str],
+                          base_dir: str | None = None,
+                          mode: str = "dry") -> None:
+    # TODO: pathlib — Path operations throughout
 
     if base_dir is not None:
         base_dir = os.path.normpath(base_dir)
@@ -401,12 +419,12 @@ def split_files_into_dirs(file_list: list,
 
     if file_list is None and base_dir:
         file_list = os.listdir(base_dir)
-        log_print(f"Get file_list from {base_dir}")
+        logger.debug("Get file_list from %s", base_dir)
 
     for i, d_i in enumerate(dir_list):
         d_i = os.path.normpath(d_i)
 
-        log_print(f"->{d_i}")
+        logger.debug("->%s", d_i)
 
         j = 0
         while j < len(file_list):
@@ -418,19 +436,19 @@ def split_files_into_dirs(file_list: list,
 
                 if mode == "wet":
                     shutil.move(f"{base_dir}/{f_j}", f_j_new)
-                log_print(f_j)
+                logger.debug(f_j)
 
                 file_list.pop(j)
             else:
                 j += 1
 
     if mode != "wet":
-        log_print()
-        log_print("'dry' mode is activated by default, to apply the changes use mode='wet')")
+        logger.debug("")
+        logger.debug("'dry' mode is activated by default, to apply the changes use mode='wet')")
 
 
-def dir_dir2file_array(directory: str = None,
-                       combine_str: bool = True) -> list:
+def dir_dir2file_array(directory: str | None = None,
+                       combine_str: bool = True) -> list[list[str]]:
     """
     -directory/
     ----subA/
@@ -448,6 +466,7 @@ def dir_dir2file_array(directory: str = None,
     -> [[directory/subA/fileA1, directory/subA/fileA2, directory/subA/fileA3],
         [directory/subB/fileB1, directory/subB/fileB2]]
     """
+    # TODO: pathlib — Path(directory).iterdir(), Path.is_dir()
 
     if directory is None:
         directory = os.getcwd()
@@ -465,22 +484,24 @@ def dir_dir2file_array(directory: str = None,
     return file_arr
 
 
-def rename_directories_inbetween(directory, inbetweens, new_inbetweens=""):
-    for directory_i, directory_list, file_list in os.walk(directory):
+def rename_directories_inbetween(directory: str, inbetweens: str,
+                                 new_inbetweens: str = "") -> None:
+    for directory_i, _directory_list, file_list in os.walk(directory):
         for f in file_list:
             old = f"{directory_i}/{f}"
             new = old.replace(inbetweens, new_inbetweens)
             mv(old, new)
 
 
-def get_sub_directories(directory):
+def get_sub_directories(directory: str) -> list[str]:
+    # TODO: pathlib — [str(p) for p in Path(directory).iterdir() if p.is_dir()]
     directory = os.path.normpath(directory)
     subs = next(os.walk(directory))[1]
     subs = [f"{directory}/{s}" for s in subs]
     return subs
 
 
-def helper__get_sub_directory_list(directory):
+def helper__get_sub_directory_list(directory: str | list[str]) -> list[str]:
     if isinstance(directory, str):
         directory_list = get_sub_directories(directory=directory)
     else:

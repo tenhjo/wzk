@@ -1,14 +1,18 @@
 # Travelling salesman problem  https://developers.google.com/optimization/routing/tsp
+from __future__ import annotations
+
 import numpy as np
-from scipy.spatial import distance_matrix
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
+from scipy.spatial import distance_matrix
 
 from wzk.logger import setup_logger
 
 logger = setup_logger(__name__)
 
 
-def get_route(manager, routing, assignment):
+def get_route(manager: pywrapcp.RoutingIndexManager,
+              routing: pywrapcp.RoutingModel,
+              assignment: pywrapcp.Assignment) -> np.ndarray:
     index = routing.Start(0)
     route = []
 
@@ -19,13 +23,9 @@ def get_route(manager, routing, assignment):
     return np.array(route, dtype=int)
 
 
-def _solve_tsp(x, dist_mat=None, time_limit=10):
+def _solve_tsp(x: np.ndarray, dist_mat: np.ndarray | None = None, time_limit: int = 10) -> np.ndarray:
     """
     Get the index list for the optimal route for all points, starting at the first
-    :param x:
-    :param dist_mat: optional
-    :param time_limit: seconds
-    :return:
     """
     x = np.asarray(x)
     assert x.ndim == 2, f"x must be 2D (n, d), got {x.shape}"
@@ -49,7 +49,7 @@ def _solve_tsp(x, dist_mat=None, time_limit=10):
     # Create Routing Model.
     routing = pywrapcp.RoutingModel(manager)
 
-    def distance_callback(from_index, to_index):
+    def distance_callback(from_index: int, to_index: int) -> int:
         """Returns the distance between the two nodes."""
         # Convert from routing variable Index to distance matrix NodeIndex.
         from_node = manager.IndexToNode(from_index)
@@ -79,7 +79,7 @@ def _solve_tsp(x, dist_mat=None, time_limit=10):
     return route
 
 
-def _extend_distmat(dist_mat, x, x_new):
+def _extend_distmat(dist_mat: np.ndarray, x: np.ndarray, x_new: np.ndarray) -> np.ndarray:
     n = len(x)
     dist_mat = np.asarray(dist_mat)
     assert dist_mat.shape == (n, n), f"dist_mat must have shape {(n, n)}, got {dist_mat.shape}"
@@ -93,7 +93,10 @@ def _extend_distmat(dist_mat, x, x_new):
     return dist_mat2
 
 
-def solve_tsp(x: np.ndarray, dist_mat=None, x_home=None, time_limit=10):
+def solve_tsp(x: np.ndarray,
+              dist_mat: np.ndarray | None = None,
+              x_home: np.ndarray | None = None,
+              time_limit: int = 10) -> np.ndarray:
     """
     Solve TSP on x and return a route over x indices.
     If x_home is provided, anchor the route by prepending x_home to the optimization problem

@@ -1,6 +1,7 @@
-import numpy as np
 import calendar
 import datetime
+
+import numpy as np
 
 
 def get_iso_weeks(year):

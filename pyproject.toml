@@ -55,3 +55,9 @@ hatchling = ">=1.27.0,<2"
 [tool.ty.src]
 include = ["./", "src/", "tests/"]
 exclude = [".venv/"]
+
+[tool.ty.rules]
+possibly-unbound-attribute = "warn"
+
+[tool.ty.environment]
+python-version = "3.13"

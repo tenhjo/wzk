@@ -1,22 +1,24 @@
-import numpy as np
+from collections.abc import Callable
+
 import matplotlib.patches as patches
-from typing import Callable
+import numpy as np
 
 from wzk import np2
 from wzk.mpl2.axes import get_aspect_ratio
-from wzk.mpl2.geometry import plot_coordinate_frames
 from wzk.mpl2.figure import plt
-
+from wzk.mpl2.geometry import plot_coordinate_frames
 from wzk.spatial.transform_2d import v2dcm
 
 
 class DummyPatch:
-    __slots__ = ("figure",
-                 "axes",
-                 "set_animated",
-                 "contains",
-                 "set_visible",
-                 "get_visible")
+    __slots__ = (
+        "axes",
+        "contains",
+        "figure",
+        "get_visible",
+        "set_animated",
+        "set_visible",
+    )
 
 
 class DraggablePatch(DummyPatch):
@@ -141,7 +143,7 @@ class DraggablePatch(DummyPatch):
         # blit just the redrawn area
         canvas.blit(axes.bbox)
 
-    def on_release(self, event):  # noqa
+    def on_release(self, event):
         """on release, we reset the press Measurements"""
 
         if DraggablePatch.lock is not self:
@@ -205,7 +207,7 @@ class DraggableCircle(patches.Circle, DraggablePatch):
         return np.array(self.get_center()).flatten()
 
     def set_xy_drag(self, xy):
-        self.set_center(xy=np.array(xy).flatten())  # noqa
+        self.set_center(xy=np.array(xy).flatten())
 
 
 class DraggableEllipse(patches.Ellipse, DraggablePatch):
@@ -399,11 +401,11 @@ class DraggableFrame(DraggableCircleList):
         super().add_callback_drag(self.update_x, idx=0)
         super().add_callback_drag(self.update_v, idx=1)
 
-    def update_x(self, *args):  # noqa
+    def update_x(self, *args):
         xc, xv = self.get_xy()
         self.__update(xc=xc, v=self.v)
 
-    def update_v(self, *args):  # noqa
+    def update_v(self, *args):
         xc, xv = self.get_xy()
         self.v = xv - xc
         self.v = self.v / np.linalg.norm(self.v)
