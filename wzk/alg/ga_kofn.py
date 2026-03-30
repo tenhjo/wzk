@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 
 from wzk.math2.math2 import random_subset
@@ -22,7 +24,7 @@ def kofn(n, k, fitness_fun,
          n_keep_best=None, tourney_size=None,
          mut_prob=0.01, mut_frac=None,
          mutate_best=0,
-         verbose=0):
+         log_level=0):
 
     tourney_size = int(max(np.ceil(pop_size / 10), 2)) if tourney_size is None else tourney_size
     n_keep_best = int(np.floor(pop_size / 10)) if n_keep_best is None else n_keep_best
@@ -51,8 +53,8 @@ def kofn(n, k, fitness_fun,
     fitness_avg[0] = np.mean(fitness).copy()
 
     for g in range(n_gen):
-        if verbose > 2:
-            print(f"Generation {g}/{n_gen} | best: {fitness_best[g]} | avg: {fitness_avg[g]}")
+        if log_level > 2:
+            log_print(f"Generation {g}/{n_gen} | best: {fitness_best[g]} | avg: {fitness_avg[g]}")
         parents1, parents2 = parents_tournament(fitness=fitness, tourney_size=tourney_size)
 
         offspring = create_offspring(pop=pop, parents1=parents1, parents2=parents2)
@@ -81,7 +83,7 @@ def kofn(n, k, fitness_fun,
         fitness_best[g+1] = fitness[0].copy()
         fitness_avg[g+1] = np.mean(fitness).copy()
 
-    if verbose > 0:
+    if log_level > 0:
         from wzk import new_fig
         fig, ax = new_fig()
         ax.plot(fitness_avg, c="r", label="average")
@@ -152,6 +154,6 @@ def test_kofn():
     def dummy_fitness(i):
         return np.sum(i, axis=-1)
 
-    best, last_gen = kofn(n=10000, k=10, pop_size=100, fitness_fun=dummy_fitness, n_gen=1000, verbose=3,
+    best, last_gen = kofn(n=10000, k=10, pop_size=100, fitness_fun=dummy_fitness, n_gen=1000, log_level=3,
                           mut_prob=0.1, mutate_best=2, n_keep_best=50)
-    print(np.sort(best))
+    log_print(np.sort(best))

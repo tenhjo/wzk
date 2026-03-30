@@ -134,17 +134,17 @@ def size_units2points(size, ax, reference="y"):
 
     fig = ax.get_figure()
     if reference == "x":
-        length = fig.bbox_inches.fig_width_inch * ax.get_position().fig_width_inch
-        value_range = np.diff(ax.get_xlim())
+        length = fig.bbox_inches.width * ax.get_position().width
+        value_range = float(np.diff(ax.get_xlim())[0])
     elif reference == "y":
         length = fig.bbox_inches.height * ax.get_position().height
-        value_range = np.diff(ax.get_ylim())
+        value_range = float(np.diff(ax.get_ylim())[0])
     else:
         raise (ValueError("Pass either 'x' or 'y' as reference"))
     # Convert length to points
     length *= 72
     # Scale linewidth to value range
-    return size * (length / value_range)
+    return float(size * (length / value_range))
 
 
 def size_units2points_listener(ax, h, size, reference="y", mode="ms"):

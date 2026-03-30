@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 from unittest import TestCase
 
 import numpy as np
@@ -31,7 +33,7 @@ class Test(TestCase):
 
         arr2 = arr.copy()
         arr2[mask0] = 0
-        print(arr2)
+        log_print(arr2)
 
         fig, ax = plotting.new_fig(title="upper, ij")
         plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="upper", axis_order="ij->xy")

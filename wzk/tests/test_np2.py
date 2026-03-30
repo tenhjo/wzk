@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 from unittest import TestCase
 
 from typing import Literal
@@ -153,7 +155,7 @@ class Test(TestCase):
              }
 
         d_round = np2.round_dict(d=d, decimals=1)
-        print(d_round)
+        log_print(d_round)
 
     def test_get_interval_indices(self):
         arr, res = [0]*7, [0]*7
@@ -168,7 +170,7 @@ class Test(TestCase):
         for aa, rr in zip(arr, res):
             self.assertTrue(np.array_equal(np2.get_interval_indices(aa), rr))
 
-    def try_clip_periodic(self, verbose=0):
+    def try_clip_periodic(self, log_level=0):
         a_min = 5
         a_max = 37
 
@@ -178,7 +180,7 @@ class Test(TestCase):
         self.assertTrue(np.all(x2 >= a_min))
         self.assertTrue(np.all(x2 <= a_max))
 
-        if verbose > 10:
+        if log_level > 10:
             from wzk import mpl2
             fig, ax = mpl2.new_fig()
             ax.plot(x, x2, color="blue")

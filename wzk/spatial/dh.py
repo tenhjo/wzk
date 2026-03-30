@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 
 from wzk import math2
@@ -56,7 +58,7 @@ def dh2frame2(q, d, theta, a, alpha):
 
 def frame2dh(f):
     if f[0, 2] != 0:
-        print("frame does not match DH formalism")
+        log_print("frame does not match DH formalism")
     theta = np.arctan2(-f[0, 1], f[0, 0])
     alpha = np.arctan2(-f[1, 2], f[2, 2])
 
@@ -71,7 +73,7 @@ def frame2dh(f):
     a = f[0, 3]
     f1 = dh2frame(q=0, d=d, theta=theta, a=a, alpha=alpha)
     if not np.allclose(f1, f):
-        print("frame does not match DH formalism")
+        log_print("frame does not match DH formalism")
 
     return d, theta, a, alpha
 

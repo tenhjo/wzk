@@ -42,8 +42,8 @@ class Test(TestCase):
 
     def test_AbsoluteFancyBboxPatch(self):
         fig, ax = new_fig(aspect="equal")
-        ax.add_patch(FancyBbox(xy=(0.1, 0.1), boxstyle='Round4',  # noqa
-                               height=0.5, width=0.5, pad=0.1, corner_size=0))
+        ax.add_patch(Patches2.FancyBbox(xy=(0.1, 0.1), boxstyle='Round4',  # noqa
+                                        height=0.5, width=0.5, pad=0.1, corner_size=0))
 
     def test_RoundedPolygon(self):
         xy = np.array([(0, 0), (0.25, 0), (0.5, -0.25), (0.75, 0),

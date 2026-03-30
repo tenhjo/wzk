@@ -9,12 +9,15 @@ from scipy.stats import norm
 
 from wzk import grid
 from wzk import limits as limits2
+from wzk.logger import setup_logger
 
 from . import math2
 from . import np2
 from ._types import ArrayLike, ShapeLike, Scalar, float32, int32
 from .basics import scalar2array
 from .shape import shape_wrapper
+
+logger = setup_logger(__name__)
 
 
 def p_normal_skew(x: ArrayLike | Scalar,
@@ -95,8 +98,7 @@ def get_n_in2(n_in: int,
 def fun2n(fun: Callable[[int], ArrayLike],
           n: int,
           max_iter: int = 100,
-          max_factor: int = 128,
-          verbose: int = 0) -> jax.Array:
+          max_factor: int = 128) -> jax.Array:
     """
     Wrapper to repeatedly call fun(n_i) and concatenate outputs until len(x) >= n.
     """
@@ -110,8 +112,7 @@ def fun2n(fun: Callable[[int], ArrayLike],
         x_new = np.asarray(fun(n_in))
         x = np.concatenate([x, x_new], axis=0)
 
-        if verbose > 0:
-            print(f"{i}: total:{n} | current:{len(x)} | new:{len(x_new)}/{n_in}")
+        logger.debug("%s: total:%s | current:%s | new:%s/%s", i, n, len(x), len(x_new), n_in)
 
         if len(x) >= n:
             return jnp.asarray(x[:n])
@@ -146,7 +147,7 @@ def choose_from_uniform_grid(x: ArrayLike, n: int) -> jax.Array:
         _u = np.unique(_i, axis=0)
         return len(_u) - n
 
-    s = math2.bisection(f=fun, a=2, b=100, tol=0, verbose=0)
+    s = math2.bisection(f=fun, a=2, b=100, tol=0)
     shape = (int(np.ceil(s)),) * n_dim
 
     ix = grid.x2i(x=x, limits=limits, shape=shape)

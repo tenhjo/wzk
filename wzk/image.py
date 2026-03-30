@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import zlib
 import numpy as np
 from skimage.io import imread, imsave  # noqa
@@ -134,7 +136,7 @@ def pooling(mat, kernel, method="max", pad=False):
     return <result>: pooled matrix.
     """
 
-    print("# TODO write general function with reshaping -> much faster")
+    log_print("# TODO write general function with reshaping -> much faster")
     m, n = mat.shape[:2]
     ky, kx = kernel
 

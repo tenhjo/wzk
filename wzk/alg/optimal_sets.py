@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 from wzk import printing, math2, mp2, mpl2
 
@@ -10,7 +12,7 @@ def idx_times_all(idx, n):
     return idx2
 
 
-def greedy(n, k, fun, i0=None, verbose=0):
+def greedy(n, k, fun, i0=None, log_level=0):
     """
     choose k elements out of a set with size n
     fun(idx_list) measures how good the current choice is
@@ -23,7 +25,7 @@ def greedy(n, k, fun, i0=None, verbose=0):
         s = []
 
     for i in range(k):
-        printing.progress_bar(i=i, n=k, eta=True, verbose=verbose)
+        printing.progress_bar(i=i, n=k, eta=True, log_level=log_level)
         idx_i = idx_times_all(idx=s, n=n)
         o = fun(idx_i)
         o[s] = np.inf
@@ -32,13 +34,13 @@ def greedy(n, k, fun, i0=None, verbose=0):
     # best = np.sort(best)
     s = np.array(s, dtype=int)
     o = fun(s[np.newaxis, :])[0]
-    if verbose > 1:
-        print(f"set: {repr(s)} | objective: {o}")
+    if log_level > 1:
+        log_print(f"set: {repr(s)} | objective: {o}")
     return s, o
 
 
 def detmax(fun, x0=None, n=100, k=30, excursion=10, method="add->remove", max_loop=3,
-           verbose=0):
+           log_level=0):
     """
     method:  'add->remove'
              'remove->add'
@@ -46,7 +48,7 @@ def detmax(fun, x0=None, n=100, k=30, excursion=10, method="add->remove", max_lo
 
     improvement_threshold = 1e-2
     if x0 is None:
-        x0 = greedy(n=n, k=k, fun=fun, verbose=verbose-1)
+        x0 = greedy(n=n, k=k, fun=fun, log_level=log_level-1)
         # x0 = math2.random_subset(n=n, k=k, m=1, dtype=np.int16)[0]
 
     def __add(x, nn):
@@ -108,17 +110,17 @@ def detmax(fun, x0=None, n=100, k=30, excursion=10, method="add->remove", max_lo
             if o_old - o < improvement_threshold:
                 break
 
-        if verbose >= 2:
-            print("Depth: {} | Loop {} | Objective: {:.4} | Configuration: {} ".format(q, i+1, o, x0))
+        if log_level >= 2:
+            log_print("Depth: {} | Loop {} | Objective: {:.4} | Configuration: {} ".format(q, i+1, o, x0))
 
-    if verbose >= 1:
-        print(" Objective: {:.4} | Configuration: {}".format(o, x0))
+    if log_level >= 1:
+        log_print(" Objective: {:.4} | Configuration: {}".format(o, x0))
     return x0, o
 
 
 def random(n, k, m, fun, chunk=1000,
            n_processes=10,
-           dtype=np.uint8, verbose=0):
+           dtype=np.uint8, log_level=0):
 
     def fun2(_m):
         _idx = math2.random_subset(n=n, k=k, m=_m, dtype=dtype)
@@ -127,7 +129,7 @@ def random(n, k, m, fun, chunk=1000,
 
     idx, o = mp2.mp_wrapper(m, fun=fun2, n_processes=n_processes, max_chunk_size=chunk)
 
-    if verbose > 1:
+    if log_level > 1:
         fig, ax = mpl2.new_fig()
         ax.hist(o, bins=100)
 
@@ -138,10 +140,10 @@ def random(n, k, m, fun, chunk=1000,
     return idx, o
 
 
-def ga(n, k, m, fun, verbose, **kwargs):
+def ga(n, k, m, fun, log_level, **kwargs):
     from wzk.alg.ga_kofn import kofn
 
-    best, ancestors = kofn(n=n, k=k, fitness_fun=fun,  pop_size=m, verbose=verbose, **kwargs)
+    best, ancestors = kofn(n=n, k=k, fitness_fun=fun,  pop_size=m, log_level=log_level, **kwargs)
 
-    print(repr(best))
+    log_print(repr(best))
     return best, ancestors

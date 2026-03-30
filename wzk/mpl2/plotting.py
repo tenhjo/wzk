@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import datetime
 from typing import Literal
 import numpy as np
@@ -83,7 +85,10 @@ def plot_projections_2d(x, dim_labels=None, ax=None, limits=None, aspect="equal"
 
     if dim_labels is None:
         dim_labels = [str(i) for i in range(n)]
-    assert len(dim_labels) == n, f"{dim_labels} | {n}"
+    else:
+        dim_labels = list(dim_labels)
+    assert len(dim_labels) >= n, f"{dim_labels} | {n}"
+    dim_labels = dim_labels[:n]
 
     comb = combinations(np.arange(n), 2)
     for i, c in enumerate(comb):
@@ -334,7 +339,7 @@ def vis_cost_landscape(fun, x0, stepsize, n, n_contour=50, mode="contour"):
         for i1 in range(n):
             c[i0, i1] = fun(ll + v0*i0 + v1*i1)
 
-    print(c.min(), c.max())
+    log_print(c.min(), c.max())
     i, j = np.where(c == c.min())
     x_min = ll + i*v0 + j*v1
 
@@ -362,7 +367,7 @@ def correlation_plot(a, b, name_a, name_b,
                      regression_line=True,
                      lower_perc=0, upper_perc=100,
                      labels=None, colors=None, markers="o", markersizes=None, alphas=None, zorders=None,
-                     ax=None, verbose=1, **kwargs):
+                     ax=None, log_level=1, **kwargs):
 
     if ax is None:
         fig, ax = new_fig(width=10, title=f"Correlation: {name_a} | {name_b}")
@@ -383,8 +388,8 @@ def correlation_plot(a, b, name_a, name_b,
         y_reg = x_reg * s + i
         a += (x_reg,)
         b += (y_reg,)
-        if verbose > 0:
-            print("slope: {:.4} | correlation: {:.4} | p {:.4}".format(s, r, p))
+        if log_level > 0:
+            log_print("slope: {:.4} | correlation: {:.4} | p {:.4}".format(s, r, p))
     else:
         r = None
 

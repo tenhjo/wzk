@@ -1,3 +1,4 @@
+
 # import numpy as np
 # import time
 
@@ -19,7 +20,7 @@
 #
 #
 #     def test0(*args):   # noqa
-#         print("a")
+#         log_print("a")
 #         time.sleep(t)
 #         return np.ones((2, 1))
 #
@@ -39,8 +40,8 @@
 #
 #     # def compare_times(tt):
 #     #     t0 = (t*n/n_cpu)
-#     #     print(t0)
-#     #     print((tt - t0)/n)
+#     #     log_print(t0)
+#     #     log_print((tt - t0)/n)
 #
 #     test_ray()
 #     test_ray()

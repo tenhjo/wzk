@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import hashlib
 
 
@@ -21,11 +23,11 @@ def test_hash2():
     np.random.seed(0)
     a = np.random.random(100000)
 
-    print(hash2(a.tobytes()))
-    print(hash2(a.tobytes()))
+    log_print(hash2(a.tobytes()))
+    log_print(hash2(a.tobytes()))
 
-    print(__file__)
-    print(hash_file(__file__))
+    log_print(__file__)
+    log_print(hash_file(__file__))
 
 
 if __name__ == "__main__":

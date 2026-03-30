@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import time
 
 import numpy as np
@@ -108,14 +110,14 @@ class KeyListener:
 
 class KeySlider(KeyListener):
     def __init__(self, callback, step, mi, ma, x=None, periodic=False,
-                 keys=None, start_listening=True, dtype=float, verbose=0, _factor=20):
+                 keys=None, start_listening=True, dtype=float, log_level=0, _factor=20):
         self._factor = _factor
         if x is None:
             self.value = (ma - mi) / 2
         else:
             self.value = x
 
-        self.verbose = verbose
+        self.log_level = log_level
         self.callback = callback
         self.step = step
         self.min = mi
@@ -147,8 +149,8 @@ class KeySlider(KeyListener):
         self.cast_value()
 
         if self.callback is not None:
-            if self.verbose > 0:
-                print(self.value)
+            if self.log_level > 0:
+                log_print(self.value)
             self.callback(self.value)
 
     def step_value(self, step):
@@ -226,9 +228,9 @@ class BoxLimitsKeySlider:
     def stop_listening(self):
         self.ks_x.stop_listening()
 
-    def print_x(self, verbose=1):
-        if verbose > 0:
-            print(repr(self.x), end="")
+    def print_x(self, log_level=1):
+        if log_level > 0:
+            log_print(repr(self.x), end="")
 
     def get_x_discrete(self):
         x = (self.x[self.j] - self.limits[self.j, 0]) / (self.limits[self.j, 1] - self.limits[self.j, 0])
@@ -290,7 +292,7 @@ class BoxLimitsKeySlider:
         s = s.split("\n")
         s[self.j] += f"  <- {self.j}"
         s = "\n".join(s)
-        print(s)
+        log_print(s)
 
 
 def __get_samples_x_limits(n):
@@ -304,11 +306,11 @@ def __get_samples_x_limits(n):
 def try_x_and_limits2txt():
     x, limits = __get_samples_x_limits(n=4)
     s = printing.x_and_limits2txt(x=x, limits=limits)
-    print(s)
+    log_print(s)
 
 
 def try_BoxLimitsKeySlider():
-    print("test BoxLimitsKeySlider with Arrow Keys and `x j p`")
+    log_print("test BoxLimitsKeySlider with Arrow Keys and `x j p`")
 
     names = ["Joint1", "Joint2", "Joint3", "Joint4", "Joint5"]
     x, limits = __get_samples_x_limits(n=5)
@@ -318,10 +320,10 @@ def try_BoxLimitsKeySlider():
 
 
 def try_KeySlider():
-    print("test KeySlider with Arrow Keys")
+    log_print("test KeySlider with Arrow Keys")
 
     def fun(i):
-        print(f"fun({i})")
+        log_print(f"fun({i})")
 
     kl = KeySlider(callback=fun, step=1, mi=0, ma=100, periodic=True)
     input("Press enter to to next test")
@@ -329,11 +331,11 @@ def try_KeySlider():
 
 
 def try_KeyListener():
-    print("test KeyListener with `w,a,s,d`")
-    key2callback = dict(w=lambda: print("ww"),
-                        a=lambda: print("aa"),
-                        s=lambda: print("ss"),
-                        d=lambda: print("dd")
+    log_print("test KeyListener with `w,a,s,d`")
+    key2callback = dict(w=lambda: log_print("ww"),
+                        a=lambda: log_print("aa"),
+                        s=lambda: log_print("ss"),
+                        d=lambda: log_print("dd")
                         )
     kl = KeyListener(key2callback=key2callback)
     input("Press enter to to next test")

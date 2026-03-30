@@ -1,5 +1,5 @@
 import numpy as np
-from matplotlib import pyplot as plt, patches
+from matplotlib import pyplot as plt, patches, colors as mcolors
 
 from wzk.math import geometry as _geometry
 from wzk.mpl2 import Patches2, axes, plotting
@@ -48,7 +48,7 @@ def fill_circle_intersection(xy0, r0, xy1, r1, ax=None, **kwargs):
     poly = patches.Polygon(pp, **kwargs)
     ax.add_patch(poly)
 
-    return (int0, aa00, aa01), (int1, aa10, aa11), poly
+    return ((int0, aa00, aa01), (int1, aa10, aa11)), poly
 
 
 def draw_rays(xy, radius0, radius1, theta0=0., theta1=None, n=1, ax=None, **kwargs):
@@ -80,9 +80,16 @@ def plot_coordinate_frames(ax=None, x=None, dcm=None, f=None, scale=1.0,
     if f is not None:
         x, dcm = f[..., :-1, -1], f[..., :-1, :-1]
     elif x is None:
-        x = np.zeros(1, 3)
+        x = np.zeros((1, 3))
     elif dcm is None:
         dcm = np.eye(3)[np.newaxis, :, :]
+
+    x = np.asarray(x)
+    dcm = np.asarray(dcm)
+    if x.ndim == 1:
+        x = x[np.newaxis, :]
+    if dcm.ndim == 2:
+        dcm = dcm[np.newaxis, :, :]
 
     n_dim = min(x.shape[-1], dcm.shape[-1])
     x = x[..., :n_dim]
@@ -104,21 +111,40 @@ def plot_coordinate_frames(ax=None, x=None, dcm=None, f=None, scale=1.0,
     x = x[0]
     dcm = dcm[0] * scale
 
-    if not isinstance(color, list):
-        color = [color]
+    if isinstance(color, str):
+        # Support shorthand such as "bb" / "ry" for per-axis colors.
+        if mcolors.is_color_like(color):
+            color = [color]
+        else:
+            color = list(color)
+    elif not isinstance(color, list):
+        color = list(color)
     if len(color) < n_dim:
         color *= n_dim
 
     if h is not None:
+        n_dim_h = len(h)
+        x = x[:n_dim_h]
+        dcm = dcm[:n_dim_h, :n_dim_h]
         for i, hh in enumerate(h):
-            plotting.quiver(ax=ax, xy=x, uv=dcm[:, i], color=color[i], h=hh)
+            ax_h = ax if ax is not None else getattr(hh, "axes", None)
+            if dcm.shape[0] == 3 and ax_h is not None:
+                try:
+                    hh.remove()
+                except ValueError:
+                    pass
+                h[i] = ax_h.quiver(x[0], x[1], x[2], dcm[0, i], dcm[1, i], dcm[2, i], color=color[i], **kwargs)
+            else:
+                plotting.quiver(ax=ax, xy=x, uv=dcm[:, i], color=color[i], h=hh)
         return h
 
     h = []
-    if mode == "quiver" or n_dim == 3:
+    if mode == "quiver":
         for i in range(n_dim):
-            # h.append(ax.quiver(*x, *dcm[:, i], color=color[i], **kwargs))
-            h.append(plotting.quiver(ax=ax,  xy=x, uv=dcm[:, i], color=color[i], **kwargs))
+            if n_dim == 3:
+                h.append(ax.quiver(x[0], x[1], x[2], dcm[0, i], dcm[1, i], dcm[2, i], color=color[i], **kwargs))
+            else:
+                h.append(plotting.quiver(ax=ax, xy=x, uv=dcm[:, i], color=color[i], **kwargs))
 
     elif mode == "fancy":
         for i in range(n_dim):

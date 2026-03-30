@@ -8,7 +8,7 @@ dbees: scaled difference to the bee-line
 
 import numpy as np
 
-from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import LSQUnivariateSpline, UnivariateSpline
 
 from wzk import printing, math2
 
@@ -244,7 +244,7 @@ def order_path(x, start=None, end=None, is_periodic=None, weights=1.):
     return x_o
 
 
-def remove_duplicates(q, eps=1e-5, verbose=0):
+def remove_duplicates(q, eps=1e-5, log_level=0):
     assert q.ndim == 2
 
     dq = q[1:] - q[:-1]
@@ -252,7 +252,7 @@ def remove_duplicates(q, eps=1e-5, verbose=0):
     b = np.concatenate([[True], dqn > eps], axis=0)
     q = q[b]
 
-    if verbose > 0:
+    if log_level > 0:
         printing.print_stats_bool(b=b, name="keep only unique waypoints")
 
     return q
@@ -348,18 +348,18 @@ def get_spline_coeffs(x, y, n=None, s=None):
         return spl.get_coeffs()
 
     else:
-        s = len(x)
-        for i in range(100):
-            c = get_spline_coeffs(x=x, y=y, s=s)
-            if len(c) == n:
-                return c
+        # Cubic B-splines require at least 4 coefficients.
+        if n < 4:
+            raise ValueError(f"n must be >= 4 for cubic splines, got {n}")
 
-            if len(c) < n:
-                s *= 0.75
-            else:
-                s *= 1.5
+        n_inner_knots = n - 4
+        knots = np.linspace(x[0], x[-1], n_inner_knots + 2)[1:-1]
 
-        raise ValueError
+        spl = LSQUnivariateSpline(x=x, y=y, t=knots, k=3)
+        c = spl.get_coeffs()
+        if len(c) != n:
+            raise ValueError(f"Could not construct {n} spline coefficients, got {len(c)}")
+        return c
 
 
 def set_spline_coeffs(spl, coeffs):

@@ -63,17 +63,28 @@ def make_limits_symmetrical(limits, mode="largest"):
 
 
 def add_safety_limits(limits: np.ndarray, factor=None, offset=None):
-    limits = np.atleast_1d(limits)
+    limits = np.asarray(limits)
+    squeeze = limits.ndim == 1
+    if squeeze:
+        limits = limits[np.newaxis, :]
+
     s = limits2size(limits=limits)
 
     if offset is None:
         assert factor is not None
         offset = factor * s
 
+    offset = np.asarray(offset)
+    if offset.ndim == 0:
+        offset = np.full_like(s, fill_value=float(offset), dtype=float)
+
     assert np.all(offset > -s/2)
 
-    return np.array([limits[..., 0] - offset,
-                     limits[..., 1] + offset]).T
+    limits_safe = np.array([limits[..., 0] - offset,
+                            limits[..., 1] + offset]).T
+    if squeeze:
+        return limits_safe[0]
+    return limits_safe
 
 
 # --- Use limits -------------------------------------------------------------------------------------------------------

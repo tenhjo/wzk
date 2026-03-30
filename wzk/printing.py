@@ -4,6 +4,7 @@ import select
 import time
 import numpy as np
 
+from wzk.logger import log_print
 from wzk import np2
 
 
@@ -24,7 +25,7 @@ def quiet_mode_on():
 
 def input_timed(prompt, seconds, clear=True):
     if prompt is not None and prompt != "":
-        print(prompt)
+        log_print(prompt)
 
     i, o, e = select.select([sys.stdin], [], [], seconds)
     s = sys.stdin.readline().strip() if i else None
@@ -52,7 +53,7 @@ def input_clear_loop(prompt, condition, error_prompt):
         if condition(s):
             return s
         else:
-            print(f"Try {i}: {error_prompt}")
+            log_print(f"Try {i}: {error_prompt}")
         i += 1
 
 
@@ -79,10 +80,10 @@ def get_progress_bar(i, n, prefix="", suffix="", bar="█"):
     return f"\r{prefix} |{bar}| {suffix}"
 
 
-def progress_bar(i, n, prefix="", suffix="", bar_length=None, verbose=1,
+def progress_bar(i, n, prefix="", suffix="", bar_length=None, log_level=1,
                  eta=False, _time=[-1.]):  # noqa: B006
 
-    if verbose <= 0:
+    if log_level <= 0:
         return
 
     bar_length_max = 100
@@ -127,24 +128,24 @@ def print_table(rows, columns, data, min_cell_size=10, cell_format=".5f", paddin
     data_format = row_format + ("{:>" + str(max_voxel_size_c) + "}") * len(columns)
     data_format_float = row_format + ("{:>" + str(max_voxel_size_c) + cell_format + "}") * len(columns)
 
-    print(header_format.format("", *columns))
+    log_print(header_format.format("", *columns))
     for row_name, row_data in zip(rows, data):
         if isinstance(row_data[0], (int, float)):
-            print(data_format_float.format(row_name, *row_data))
+            log_print(data_format_float.format(row_name, *row_data))
         else:
-            print(data_format.format(row_name, *row_data))
+            log_print(data_format.format(row_name, *row_data))
 
 
 def print_dict(d, newline=True, message=None):
     if message is not None:
-        print(message)
+        log_print(message)
 
     for key in d:
-        print(key, ":")
-        print(repr(d[key]))
+        log_print(key, ":")
+        log_print(repr(d[key]))
 
         if newline:
-            print()
+            log_print()
 
 
 def print_stats(*args, names=None, dec=4):
@@ -168,7 +169,7 @@ def print_stats(*args, names=None, dec=4):
 
 
 def print_stats_bool(b, name="", dec=4):
-    print(f"{name}: {np.sum(b)}/{np.size(b)} = {np.mean(b):.{dec}f}")
+    log_print(f"{name}: {np.sum(b)}/{np.size(b)} = {np.mean(b):.{dec}f}")
 
 
 def print_correlation(bool_lists, names, dec=4):
@@ -183,7 +184,7 @@ def print_correlation(bool_lists, names, dec=4):
         arr = np.round(arr, decimals=dec)
 
     print_table(rows=names, columns=names, data=arr)
-    print(f"Total: {total.sum()}/{len(total)} = {total.mean()}")
+    log_print(f"Total: {total.sum()}/{len(total)} = {total.mean()}")
 
     return total
 
@@ -250,23 +251,23 @@ def print_np2rkt(a):
 
     s = s.replace("]", "]\n")
 
-    print(s)
+    log_print(s)
 
 
 # General Functions
 # ----------------------------------------------------------------------------------------------------------------------
-def print2(*args, verbose=None,
+def print2(*args, log_level=None,
            sep=" ", end="\n", file=None, flush=False):
-    v = verbose_level_wrapper(verbose=verbose)
+    v = verbose_level_wrapper(log_level=log_level)
 
     if v.verbose > 0:
         args = [str(a) for a in args]
         t = "\t"*v.level
-        print(f"{t}{sep.join(args)}", sep=sep, end=end, file=file, flush=flush)
+        log_print(f"{t}{sep.join(args)}", sep=sep, end=end, file=file, flush=flush)
 
 
 def print_array_3d(array_3d,
-                   verbose=None):
+                   log_level=None):
     l, k, n = array_3d.shape
     s = [""] * k
     for ll in range(l):
@@ -278,7 +279,7 @@ def print_array_3d(array_3d,
         for kk in range(k):
             s[kk] += ss[kk]
 
-    print2("\n".join(s), verbose=verbose)
+    print2("\n".join(s), log_level=log_level)
 
 
 def clear_previous_lines(n=1):
@@ -304,41 +305,41 @@ def color_text(s, color, background="w", weight=0):
     return f"\033[{weight};3{tc};4{bc}m{s}\033"
 
 
-def verbose_level_wrapper(verbose=None, level=None):
-    if isinstance(verbose, Verbosity):
+def verbose_level_wrapper(log_level=None, level=None):
+    if isinstance(log_level, Verbosity):
         if level is not None:
-            verbose.level = level
+            log_level.level = level
 
-        return verbose
+        return log_level
 
-    elif isinstance(verbose, tuple):
-        return Verbosity(verbose=verbose[0], level=verbose[0])
+    elif isinstance(log_level, tuple):
+        return Verbosity(log_level=log_level[0], level=log_level[0])
 
     else:
-        if verbose is None:
-            verbose = 1
+        if log_level is None:
+            log_level = 1
 
         if level is None:
             level = 0
 
-        return Verbosity(verbose=verbose, level=level)
+        return Verbosity(log_level=log_level, level=level)
 
 
-def check_verbosity(verbose, threshold=0):
-    if isinstance(verbose, int):
-        return verbose > threshold
-    elif isinstance(verbose, tuple):
-        return verbose[0] > threshold
+def check_verbosity(log_level, threshold=0):
+    if isinstance(log_level, int):
+        return log_level > threshold
+    elif isinstance(log_level, tuple):
+        return log_level[0] > threshold
     else:
-        raise ValueError(f"Unknown type '{type(verbose)}' for verbose")
+        raise ValueError(f"Unknown type '{type(log_level)}' for log_level")
 
 
 class Verbosity:
     verbose: int
     level: int
 
-    def __init__(self, verbose=0, level=0):
-        self.verbose = verbose
+    def __init__(self, log_level=0, level=0):
+        self.verbose = log_level
         self.level = level
 
     def __add__(self, other):
@@ -361,32 +362,32 @@ class Verbosity:
         return res
 
     def copy(self):
-        return Verbosity(verbose=self.verbose, level=self.level)
+        return Verbosity(log_level=self.verbose, level=self.level)
 
     def __repr__(self):
         return f"(verbose: {self.verbose}, level: {self.level})"
 
 
 def try_verbosity():
-    v10 = Verbosity(verbose=1, level=0)
+    v10 = Verbosity(log_level=1, level=0)
 
     v20 = v10 + 1
     v00 = v10 - 1
 
-    print(v10)
-    print(v20)
-    print(v00)
+    log_print(v10)
+    log_print(v20)
+    log_print(v00)
 
 
 def try_clear_previous_line():
     pass
-    print("A")
-    print("B")
-    print("C")
+    log_print("A")
+    log_print("B")
+    log_print("C")
 
     clear_previous_lines()
 
-    print("C2")
+    log_print("C2")
     input()
 
 

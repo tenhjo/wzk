@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import unittest
 
 import numpy as np
@@ -38,9 +40,9 @@ def vis_rotvec():
     rv[2, 2] += np.pi
     rv[3, 2] += 2*np.pi
     rv[4, 2] += -np.pi
-    print(rv)
+    log_print(rv)
     f = spatial.trans_rotvec2frame(trans=x, rotvec=rv)
-    print(f)
+    log_print(f)
 
 
 def vis_get_frames_between():
@@ -54,7 +56,7 @@ def vis_get_frames_between():
     assert np.allclose(f0, f[0])
     assert np.allclose(f1, f[-1])
 
-    print(f)
+    log_print(f)
     # p = mc2.Visualizer()
     # mc2.plot_coordinate_frames(p=p, f=f, h=None, scale=0.2)
 

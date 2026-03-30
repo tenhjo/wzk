@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 
 from wzk import trajectory, splines, mpl2
@@ -80,8 +82,8 @@ def test_unit_circle():
     u = np.linspace(0, 1, 90)
     x = nurbs.evaluate(u=u)
     j = nurbs.evaluate_jac(u=u)
-    print("x", x)
-    print("j", j)
+    log_print("x", x)
+    log_print("j", j)
     fig, ax = mpl2.new_fig()
     ax.set_aspect(1)
     ax.plot(*x.T, color="black", marker="o")

@@ -8,12 +8,15 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from wzk.logger import setup_logger
 from wzk import ltd
 
 from ._types import ArrayLike, AxisLike, float32, int32
 from . import np2
 from . import basics as b2
 from . import shape as sh
+
+logger = setup_logger(__name__)
 
 GOLDEN_RATIO = jnp.asarray((jnp.sqrt(5.0) + 1) / 2, dtype=float32)
 
@@ -264,7 +267,6 @@ def bisection(f: Callable[[float], float],
               b: float,
               tol: float,
               max_depth: int = 50,
-              verbose: int = 0,
               _depth: int = 0) -> float:
     assert a < b
 
@@ -272,21 +274,20 @@ def bisection(f: Callable[[float], float],
 
     if np.sign(fa) == np.sign(fb):
         if (np.sign(fa) == +1 and fa < fb) or (np.sign(fa) == -1 and fa > fb):
-            return bisection(f=f, a=a / 2, b=a, tol=tol, verbose=verbose, _depth=_depth + 1)
-        return bisection(f=f, a=b, b=2 * b, tol=tol, verbose=verbose, _depth=_depth + 1)
+            return bisection(f=f, a=a / 2, b=a, tol=tol, _depth=_depth + 1)
+        return bisection(f=f, a=b, b=2 * b, tol=tol, _depth=_depth + 1)
 
     m = (a + b) / 2
     fm = f(m)
 
-    if verbose > 0:
-        print(f"depth {_depth}: a {a}, b {b}, m {m}, f(m) {fm}")
+    logger.debug("bisection depth=%s a=%s b=%s m=%s f(m)=%s", _depth, a, b, m, fm)
 
     if np.abs(fm) <= tol or _depth > max_depth:
         return m
     if np.sign(fa) == np.sign(fm):
-        return bisection(f=f, a=m, b=b, tol=tol, verbose=verbose, _depth=_depth + 1)
+        return bisection(f=f, a=m, b=b, tol=tol, _depth=_depth + 1)
     if np.sign(fb) == np.sign(fm):
-        return bisection(f=f, a=a, b=m, tol=tol, verbose=verbose, _depth=_depth + 1)
+        return bisection(f=f, a=a, b=m, tol=tol, _depth=_depth + 1)
 
     raise ValueError("Should not happen!")
 

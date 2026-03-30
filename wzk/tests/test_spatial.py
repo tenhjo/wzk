@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 from unittest import TestCase
 
 import numpy as np
@@ -15,7 +17,7 @@ class Test(TestCase):
 
         c = spatial.invert(a) @ b
         c_rc = spatial.frame2rotvec(c)
-        print("rad c ", np.linalg.norm(c_rc))
+        log_print("rad c ", np.linalg.norm(c_rc))
 
         ab_trans, ab_rot = frame_difference(a, b)
-        print("rad ab", ab_rot)
+        log_print("rad ab", ab_rot)

@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 from contextlib import contextmanager
 # from threading import Lock  # lock = Lock()
 import os
@@ -113,7 +115,7 @@ def open_db_connection(file: str,
     try:
         con = sqlite3.connect(database=file, check_same_thread=check_same_thread, isolation_level=isolation_level)
     except sqlite3.OperationalError as e:
-        print(file)
+        log_print(file)
         raise e
 
     try:
@@ -172,7 +174,7 @@ def vacuum(file):
     # To allow the VACUUM command to run, change the directory for temporary files to one that has enough free space.
     # assumption: that this is the case for the directory where the file itself leads
     # temp_store_directory is deprecated, but the alternatives did not work
-    print(f"vacuum {file}")
+    log_print(f"vacuum {file}")
     execute(file=file, query=f"PRAGMA temp_store_directory = '{os.path.dirname(file)}'")
     execute(file=file, query="VACUUM")
 
@@ -192,12 +194,15 @@ def get_columns(file: str, table: str, mode: object = None) -> list | pd.DataFra
     if mode is None:
         return c
 
+    if isinstance(mode, str):
+        mode = [mode]
+
     res = []
     if "name" in mode:
-        res.append(c.name.values)
+        res.append(c.name.values.tolist())
 
     if "type" in mode:
-        res.append(c.type.values)
+        res.append(c.type.values.tolist())
 
     if len(res) == 1:
         res = res[0]
@@ -208,7 +213,7 @@ def get_columns(file: str, table: str, mode: object = None) -> list | pd.DataFra
 def summary(file):
     __default_width = 20
 
-    print(f"summary sql-file:'{file}'")
+    log_print(f"summary sql-file:'{file}'")
     tables = get_tables(file=file)
     for t in tables:
         na, ty = get_columns(file=file, table=t, mode=["name", "type"])
@@ -216,16 +221,16 @@ def summary(file):
         w = max([len(nai) for nai in na] + [len(tyi) for tyi in ty])
         w = max(w+3, __default_width)
 
-        print(f"table: {t}")
-        print(f"\tcolumns: {' | '.join([nai.ljust(w) for nai in na])}")
-        print(f"\ttype   : {' | '.join([tyi.ljust(w) for tyi in ty])}")
-        print(f"\tn_rows: {get_n_rows(file=file, table=t)}")
-        print()
+        log_print(f"table: {t}")
+        log_print(f"\tcolumns: {' | '.join([nai.ljust(w) for nai in na])}")
+        log_print(f"\ttype   : {' | '.join([tyi.ljust(w) for tyi in ty])}")
+        log_print(f"\tn_rows: {get_n_rows(file=file, table=t)}")
+        log_print()
 
 
 def rename_tables(file: str, tables: dict) -> None:
     old_names = get_tables(file=file)
-    print(f"rename_tables file:'{file}' {tables}")
+    log_print(f"rename_tables file:'{file}' {tables}")
     with open_db_connection(file=file, close=True, lock=None) as con:
         cur = con.cursor()
         for old in old_names:
@@ -238,7 +243,7 @@ def rename_columns(file: str, table: str, columns: dict) -> None:
     old_list = get_columns(file=file, table=table, mode="name")
     assert isinstance(old_list, list)
 
-    print(f"rename_columns file:'{file}' table:'{table}' {columns}")
+    log_print(f"rename_columns file:'{file}' table:'{table}' {columns}")
     with open_db_connection(file=file, close=True, lock=None) as con:
         cur = con.cursor()
         for old in columns:
@@ -258,7 +263,7 @@ def get_n_rows(file, table):
 def integrity_check(file):
     with open_db_connection(file=file, close=True, lock=None) as con:
         c = pd.read_sql_query(con=con, sql="pragma integrity_check")
-    print(f"integrity_check file:'{file}' -> {c}")
+    log_print(f"integrity_check file:'{file}' -> {c}")
     return c.values[0][0]
 
 
@@ -312,7 +317,7 @@ def delete_tables(file, tables):
 
     tables_old = get_tables(file=file)
     tables = ltd.atleast_list(tables, convert=False)
-    print(f"delete_tables file:'{file}' tables:{tables}")
+    log_print(f"delete_tables file:'{file}' tables:{tables}")
     for t in tables:
         assert t in tables_old, f"table {t} not in {tables_old}"
         execute(file=file, query=f"DROP TABLE {t}")
@@ -321,7 +326,7 @@ def delete_tables(file, tables):
 
 def delete_rows(file: str, table: str, rows, lock=None):
     batch_size = int(1e5)
-    print(f"delete_rows 'file':{file} table:'{table}' rows:{rows}")
+    log_print(f"delete_rows 'file':{file} table:'{table}' rows:{rows}")
 
     if batch_size is None or batch_size > len(rows):
         rows = rows2sql(rows, dtype=str)
@@ -360,7 +365,7 @@ def add_column(file, table, column, dtype, lock=None):
     assert isinstance(columns, list)
 
     if column in columns:
-        print(f"columns {column} already exists")
+        log_print(f"columns {column} already exists")
     else:
         execute(file=file, query=f"ALTER TABLE {table} ADD COLUMN {column} {dtype}", lock=lock)
 
@@ -394,7 +399,7 @@ def copy_table(file, table_src, table_dst, columns=None, dtypes=None, order_by=N
 
 
 def sort_table(file, table, order_by):
-    print(f"sort_table file:'{file}' table:'{table}'")
+    log_print(f"sort_table file:'{file}' table:'{table}'")
     alter_table(file=file, table=table, columns=None, dtypes=None, order_by=order_by)
 
 
@@ -405,14 +410,14 @@ def alter_table(file, table, columns, dtypes, order_by=None):
     rename_tables(file, tables={table_tmp: table})
 
 
-def squeeze_table(file, table, verbose=1):
+def squeeze_table(file, table, log_level=1):
     columns = get_columns(file=file, table=table, mode="name")
 
     for c in zip(columns):
         v0 = get_values(file=file, table=table, columns=c, rows=0, return_type="list")
         if np.size(v0) == 1:
-            if verbose > 0:
-                print(c)
+            if log_level > 0:
+                log_print(c)
             v = get_values(file=file, table=table, columns=c, return_type="list")
             v = np.squeeze(v)
             set_values(file=file, table=table, values=(v.tolist(),), columns=c)
@@ -451,7 +456,7 @@ def get_values(file: str, table: str, columns=None, rows=-1,
                 df = pd.read_sql_query(con=con, sql=f"SELECT {columns_str} FROM {table} WHERE ROWID in ({rows})",
                                        index_col=None)
             except pd.io.sql.DatabaseError:
-                print(f"file '{file}' table '{table}'")
+                log_print(f"file '{file}' table '{table}'")
                 raise pd.io.sql.DatabaseError
 
     value_list = []
@@ -524,11 +529,11 @@ def df2sql(df, file, table, dtype=None,
     """
     file = files.ensure_file_extension(file=file, ext=".db")
     if df is None:
-        print("No DataFrame was provided...")
+        log_print("No DataFrame was provided...")
         return
 
     elif len(df) == 0:
-        print("DataFrame is empty...")
+        log_print("DataFrame is empty...")
         return
 
     data = df.to_dict(orient="list")

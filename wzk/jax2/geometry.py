@@ -7,10 +7,12 @@ import jax.numpy as jnp
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from wzk import printing
+from wzk.logger import setup_logger
 
 from ._types import ArrayLike, ShapeLike, float32, int32
 from . import np2
+
+logger = setup_logger(__name__)
 
 
 def get_ortho_star_2d(x: ArrayLike):
@@ -518,8 +520,7 @@ def get_distance_to_ellipsoid(x: ArrayLike, shape: ArrayLike):
 def get_x_intersections(x_a: ArrayLike,
                         x_b: ArrayLike,
                         threshold: float = 0.001,
-                        map_i_ab: bool = True,
-                        verbose: int = 0):
+                        map_i_ab: bool = True):
     x_a = np.asarray(x_a)
     x_b = np.asarray(x_b)
     if len(x_a) * len(x_b) < 1_000_000:
@@ -531,8 +532,7 @@ def get_x_intersections(x_a: ArrayLike,
     else:
         i_ab = np.zeros((0, 2), dtype=int32)
         for i_a in range(len(x_a)):
-            if verbose > 0:
-                printing.progress_bar(i=i_a, n=len(x_a))
+            logger.debug("get_x_intersections progress: %s / %s", i_a, len(x_a))
             dn_ab = np.linalg.norm(x_a[i_a, :] - x_b[:, :], axis=-1)
             intersection = dn_ab < threshold
 

@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np  # noqa
 
 from wzk import np2, mp2, time2, ltd, strings, files
@@ -139,7 +141,7 @@ def gradient_descent(x, fun, grad, opt):
             o_list[i] = fun(x)  # only for debugging, is inefficient to call separately
 
         if opt.verbose > 0:
-            print(i, fun(x))
+            log_print(i, fun(x))
 
     o = fun(x)
 

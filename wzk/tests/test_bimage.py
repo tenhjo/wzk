@@ -1,3 +1,4 @@
+
 import numpy as np
 
 
@@ -5,19 +6,26 @@ from wzk import bimage
 
 
 def test_get_sphere_stencil():
-    from wzk import new_fig
     r = 10
     voxel_size = 0.3
     n_dim = 2
 
     inner, outer = bimage.get_sphere_stencil(r=r, voxel_size=voxel_size, n_dim=n_dim)
-    fig, ax = new_fig()
-    ax.imshow(inner)
+    assert inner.dtype == bool
+    assert outer.dtype == bool
+    assert inner.shape == outer.shape
+    assert inner.ndim == n_dim
+    assert inner.any()
+    assert outer.any()
 
     n_dim = 3
     inner, outer = bimage.get_sphere_stencil(r=r, voxel_size=voxel_size, n_dim=n_dim)
-    fig, ax = new_fig()
-    ax.imshow(inner.sum(axis=-1), cmap="gray_r")
+    assert inner.dtype == bool
+    assert outer.dtype == bool
+    assert inner.shape == outer.shape
+    assert inner.ndim == n_dim
+    assert inner.any()
+    assert outer.any()
 
 
 def test_mesh2bimg():
@@ -25,12 +33,9 @@ def test_mesh2bimg():
     limits = np.array([[0, 1],
                        [0, 1]])
     img = bimage.mesh2bimg(p=p, shape=(64, 64), limits=limits)
-
-    from wzk.mpl2 import new_fig, imshow
-
-    fig, ax = new_fig()
-    ax.plot(*p.T, ls="", marker="o")
-    imshow(ax=ax, img=img, mask=~img, limits=limits)
+    assert img.dtype == bool
+    assert img.shape == (64, 64)
+    assert img.any()
 
 
 def test_spheres2bimg():
@@ -43,21 +48,20 @@ def test_spheres2bimg():
     x = np.random.random((n, 3))
     r = np.random.uniform(low=0.1, high=0.2, size=n)
     img = bimage.spheres2bimg(x=x, r=r, shape=shape, limits=limits)
-    print(img)
-    raise ValueError("TODO how to do visual debugging")
+    assert img.dtype == bool
+    assert img.shape == shape
+    assert img.any()
 
 
 def test_create_stencil_dict():
-    from wzk import mpl2
-    fig, ax = mpl2.new_fig()
-
-    for i in range(1, 100):
-        inner, outer = bimage.get_sphere_stencil(r=0.1*i, voxel_size=0.1, n_dim=2)
-        stencil = np.logical_or(inner, outer)
-        ax.clear()
-        print(i, stencil.shape)
-        mpl2.imshow(img=stencil, ax=ax, cmap="gray", alpha=0.5)
-        mpl2.plt.pause(0.1)
+    stencil_dict = bimage.create_stencil_dict(voxel_size=0.2, n_dim=2)
+    assert len(stencil_dict) > 0
+    for d, stencil in stencil_dict.items():
+        assert isinstance(d, int)
+        assert stencil.dtype == bool
+        assert stencil.ndim == 2
+        assert stencil.shape == (d, d)
+        assert stencil.any()
 
 
 

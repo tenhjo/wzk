@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -397,7 +399,7 @@ def try_cross_order():
     r1 = np.cross(np.cross(j0, r), j1)
     r2 = np.cross(np.cross(j1, r), j0)
     tr = r0 - r1 + r2
-    print(tr)
+    log_print(tr)
 
 
 # --- Functions --------------------------------------------------------------------------------------------------------

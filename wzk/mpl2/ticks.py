@@ -1,7 +1,8 @@
+
+from wzk.logger import log_print
 import numpy as np
 from matplotlib import transforms
 
-from wzk.ltd import atleast_list
 from wzk.np2 import np_isinstance
 
 
@@ -114,7 +115,7 @@ def get_ticks(ax, axis="x"):
         return ticks2arr(ax.get_xticks())
     elif axis == "y":
         return ticks2arr(ax.get_yticks())
-    elif axis == "xy" or "both":
+    elif axis in ("xy", "both"):
         return ticks2arr(ax.get_xticks()), ticks2arr(ax.get_yticks())
     else:
         raise ValueError
@@ -129,7 +130,7 @@ def get_labels(ax, axis="x"):
         return labels2arr(ax.get_xticklabels())
     elif axis == "y":
         return labels2arr(ax.get_yticklabels())
-    elif axis == "xy" or "both":
+    elif axis in ("xy", "both"):
         return labels2arr(ax.get_xticklabels()), labels2arr(ax.get_yticklabels())
     else:
         raise ValueError
@@ -235,23 +236,31 @@ def add_ticks(ax, ticks, labels=None, axis="x"):
     if ticks is None or np.size(ticks) == 0:
         return
 
+    def _as_list(v):
+        if v is None:
+            return []
+        if isinstance(v, np.ndarray):
+            return v.tolist()
+        if isinstance(v, (list, tuple)):
+            return list(v)
+        return [v]
+
     def __add_ticks(_axis):
         ticks_old = get_ticks(ax=ax, axis=_axis)
         labels_old = get_labels(ax=ax, axis=_axis)
 
-        _ticks = np.hstack((ticks_old, atleast_list(ticks)))
+        _ticks = np.hstack((ticks_old, _as_list(ticks)))
         sort_idx = np.argsort(_ticks)
         _ticks = _ticks[sort_idx].tolist()
 
-        if any(np.atleast_1d(labels)):
+        if labels is not None and any(np.atleast_1d(labels)):
             # if len(labels_old) > len(ticks_old):  # two axes (bottom, top), (left, right)
-
-            _labels = np.hstack((labels_old[:len(ticks_old)], atleast_list(labels)))
+            _labels = np.hstack((labels_old[:len(ticks_old)], _as_list(labels)))
             _labels = _labels[sort_idx].tolist()
         else:
             _labels = None
 
-        set_ticks_and_labels(ax=ax, axis=axis, ticks=_ticks, labels=_labels)
+        set_ticks_and_labels(ax=ax, axis=_axis, ticks=_ticks, labels=_labels)
 
     if "x" in axis or axis == "both":
         __add_ticks(_axis="x")
@@ -347,7 +356,7 @@ def elongate_ticks_and_labels(ax, newline, labels=None, axis="x", position=None)
             labels[i] = f"{nl}{lab}"
             change_tick_appearance(ax=ax, position=position, v=i, size=newline_size * newline[i])
 
-    print(labels)
+    log_print(labels)
 
     if axis == "x":
         ax.set_xticks(ax.get_xticks())  # https://stackoverflow.com/a/68794383/7570817

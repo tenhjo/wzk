@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 from typing import Literal
 
 import numpy as np
@@ -173,11 +175,11 @@ def add_small2big(idx, small, big, mode_crop="center", mode_add="add"):
                 elif mode_add == "replace":
                     big[slicen(ll_b, ur_b)] = small[slicen(ll_s, ur_s)]
             except ValueError:
-                print("idx", idx)
-                print("big ll-ur", ll_b, ur_b)  # TODO sometimes this fails, check
-                print("big slice shape", big[slicen(ll_b, ur_b)].shape)
-                print("small ll-ur", ll_s, ur_s)
-                print("small slice shape", small[slicen(ll_s, ur_s)].shape)
+                log_print("idx", idx)
+                log_print("big ll-ur", ll_b, ur_b)  # TODO sometimes this fails, check
+                log_print("big slice shape", big[slicen(ll_b, ur_b)].shape)
+                log_print("small ll-ur", ll_s, ur_s)
+                log_print("small slice shape", small[slicen(ll_s, ur_s)].shape)
 
 
 def get_exclusion_mask(a, exclude_values):
@@ -252,7 +254,7 @@ def idx2boolmat(idx, n=100):
     mat = np.zeros(s + (n,), dtype=bool)
 
     for i, idx_i in enumerate(idx.reshape(-1, idx.shape[-1])):
-        print(i, (np.unravel_index(i, shape=s)))
+        log_print(i, (np.unravel_index(i, shape=s)))
         mat[np.unravel_index(i, shape=s)][idx_i] = True
     return mat
 
@@ -286,13 +288,13 @@ def block_view(a, shape, aslist=False, require_aligned_blocks=True):
                                 will be discarded from the output view.
     Here's a 2D example (this function also works for ND):
     # >>> arr = np.arange(1,21).reshape(4,5)
-    # >>> print(arr)
+    # >>> log_print(arr)
     [[ 1  2  3  4  5]
      [ 6  7  8  9 10]
      [11 12 13 14 15]
      [16 17 18 19 20]]
     # >>> view = blockwise_view(arr, (2,2), require_aligned_blocks=False)
-    # >>> print(view)
+    # >>> log_print(view)
     [[[[ 1  2]
        [ 6  7]]
     <BLANKLINE>
@@ -451,7 +453,7 @@ def verbose_reject_x(title, x, b):
         mean = 0
     else:
         mean = b.mean()
-    print(f"{title}: {b.sum()}/{b.size} ~ {np.round(mean * 100, 3)}%")
+    log_print(f"{title}: {b.sum()}/{b.size} ~ {np.round(mean * 100, 3)}%")
     return x[b].copy()
 
 

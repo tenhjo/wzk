@@ -1,3 +1,5 @@
+
+from wzk.logger import log_print
 from unittest import TestCase
 import os
 
@@ -199,6 +201,6 @@ class Test(TestCase):
         #
         sql2.sort_table(file=file, table=table, order_by=["A", "ROWID"])
         data2 = sql2.get_values(file=file, table=table)
-        print(data2)
+        log_print(data2)
         a2 = sql2.get_values(file=file, table=table, columns="A")
         self.assertTrue(np.all(np.argsort(a2) == np.arange(len(a2))))

@@ -7,7 +7,7 @@ from wzk import mp2
 
 
 def nl_wls(fun_delta, x0, w_sqrt=None,
-           max_nfev=100, verbose=0):
+           max_nfev=100, log_level=0):
     """non-linear weighted least squares
     == min_x (y - f(beta, x))' W (y - f(beta, x))
     """
@@ -26,23 +26,23 @@ def nl_wls(fun_delta, x0, w_sqrt=None,
             return w_sqrt @ dy
 
     # is way quicker without setting bounds
-    res = least_squares(fun=fun_delta2, x0=x0, verbose=verbose, max_nfev=max_nfev)
+    res = least_squares(fun=fun_delta2, x0=x0, log_level=log_level, max_nfev=max_nfev)
 
     return res.x
 
 
 def nl_wls_mp(fun_delta, x0_list, w_sqrt=None,
               n_processes=1,
-              verbose=0):
+              log_level=0):
     # least_squares does not work with multiprocessing -> use joblib
 
     if np.ndim(x0_list) == 1:  # if only one x0 is provided
-        return nl_wls(fun_delta, x0_list, w_sqrt=w_sqrt, verbose=verbose)
+        return nl_wls(fun_delta, x0_list, w_sqrt=w_sqrt, log_level=log_level)
 
     def fun_delta_mp(x0_list2):
         x_list2 = np.zeros_like(x0_list2)
         for i, x0 in enumerate(x0_list2):
-            x_list2[i, :] = nl_wls(fun_delta, x0, w_sqrt=w_sqrt, verbose=verbose)
+            x_list2[i, :] = nl_wls(fun_delta, x0, w_sqrt=w_sqrt, log_level=log_level)
         return x_list2
 
     n_samples = len(x0_list)
