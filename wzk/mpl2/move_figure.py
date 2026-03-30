@@ -1,4 +1,3 @@
-
 import numpy as np
 
 # try:
@@ -66,7 +65,7 @@ def move_fig(fig, position=None, monitor=-1):
     fig_width = screen_width // n_cols
     fig_height = screen_height // n_rows
 
-    offset_y, offset_x = np.unravel_index(index-1, shape=(n_rows, n_cols))
+    offset_y, offset_x = np.unravel_index(index - 1, shape=(n_rows, n_cols))
     offset_x *= fig_width
     offset_y *= fig_height
 
@@ -100,9 +99,11 @@ def __position_string_wrapper(position_str="top right"):
     elif position_str == "bottom right":
         return 2, 2, 4
     else:
-        raise NotImplementedError(f"Unknown position '{position_str}', "
-                                  "Choose from: 'top', 'bottom', 'left', 'right', "
-                                  "'top left', 'top right', 'bottom left', 'bottom right'")
+        raise NotImplementedError(
+            f"Unknown position '{position_str}', "
+            "Choose from: 'top', 'bottom', 'left', 'right', "
+            "'top left', 'top right', 'bottom left', 'bottom right'"
+        )
 
 
 def __move_fig(fig, width=None, height=None, offset_x=None, offset_y=None):

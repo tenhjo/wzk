@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import matplotlib as mpl
 import numpy as np
@@ -36,7 +36,7 @@ def ax_wrapper(ax: dict | mpl.axes.Axes):
         raise ValueError
 
 
-def figsize_wrapper(width, height=None, height_ratio=1/math2.GOLDEN_RATIO):
+def figsize_wrapper(width, height=None, height_ratio=1 / math2.GOLDEN_RATIO):
     # https://www.ieee.org/content/dam/ieee-org/ieee/web/org/pubs/eic-guide.pdf
     if isinstance(width, str):
         if width.lower() == "ieee1c":
@@ -56,15 +56,22 @@ def figsize_wrapper(width, height=None, height_ratio=1/math2.GOLDEN_RATIO):
     return width, height
 
 
-def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
-            n_rows: int = 1, n_cols: int = 1,
-            share_x="none", share_y="none",  # : bool or {'none', 'all', 'row', 'col'},
-            aspect: Literal["auto", "equal"] = "auto",
-            limits=None,
-            title=None,
-            position=None, monitor=-1,
-            kwargs_subplots=None,
-            **kwargs):
+def new_fig(
+    width=shape_2c_ieee[0],
+    height=None,
+    h_ratio=1 / math2.GOLDEN_RATIO,
+    n_rows: int = 1,
+    n_cols: int = 1,
+    share_x="none",
+    share_y="none",  # : bool or {'none', 'all', 'row', 'col'},
+    aspect: Literal["auto", "equal"] = "auto",
+    limits=None,
+    title=None,
+    position=None,
+    monitor=-1,
+    kwargs_subplots=None,
+    **kwargs,
+):
 
     fig = plt.figure(figsize=figsize_wrapper(width=width, height=height, height_ratio=h_ratio), **kwargs)
 
@@ -91,10 +98,19 @@ def new_fig(width=shape_2c_ieee[0], height=None, h_ratio=1 / math2.GOLDEN_RATIO,
     return fig, ax
 
 
-def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: str | tuple = None,
-             dpi: int = 600, bbox: str | None = "tight", pad: float = 0.1,
-             save: bool = True, replace: bool = True, show: bool = False, copy2cb: bool = False,
-             **kwargs: object) -> object:
+def save_fig(
+    file: str | None = None,
+    fig: mpl.figure.Figure = None,
+    formats: str | tuple | None = None,
+    dpi: int = 600,
+    bbox: str | None = "tight",
+    pad: float = 0.1,
+    save: bool = True,
+    replace: bool = True,
+    show: bool = False,
+    copy2cb: bool = False,
+    **kwargs: object,
+) -> object:
     """
     adaption of the matplotlib 'savefig' function with some added convenience.
     bbox = tight / standard (standard does not crop but saves the whole figure)
@@ -116,12 +132,12 @@ def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: str | tup
 
     file, ext = os.path.splitext(file)
     if ext == "":
-        ext = tuple()
+        ext = ()
     else:
-        ext = tuple([ext[1:]])
+        ext = (ext[1:],)
 
     if formats is None:
-        formats = tuple()
+        formats = ()
     formats = ltd.atleast_tuple(formats, convert=False)
     formats = set(formats)
     formats = formats.union(set(ext))
@@ -131,7 +147,7 @@ def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: str | tup
         file_f = f"{file}.{f}"
 
         if replace or not os.path.isfile(path=file_f):
-            fig.savefig(file_f, format=f, bbox_inches=bbox, pad_inches=pad,  dpi=dpi, **kwargs)
+            fig.savefig(file_f, format=f, bbox_inches=bbox, pad_inches=pad, dpi=dpi, **kwargs)
             logger.info("%s saved", file_f)
         else:
             logger.info("%s already exists", file_f)
@@ -143,8 +159,15 @@ def save_fig(file: str = None, fig: mpl.figure.Figure = None, formats: str | tup
         files.copy2clipboard(file=f"{file}.{formats[0]}")
 
 
-def save_ani(file: str, fig: mpl.figure.Figure, ani,
-             n: int, fps: int = 30, dpi: int = 300, bbox: str = None,):
+def save_ani(
+    file: str,
+    fig: mpl.figure.Figure,
+    ani,
+    n: int,
+    fps: int = 30,
+    dpi: int = 300,
+    bbox: str | None = None,
+):
     dir_temp = os.path.split(file)[0]
     if dir_temp == "":
         dir_temp = os.getcwd()
@@ -157,15 +180,22 @@ def save_ani(file: str, fig: mpl.figure.Figure, ani,
     for nn in n:
         printing.progress_bar(i=nn, n=n[-1] + 1)
         ani(nn)
-        save_fig(file=f"{dir_temp}/frame{nn:0>6}", fig=fig, formats=("png", ), dpi=dpi, bbox=bbox,
-                 )
+        save_fig(
+            file=f"{dir_temp}/frame{nn:0>6}",
+            fig=fig,
+            formats=("png",),
+            dpi=dpi,
+            bbox=bbox,
+        )
 
-    os.system(f"ffmpeg -r {fps} -i {dir_temp}/"
-              f'frame%06d.png -pix_fmt yuv420p -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" {file}.mp4')
+    os.system(
+        f"ffmpeg -r {fps} -i {dir_temp}/"
+        f'frame%06d.png -pix_fmt yuv420p -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white" {file}.mp4'
+    )
     shutil.rmtree(dir_temp)
 
 
-def save_all(directory: str = None, close: bool = False, **kwargs):
+def save_all(directory: str | None = None, close: bool = False, **kwargs):
     if directory is None:
         directory = input("Directory to which the figures should be saved:")
 
@@ -183,7 +213,7 @@ def save_all(directory: str = None, close: bool = False, **kwargs):
 # noinspection PyProtectedMember
 def get_fig_suptitle(fig: mpl.figure.Figure):
     try:
-        return fig._suptitle._text  # type: ignore
+        return fig._suptitle._text
     except AttributeError:
         return ""
 
@@ -196,7 +226,7 @@ def subplot_grid(n: int, squeeze: bool = False, **kwargs):
     n_rows, n_cols = math2.get_mean_divisor_pair(n)
 
     if n >= 7 and n_rows == 1:
-        n_rows, n_cols = math2.get_mean_divisor_pair(n+1)
+        n_rows, n_cols = math2.get_mean_divisor_pair(n + 1)
 
     _, ax = new_fig(n_rows=n_rows, n_cols=n_cols, **kwargs)
 
@@ -209,5 +239,6 @@ def test_pdf2latex():
     fig, ax = new_fig(scale=0.5)
     ax.plot(np.random.random(20))
     ax.set_xlabel("Magnetization")
-    save_fig(file="/Users/jote/Documents/Vorlagen/LaTeX Vorlagen/IEEE-open-journal-template/aaa", fig=fig,
-             formats=("pdf",))
+    save_fig(
+        file="/Users/jote/Documents/Vorlagen/LaTeX Vorlagen/IEEE-open-journal-template/aaa", fig=fig, formats=("pdf",)
+    )

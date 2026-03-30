@@ -27,9 +27,9 @@ def clean_grid_line(x, n_dim=2, return_indices=False):
     """
 
     keep_idx = np.ones(x.shape[0], dtype=bool)
-    for i in range(x.shape[0]-2):
-        if n_dim-np.logical_and(x[i] == x[i+1], x[i] == x[i+2]).sum() <= 1:
-            keep_idx[i+1] = False
+    for i in range(x.shape[0] - 2):
+        if n_dim - np.logical_and(x[i] == x[i + 1], x[i] == x[i + 2]).sum() <= 1:
+            keep_idx[i + 1] = False
 
     if return_indices:
         return x[keep_idx], keep_idx
@@ -48,23 +48,19 @@ def get_edges(bimg):
 
     ij_edges = []
     ii, jj = np.nonzero(bimg)
-    for i, j in zip(ii, jj):
+    for i, j in zip(ii, jj, strict=False):
         # North
-        if j == shape[1]-1 or not bimg[i, j+1]:
-            ij_edges.append(np.array([[i, j+1],
-                                      [i+1, j+1]]))
+        if j == shape[1] - 1 or not bimg[i, j + 1]:
+            ij_edges.append(np.array([[i, j + 1], [i + 1, j + 1]]))
         # East
-        if i == shape[0]-1 or not bimg[i+1, j]:
-            ij_edges.append(np.array([[i+1, j],
-                                      [i+1, j+1]]))
+        if i == shape[0] - 1 or not bimg[i + 1, j]:
+            ij_edges.append(np.array([[i + 1, j], [i + 1, j + 1]]))
         # South
-        if j == 0 or not bimg[i, j-1]:
-            ij_edges.append(np.array([[i, j],
-                                      [i+1, j]]))
+        if j == 0 or not bimg[i, j - 1]:
+            ij_edges.append(np.array([[i, j], [i + 1, j]]))
         # West
-        if i == 0 or not bimg[i-1, j]:
-            ij_edges.append(np.array([[i, j],
-                                      [i, j+1]]))
+        if i == 0 or not bimg[i - 1, j]:
+            ij_edges.append(np.array([[i, j], [i, j + 1]]))
 
     if not ij_edges:
         return np.zeros((0, 2, 2))
@@ -126,35 +122,29 @@ def get_faces(img):
 
     ijk_faces = []
     ii, jj, kk = np.nonzero(img)
-    for i, j, k in zip(ii, jj, kk):
+    for i, j, k in zip(ii, jj, kk, strict=False):
         # East
-        if i == shape[0]-1 or not img[i+1, j, k]:
-            ijk_faces.append(np.array([[i+1, j, k],
-                                       [i+1, j+1, k+1]]))
+        if i == shape[0] - 1 or not img[i + 1, j, k]:
+            ijk_faces.append(np.array([[i + 1, j, k], [i + 1, j + 1, k + 1]]))
 
         # West
-        if i == 0 or not img[i-1, j, k]:
-            ijk_faces.append(np.array([[i, j, k],
-                                       [i, j+1, k+1]]))
+        if i == 0 or not img[i - 1, j, k]:
+            ijk_faces.append(np.array([[i, j, k], [i, j + 1, k + 1]]))
 
         # North
-        if j == shape[1]-1 or not img[i, j+1, k]:
-            ijk_faces.append(np.array([[i, j+1, k],
-                                       [i+1, j+1, k+1]]))
+        if j == shape[1] - 1 or not img[i, j + 1, k]:
+            ijk_faces.append(np.array([[i, j + 1, k], [i + 1, j + 1, k + 1]]))
 
         # South
-        if j == 0 or not img[i, j-1, k]:
-            ijk_faces.append(np.array([[i, j, k],
-                                       [i+1, j, k+1]]))
+        if j == 0 or not img[i, j - 1, k]:
+            ijk_faces.append(np.array([[i, j, k], [i + 1, j, k + 1]]))
 
         # Up
-        if k == shape[2]-1 or not img[i, j, k+1]:
-            ijk_faces.append(np.array([[i, j, k+1],
-                                       [i+1, j+1, k+1]]))
+        if k == shape[2] - 1 or not img[i, j, k + 1]:
+            ijk_faces.append(np.array([[i, j, k + 1], [i + 1, j + 1, k + 1]]))
         # Down
-        if k == 0 or not img[i, j, k-1]:
-            ijk_faces.append(np.array([[i, j, k],
-                                       [i+1, j+1, k]]))
+        if k == 0 or not img[i, j, k - 1]:
+            ijk_faces.append(np.array([[i, j, k], [i + 1, j + 1, k]]))
 
     ijk_faces = np.array(ijk_faces)
     return ijk_faces
@@ -204,7 +194,7 @@ def __is_neighbor(face_plane_1, face_plane_2):
         neighbor_direction = list({0, 1, 2}.difference({plane_1}))
         for nd in neighbor_direction:
             if np.all(face_1[:, nd] == face_2[:, nd]):
-                free_direction = list(set(neighbor_direction).difference({nd}))[0]
+                free_direction = next(iter(set(neighbor_direction).difference({nd})))
                 free_1 = set(face_1[:, free_direction])
                 free_2 = set(face_2[:, free_direction])
                 if not free_1.isdisjoint(free_2):
@@ -240,22 +230,24 @@ def combine_faces(face_vtx, log_level=0):
                     continue
 
                 try:
-                    free_direction = __is_neighbor(face_plane_1=(face_vtx[i, ...], planes[i]),
-                                                   face_plane_2=(face_vtx[j, ...], planes[j]))
+                    free_direction = __is_neighbor(
+                        face_plane_1=(face_vtx[i, ...], planes[i]), face_plane_2=(face_vtx[j, ...], planes[j])
+                    )
                 except IndexError:
                     log_print(i, j, n_faces)
                     log_print(face_vtx.shape, planes.shape)
-                    raise IndexError
+                    raise
 
                 if free_direction != -1:
                     # Replace the coordinates of one edge with the edge of the other face to get the combined face
                     fd_coord_set_1 = set(face_vtx[i, :, free_direction])
                     fd_coord_set_2 = set(face_vtx[j, :, free_direction])
-                    old_value = list(fd_coord_set_1.difference(fd_coord_set_2))[0]
-                    new_value = list(fd_coord_set_2.difference(fd_coord_set_1))[0]
-                    common_value = list(fd_coord_set_2.intersection(fd_coord_set_1))[0]
-                    face_vtx[i, :, free_direction] = np.where(face_vtx[i, :, free_direction] == common_value,
-                                                              new_value, old_value)
+                    old_value = next(iter(fd_coord_set_1.difference(fd_coord_set_2)))
+                    new_value = next(iter(fd_coord_set_2.difference(fd_coord_set_1)))
+                    common_value = next(iter(fd_coord_set_2.intersection(fd_coord_set_1)))
+                    face_vtx[i, :, free_direction] = np.where(
+                        face_vtx[i, :, free_direction] == common_value, new_value, old_value
+                    )
 
                     # Delete the obsolete faces
                     face_vtx = np.delete(face_vtx, j, axis=0)
@@ -320,11 +312,11 @@ def cubes2face_vertices(pos, size):
         cube_vtx[7, [0, 1, 2]] += size[i, [0, 1, 2]]
 
         # Get the 6 faces from the corner nodes
-        face_vtx[i * 6+0, :, :] = cube_vtx[[0, 2, 3, 1], :]  # West
-        face_vtx[i * 6+1, :, :] = cube_vtx[[4, 6, 7, 5], :]  # East
-        face_vtx[i * 6+2, :, :] = cube_vtx[[2, 6, 7, 3], :]  # North
-        face_vtx[i * 6+3, :, :] = cube_vtx[[0, 4, 5, 1], :]  # South
-        face_vtx[i * 6+4, :, :] = cube_vtx[[1, 5, 7, 3], :]  # Up
-        face_vtx[i * 6+5, :, :] = cube_vtx[[0, 4, 6, 2], :]  # Down
+        face_vtx[i * 6 + 0, :, :] = cube_vtx[[0, 2, 3, 1], :]  # West
+        face_vtx[i * 6 + 1, :, :] = cube_vtx[[4, 6, 7, 5], :]  # East
+        face_vtx[i * 6 + 2, :, :] = cube_vtx[[2, 6, 7, 3], :]  # North
+        face_vtx[i * 6 + 3, :, :] = cube_vtx[[0, 4, 5, 1], :]  # South
+        face_vtx[i * 6 + 4, :, :] = cube_vtx[[1, 5, 7, 3], :]  # Up
+        face_vtx[i * 6 + 5, :, :] = cube_vtx[[0, 4, 6, 2], :]  # Down
 
     return face_vtx

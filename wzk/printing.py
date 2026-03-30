@@ -16,6 +16,7 @@ def quiet_mode_on():
     sys.stdout = open(os.devnull, "w")
     #
 
+
 # def quiet_mode_off():
 #     sys.stdout = stdout_copy
 #
@@ -81,8 +82,7 @@ def get_progress_bar(i, n, prefix="", suffix="", bar="█"):
     return f"\r{prefix} |{bar}| {suffix}"
 
 
-def progress_bar(i, n, prefix="", suffix="", bar_length=None, log_level=1,
-                 eta=False, _time=[-1.]):  # noqa: B006
+def progress_bar(i, n, prefix="", suffix="", bar_length=None, log_level=1, eta=False, _time=[-1.0]):  # noqa: B006
 
     if log_level <= 0:
         return
@@ -97,16 +97,16 @@ def progress_bar(i, n, prefix="", suffix="", bar_length=None, log_level=1,
     i += 1
     suffix += f"({i}/{n})"
     if eta:
-        if _time[0] == -1. or i == 0 or i == 1:
+        if _time[0] == -1.0 or i == 0 or i == 1:
             _time[0] = time.time()
             suffix += " | 0s | ETA: ??s"
         else:
-            dt_s = (time.time() - _time[0])
-            s_per_i = dt_s/i
-            eta_s = (n-i) * s_per_i
+            dt_s = time.time() - _time[0]
+            s_per_i = dt_s / i
+            eta_s = (n - i) * s_per_i
             suffix += f" | Elapsed: {dt_s:.3}s | ETA: {eta_s:.3}s"
 
-    filled_length = int(round(bar_length * i / float(n)))
+    filled_length = round(bar_length * i / float(n))
     s = get_progress_bar(i=filled_length, n=bar_length, prefix=prefix, suffix=suffix)
 
     sys.stdout.write(s)
@@ -130,7 +130,7 @@ def print_table(rows, columns, data, min_cell_size=10, cell_format=".5f", paddin
     data_format_float = row_format + ("{:>" + str(max_voxel_size_c) + cell_format + "}") * len(columns)
 
     log_print(header_format.format("", *columns))
-    for row_name, row_data in zip(rows, data):
+    for row_name, row_data in zip(rows, data, strict=False):
         if isinstance(row_data[0], (int, float)):
             log_print(data_format_float.format(row_name, *row_data))
         else:
@@ -163,7 +163,7 @@ def print_stats(*args, names=None, dec=4):
         s = np2.get_stats(a)
         stats.append([s[key] for key in s])
 
-    cols = [key for key in s]
+    cols = list(s)
 
     print_table(rows=names, columns=cols, data=stats, cell_format=f".{dec}f")
     return np.array(stats)
@@ -257,18 +257,16 @@ def print_np2rkt(a):
 
 # General Functions
 # ----------------------------------------------------------------------------------------------------------------------
-def print2(*args, log_level=None,
-           sep=" ", end="\n", file=None, flush=False):
+def print2(*args, log_level=None, sep=" ", end="\n", file=None, flush=False):
     v = verbose_level_wrapper(log_level=log_level)
 
     if v.verbose > 0:
         args = [str(a) for a in args]
-        t = "\t"*v.level
+        t = "\t" * v.level
         log_print(f"{t}{sep.join(args)}", sep=sep, end=end, file=file, flush=flush)
 
 
-def print_array_3d(array_3d,
-                   log_level=None):
+def print_array_3d(array_3d, log_level=None):
     l, k, n = array_3d.shape
     s = [""] * k
     for ll in range(l):
@@ -284,23 +282,34 @@ def print_array_3d(array_3d,
 
 
 def clear_previous_lines(n=1):
-    for i in range(n):
+    for _i in range(n):
         sys.stdout.write("\033[K")  # clear line
         sys.stdout.write("\033[F")  # back to the previous line
         sys.stdout.write("\033[K")  # clear line
 
 
 def color_text(s, color, background="w", weight=0):
-    """you have to print normally (black / white) once to don't have any sight effects """
-    color_dict = dict(black=0, k=0,
-                      red=1, r=1,
-                      green=2, g=2,
-                      yellow=3, y=3,
-                      blue=4, b=4,
-                      magenta=5, m=5,
-                      cyan=6, c=6,
-                      gray=7, l=7,
-                      white=8, w=8)
+    """you have to print normally (black / white) once to don't have any sight effects"""
+    color_dict = {
+        "black": 0,
+        "k": 0,
+        "red": 1,
+        "r": 1,
+        "green": 2,
+        "g": 2,
+        "yellow": 3,
+        "y": 3,
+        "blue": 4,
+        "b": 4,
+        "magenta": 5,
+        "m": 5,
+        "cyan": 6,
+        "c": 6,
+        "gray": 7,
+        "l": 7,
+        "white": 8,
+        "w": 8,
+    }
     tc = color_dict[color.lower()]
     bc = color_dict[background.lower()]
     return f"\033[{weight};3{tc};4{bc}m{s}\033"

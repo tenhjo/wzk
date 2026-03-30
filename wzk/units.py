@@ -1,17 +1,11 @@
-units = ("m",
-         "rad",
-         "kg",
-         "s",
+units = ("m", "rad", "kg", "s", "N", "Nm", "radTNm")
 
-         "N",
-         "Nm",
-         "radTNm")
-
-si = dict(time="s",
-          length="m",
-          mass="kg",
-          electric_current="A",
-          temperature="K",
-          amount_of_substance="mol",
-          luminous_intensity="cd"
-          )
+si = {
+    "time": "s",
+    "length": "m",
+    "mass": "kg",
+    "electric_current": "A",
+    "temperature": "K",
+    "amount_of_substance": "mol",
+    "luminous_intensity": "cd",
+}

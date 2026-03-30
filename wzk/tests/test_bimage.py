@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from wzk import bimage
@@ -29,8 +28,7 @@ def test_get_sphere_stencil():
 
 def test_mesh2bimg():
     p = np.random.random((10, 2))
-    limits = np.array([[0, 1],
-                       [0, 1]])
+    limits = np.array([[0, 1], [0, 1]])
     img = bimage.mesh2bimg(p=p, shape=(64, 64), limits=limits)
     assert img.dtype == bool
     assert img.shape == (64, 64)
@@ -41,9 +39,7 @@ def test_spheres2bimg():
     n = 10
     shape = (256, 256, 256)
 
-    limits = np.array([[-1, 2],
-                       [-1, 2],
-                       [-1, 2]])
+    limits = np.array([[-1, 2], [-1, 2], [-1, 2]])
     x = np.random.random((n, 3))
     r = np.random.uniform(low=0.1, high=0.2, size=n)
     img = bimage.spheres2bimg(x=x, r=r, shape=shape, limits=limits)
@@ -61,7 +57,6 @@ def test_create_stencil_dict():
         assert stencil.ndim == 2
         assert stencil.shape == (d, d)
         assert stencil.any()
-
 
 
 if __name__ == "__main__":

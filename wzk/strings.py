@@ -1,4 +1,3 @@
-
 import os
 import re
 import uuid
@@ -7,10 +6,34 @@ import numpy as np
 
 from wzk.logger import log_print
 
-abc = ["a", "b", "c", "d", "e", "f", "g",
-       "h", "i", "j", "k", "l", "m", "n",
-       "o", "p", "q", "r", "s", "t", "u",
-       "v", "w", "x", "y", "z"]
+abc = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "y",
+    "z",
+]
 ABC = [letter.upper() for letter in abc]
 
 NL = "\n"
@@ -20,21 +43,20 @@ __brackets_round = "(", ")"
 __brackets_square = "[", "]"
 __brackets_curly = "{", "}"
 __brackets_angle = "<", ">"
-brackets_dict = {"()":  __brackets_round,
-                 "round": __brackets_round,
-                 "r": __brackets_round,
-
-                 "[]": __brackets_square,
-                 "square": __brackets_square,
-                 "s": __brackets_square,
-
-                 "{}": __brackets_curly,
-                 "curly": __brackets_curly,
-                 "c": __brackets_curly,
-
-                 "<>": __brackets_angle,
-                 "angles": __brackets_angle,
-                 "a": __brackets_angle}
+brackets_dict = {
+    "()": __brackets_round,
+    "round": __brackets_round,
+    "r": __brackets_round,
+    "[]": __brackets_square,
+    "square": __brackets_square,
+    "s": __brackets_square,
+    "{}": __brackets_curly,
+    "curly": __brackets_curly,
+    "c": __brackets_curly,
+    "<>": __brackets_angle,
+    "angles": __brackets_angle,
+    "a": __brackets_angle,
+}
 
 brackets_rir = "({i})"
 brackets_sis = "[{i}]"
@@ -45,11 +67,11 @@ brackets_rirrjr = "({i})({j})"
 
 
 def clean_ends(s, e):
-    if s[:len(e)] == e:
-        s = s[len(e):]
+    if s[: len(e)] == e:
+        s = s[len(e) :]
 
-    if s[-len(e):] == e:
-        s = s[:-len(e)]
+    if s[-len(e) :] == e:
+        s = s[: -len(e)]
     return s
 
 
@@ -59,7 +81,7 @@ def brackets_wrapper(bracket, idx, multi=True):
 
     if multi:
         c = ", "
-        s = b[0] + "".join(str(idx_i) + c for idx_i in idx)[:-len(c)] + b[1]
+        s = b[0] + "".join(str(idx_i) + c for idx_i in idx)[: -len(c)] + b[1]
     else:
         s = "".join(b[0] + str(idx_i) + b[1] for idx_i in idx)
 
@@ -84,7 +106,7 @@ def str0_to_n(s, n):
     if len(s) == n:
         return s
     else:
-        return s[:-1] + [s[-1] + "_" + str(i) for i in range(n-len(s)+1)]
+        return s[:-1] + [s[-1] + "_" + str(i) for i in range(n - len(s) + 1)]
 
 
 def split_insert_join(s, split, insert_pre="", insert_after=""):
@@ -107,7 +129,7 @@ def str2number(s, safe=False):
             return float(s)
         except ValueError as e:
             if safe:
-                raise ValueError(e)
+                raise ValueError(e) from e
             else:
                 return s
 
@@ -126,7 +148,7 @@ def uuid4():
     Universally Unique Identifier (UUID)
     128-Bit x 4-Bit alpha-numeric representation
      -> len() = 32
-     """
+    """
     return uuid.uuid4().hex
 
 
@@ -136,7 +158,7 @@ def str2eval(s):
         s = eval(s, {"__builtins__": None}, {})
     except TypeError:
         log_print(s)
-        raise TypeError
+        raise
     return s
 
 

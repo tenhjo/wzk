@@ -35,6 +35,7 @@ _LAZY_MODULES = {
     "grid": "wzk.grid",
     "ltd": "wzk.ltd",
     "wandb2": "wzk.wandb2",
+    "shinka2": "wzk.shinka2",
 }
 
 
@@ -53,6 +54,7 @@ __all__ = [
 
 def new_fig(*args: Any, **kwargs: Any) -> Any:
     from wzk.mpl2.figure import new_fig as _new_fig
+
     return _new_fig(*args, **kwargs)
 
 

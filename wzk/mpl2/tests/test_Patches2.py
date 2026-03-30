@@ -7,7 +7,6 @@ from wzk.mpl2.figure import new_fig, plt
 
 
 class Test(TestCase):
-
     def test_transform(self):
         height = 0.1
         width = 1
@@ -16,8 +15,13 @@ class Test(TestCase):
         ax.set_xlim([-width * 1.2, width * 1.2])
         ax.set_ylim([-width * 1.2, width * 1.2])
 
-        rec = plt.Rectangle((0, 0), width=width, height=height, alpha=0.8,
-                            transform=Patches2.get_aff_trafo(xy1=(0.5, 0.5), theta=90, por=(0.5, 0.05), ax=None))
+        rec = plt.Rectangle(
+            (0, 0),
+            width=width,
+            height=height,
+            alpha=0.8,
+            transform=Patches2.get_aff_trafo(xy1=(0.5, 0.5), theta=90, por=(0.5, 0.05), ax=None),
+        )
         ax.add_patch(rec)
 
         Patches2.do_aff_trafo(patch=rec, xy=(0, 0), por=(0, 0.1), theta=90)
@@ -42,14 +46,36 @@ class Test(TestCase):
 
     def test_AbsoluteFancyBboxPatch(self):
         fig, ax = new_fig(aspect="equal")
-        ax.add_patch(Patches2.FancyBbox(xy=(0.1, 0.1), boxstyle='Round4',  # noqa
-                                        height=0.5, width=0.5, pad=0.1, corner_size=0))
+        ax.add_patch(
+            Patches2.FancyBbox(
+                xy=(0.1, 0.1),
+                boxstyle="Round4",
+                height=0.5,
+                width=0.5,
+                pad=0.1,
+                corner_size=0,
+            )
+        )
 
     def test_RoundedPolygon(self):
-        xy = np.array([(0, 0), (0.25, 0), (0.5, -0.25), (0.75, 0),
-                       (1, 0), (1, 0.25), (1.25, 0.5), (1, 0.75),
-                       (1, 1), (0.75, 1), (0.5, 1.25), (0.25, 1),
-                       (0, 1), (0, 0.75), (-0.25, 0.5), (0, 0.25)])
+        xy = np.array([
+            (0, 0),
+            (0.25, 0),
+            (0.5, -0.25),
+            (0.75, 0),
+            (1, 0),
+            (1, 0.25),
+            (1.25, 0.5),
+            (1, 0.75),
+            (1, 1),
+            (0.75, 1),
+            (0.5, 1.25),
+            (0.25, 1),
+            (0, 1),
+            (0, 0.75),
+            (-0.25, 0.5),
+            (0, 0.25),
+        ])
         rp = Patches2.RoundedPolygon(xy=xy, pad=0.1, facecolor="red", edgecolor="magenta", lw=3)
 
         fig, ax = new_fig(aspect="equal")
@@ -62,22 +88,22 @@ class Test(TestCase):
         fig, ax = new_fig()
         ax.axis("off")
 
-        for i, (w, h, c) in enumerate(zip(
-                np.linspace(.1, .18, 4),
-                np.linspace(.95, .5, 4),
-                np.linspace(.1, .5, 4))):
-            x = i * .1
+        for i, (_w, h, c) in enumerate(
+            zip(np.linspace(0.1, 0.18, 4), np.linspace(0.95, 0.5, 4), np.linspace(0.1, 0.5, 4), strict=False)
+        ):
+            x = i * 0.1
             lw = 3 * i + 1
             # noinspection PyUnresolvedReferences
             col = plt.cm.plasma(i / 8)
-            brace = Patches2.CurlyBrace(p=(x + 0.05, h / 2), x0=(x, 0.1), x1=(x, 0.1 + h), lw=lw,
-                                        curliness=c, color=col)
+            brace = Patches2.CurlyBrace(
+                p=(x + 0.05, h / 2), x0=(x, 0.1), x1=(x, 0.1 + h), lw=lw, curliness=c, color=col
+            )
             ax.add_artist(brace)
 
         fig, ax = new_fig()
         ax.axis("off")
         ax.set_aspect(1)
-        for i in range(10):
+        for _i in range(10):
             x = np.random.random((3, 2))
             x = np.sort(x, axis=0)
             brace = Patches2.CurlyBrace(x[1], x[0], x[2])

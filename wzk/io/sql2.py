@@ -27,8 +27,9 @@ TYPE_BLOB = "BLOB"
 
 
 def rows2sql(rows: int | list | np.ndarray, dtype: type = str, values: list | None = None) -> object:
-    if isinstance(rows, (int, np.int8, np.int16, np.int32, np.int64,
-                         np.uint, np.uint8, np.uint16, np.uint32, np.uint64)):
+    if isinstance(
+        rows, (int, np.int8, np.int16, np.int32, np.int64, np.uint, np.uint8, np.uint16, np.uint32, np.uint64)
+    ):
         if rows == -1 or rows == [-1]:
             if values is None:
                 return -1
@@ -97,10 +98,7 @@ def order2sql(order_by: str | list[str] | dict | None, dtype: type = str) -> str
 
 
 @contextmanager
-def open_db_connection(file: str,
-                       lock: object | None = None,
-                       close: bool = True) -> Generator[sqlite3.Connection]:
-
+def open_db_connection(file: str, lock: object | None = None, close: bool = True) -> Generator[sqlite3.Connection]:
     """
     Safety wrapper for the database call.
     """
@@ -184,8 +182,9 @@ def vacuum(file: str) -> None:
 
 def get_tables(file: str) -> list[str]:
     with open_db_connection(file=file, close=True, lock=None) as con:
-        t = pd.read_sql_query(sql="SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'",
-                              con=con)
+        t = pd.read_sql_query(
+            sql="SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%'", con=con
+        )
     t = t["name"].values
     return t.tolist()
 
@@ -222,7 +221,7 @@ def summary(file: str) -> None:
         na, ty = get_columns(file=file, table=t, mode=["name", "type"])
 
         w = max([len(nai) for nai in na] + [len(tyi) for tyi in ty])
-        w = max(w+3, __default_width)
+        w = max(w + 3, __default_width)
 
         logger.debug("table: %s", t)
         logger.debug("\tcolumns: %s", " | ".join([nai.ljust(w) for nai in na]))
@@ -270,10 +269,9 @@ def integrity_check(file: str) -> str:
     return c.values[0][0]
 
 
-def concatenate_tables(file: str, table: str,
-                       table2: str | None = None,
-                       file2: str | list[str] | None = None,
-                       lock: object | None = None) -> None:
+def concatenate_tables(
+    file: str, table: str, table2: str | None = None, file2: str | list[str] | None = None, lock: object | None = None
+) -> None:
     if table2 is None:
         assert file2 is not None
         table2 = table
@@ -286,7 +284,6 @@ def concatenate_tables(file: str, table: str,
             concatenate_tables(file=file, table=table, table2=table2, file2=f, lock=lock)
 
     else:
-
         query = f"ATTACH DATABASE '{file2}' AS filetwo; INSERT INTO {table} SELECT * FROM filetwo.{table2}"
         executescript(file=file, query=query, lock=None)
 
@@ -330,8 +327,7 @@ def delete_tables(file: str, tables: str | list[str]) -> None:
     vacuum(file=file)
 
 
-def delete_rows(file: str, table: str, rows: list | np.ndarray,
-                lock: object | None = None) -> None:
+def delete_rows(file: str, table: str, rows: list | np.ndarray, lock: object | None = None) -> None:
     batch_size = int(1e5)
     logger.debug("delete_rows 'file':%s table:'%s' rows:%s", file, table, rows)
 
@@ -348,7 +344,7 @@ def delete_rows(file: str, table: str, rows: list | np.ndarray,
         rows.sort()
         rows = rows[::-1]
 
-        rows = np.array_split(rows, max(2, int(np.ceil(len(rows)//batch_size))))
+        rows = np.array_split(rows, max(2, int(np.ceil(len(rows) // batch_size))))
         for r in rows:
             r = ", ".join(map(str, r.tolist()))
             execute(file=file, lock=lock, query=f"DELETE FROM {table} WHERE ROWID in ({r})")
@@ -356,8 +352,7 @@ def delete_rows(file: str, table: str, rows: list | np.ndarray,
     vacuum(file)
 
 
-def delete_columns(file: str, table: str, columns: str | list[str],
-                   lock: object | None = None) -> None:
+def delete_columns(file: str, table: str, columns: str | list[str], lock: object | None = None) -> None:
     columns = columns2sql(columns, dtype=list)
     old_columns = get_columns(file=file, table=table, mode="name")
     assert isinstance(old_columns, list)
@@ -368,8 +363,7 @@ def delete_columns(file: str, table: str, columns: str | list[str],
     vacuum(file)
 
 
-def add_column(file: str, table: str, column: str, dtype: str,
-               lock: object | None = None) -> None:
+def add_column(file: str, table: str, column: str, dtype: str, lock: object | None = None) -> None:
     columns = get_columns(file=file, table=table, mode="name")
     assert isinstance(columns, list)
 
@@ -379,8 +373,9 @@ def add_column(file: str, table: str, column: str, dtype: str,
         execute(file=file, query=f"ALTER TABLE {table} ADD COLUMN {column} {dtype}", lock=lock)
 
 
-def copy_column(file: str, table: str, column_src: str, column_dst: str,
-                dtype: str, lock: object | None = None) -> None:
+def copy_column(
+    file: str, table: str, column_src: str, column_dst: str, dtype: str, lock: object | None = None
+) -> None:
     column_list = get_columns(file, table, mode="name")
     assert isinstance(column_list, list)
     assert column_src in column_list
@@ -389,10 +384,14 @@ def copy_column(file: str, table: str, column_src: str, column_dst: str,
     execute(file=file, query=f"UPDATE {table} SET {column_dst} = CAST({column_src} as {dtype})", lock=lock)
 
 
-def copy_table(file: str, table_src: str, table_dst: str,
-               columns: list[str] | None = None,
-               dtypes: list[str] | None = None,
-               order_by: str | list[str] | dict | None = None) -> None:
+def copy_table(
+    file: str,
+    table_src: str,
+    table_dst: str,
+    columns: list[str] | None = None,
+    dtypes: list[str] | None = None,
+    order_by: str | list[str] | dict | None = None,
+) -> None:
     columns_old = get_columns(file=file, table=table_src, mode=None)
     if columns is None:
         columns = columns_old.name.values
@@ -416,9 +415,13 @@ def sort_table(file: str, table: str, order_by: str | list[str] | dict) -> None:
     alter_table(file=file, table=table, columns=None, dtypes=None, order_by=order_by)
 
 
-def alter_table(file: str, table: str, columns: list[str] | None,
-                dtypes: list[str] | None,
-                order_by: str | list[str] | dict | None = None) -> None:
+def alter_table(
+    file: str,
+    table: str,
+    columns: list[str] | None,
+    dtypes: list[str] | None,
+    order_by: str | list[str] | dict | None = None,
+) -> None:
     table_tmp = table + strings.uuid4()
     copy_table(file=file, table_src=table, table_dst=table_tmp, columns=columns, dtypes=dtypes, order_by=order_by)
     delete_tables(file, tables=table)
@@ -438,8 +441,7 @@ def squeeze_table(file: str, table: str, log_level: int = 1) -> None:
             set_values(file=file, table=table, values=(v.tolist(),), columns=c)
 
 
-def change_column_dtype(file: str, table: str, column: str, dtype: str,
-                        lock: object | None = None) -> None:
+def change_column_dtype(file: str, table: str, column: str, dtype: str, lock: object | None = None) -> None:
     column_tmp = f"{column}{strings.uuid4()}"
     copy_column(file=file, table=table, column_src=column, column_dst=column_tmp, dtype=dtype)
     delete_columns(file=file, table=table, columns=column, lock=lock)
@@ -448,10 +450,15 @@ def change_column_dtype(file: str, table: str, column: str, dtype: str,
 
 
 # Get and Set SQL values
-def get_values(file: str, table: str, columns: str | list[str] | None = None,
-               rows: int | list | np.ndarray = -1,
-               return_type: str = "list",
-               squeeze_col: bool = True, squeeze_row: bool = True) -> object:
+def get_values(
+    file: str,
+    table: str,
+    columns: str | list[str] | None = None,
+    rows: int | list | np.ndarray = -1,
+    return_type: str = "list",
+    squeeze_col: bool = True,
+    squeeze_row: bool = True,
+) -> object:
     """
     'i_samples' == i_samples_global
     """
@@ -465,14 +472,18 @@ def get_values(file: str, table: str, columns: str | list[str] | None = None,
 
     if rows == -1:  # All samples
         with open_db_connection(file=file, close=True, lock=lock) as con:
-            df = pd.read_sql_query(con=con, sql=f"SELECT {columns_str} FROM {table}",
-                                   index_col=None, )
+            df = pd.read_sql_query(
+                con=con,
+                sql=f"SELECT {columns_str} FROM {table}",
+                index_col=None,
+            )
 
     else:
         with open_db_connection(file=file, close=True, lock=lock) as con:
             try:
-                df = pd.read_sql_query(con=con, sql=f"SELECT {columns_str} FROM {table} WHERE ROWID in ({rows})",
-                                       index_col=None)
+                df = pd.read_sql_query(
+                    con=con, sql=f"SELECT {columns_str} FROM {table} WHERE ROWID in ({rows})", index_col=None
+                )
             except pd.io.sql.DatabaseError as e:
                 logger.debug("file '%s' table '%s'", file, table)
                 raise pd.io.sql.DatabaseError from e
@@ -483,7 +494,6 @@ def get_values(file: str, table: str, columns: str | list[str] | None = None,
 
     if return_type == "list":
         for col in columns:
-
             value = bytes2values(value=df.loc[:, col].values, column=col)
             value_list.append(value)
 
@@ -514,10 +524,14 @@ def get_values(file: str, table: str, columns: str | list[str] | None = None,
         raise ValueError(f"Invalid return_type '{return_type}'")
 
 
-def set_values(file: str, table: str,
-               values: tuple, columns: str | list[str],
-               rows: int | list | np.ndarray = -1,
-               lock: object | None = None) -> None:
+def set_values(
+    file: str,
+    table: str,
+    values: tuple,
+    columns: str | list[str],
+    rows: int | list | np.ndarray = -1,
+    lock: object | None = None,
+) -> None:
     """
     values = ([...], [...], [...], ...)
     """
@@ -538,9 +552,13 @@ def set_values(file: str, table: str,
     executemany(file=file, query=query, args=values_rows_sql, lock=lock)
 
 
-def df2sql(df: pd.DataFrame | None, file: str, table: str,
-           dtype: dict | None = None,
-           if_exists: Literal["fail", "replace", "append"] = "fail") -> None:
+def df2sql(
+    df: pd.DataFrame | None,
+    file: str,
+    table: str,
+    dtype: dict | None = None,
+    if_exists: Literal["fail", "replace", "append"] = "fail",
+) -> None:
     """
     From DataFrame.to_sql():
         if_exists : {'fail', 'replace', 'append'}, default 'fail'

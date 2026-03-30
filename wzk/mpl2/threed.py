@@ -9,8 +9,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection  # noqa
 from wzk.mpl2.figure import save_fig
 
 
-def save_different_views_3d(*, ax, fig_name, azim_lim=(0, 270), elev_lim=(45, 45),
-                            n=None, n_azim=None, n_elev=None):
+def save_different_views_3d(*, ax, fig_name, azim_lim=(0, 270), elev_lim=(45, 45), n=None, n_azim=None, n_elev=None):
     """https://github.com/matplotlib/matplotlib/issues/1077/"""
 
     n_azim = n if n is None else n_azim
@@ -40,4 +39,4 @@ def plot_cube_3d(ax, lower_left, side_length, **kwargs):
     r = [[ll, ll + side_length] for ll in lower_left]
     for s, e in combinations(np.array(list(product(*r))), 2):
         if np.sum(np.abs(s - e)) == side_length:
-            ax.plot3D(*zip(s, e), **kwargs)
+            ax.plot3D(*zip(s, e, strict=False), **kwargs)

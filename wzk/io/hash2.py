@@ -24,6 +24,7 @@ def hash2(b: bytes) -> int:
 
 def test_hash2() -> None:
     import numpy as np
+
     np.random.seed(0)
     a = np.random.random(100000)
 

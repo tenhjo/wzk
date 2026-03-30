@@ -9,7 +9,6 @@ directory = f"{os.path.split(__file__)[0]}/tmp"
 
 
 class Test(TestCase):
-
     def test_totuple(self):
         self.assertTrue(ltd.totuple("aaa") == ("a", "a", "a"))
         self.assertTrue(ltd.totuple([1, 2, [3, 4]]) == (1, 2, (3, 4)))
@@ -47,13 +46,7 @@ class Test(TestCase):
         files.mkdirs(directory)
 
         dummy_file = f"{directory}/dummy_dict.json"
-        dict_1 = {"a": 1,
-                  "b": {"aa": 2,
-                        "bb": 3,
-                        "cc": {"aaa": 4,
-                               "bbb": 5},
-                        "dd": 6},
-                  "c": 7}
+        dict_1 = {"a": 1, "b": {"aa": 2, "bb": 3, "cc": {"aaa": 4, "bbb": 5}, "dd": 6}, "c": 7}
 
         ltd.write_dict2json(file=dummy_file, d=dict_1, indent=4)
         dict_2 = ltd.read_json2dict(dummy_file)
@@ -63,13 +56,15 @@ class Test(TestCase):
 
     def test_flatten(self):
         list_nested = [(4, (1, (2, (1, [13, 13]))))]
-        list_flat = [[4, (1, (2, (1, [13, 13])))],
-                     [4, 1, (2, (1, [13, 13]))],
-                     [4, 1, 2, (1, [13, 13])],
-                     [4, 1, 2, 1, [13, 13]],
-                     [4, 1, 2, 1, 13, 13]]
+        list_flat = [
+            [4, (1, (2, (1, [13, 13])))],
+            [4, 1, (2, (1, [13, 13]))],
+            [4, 1, 2, (1, [13, 13])],
+            [4, 1, 2, 1, [13, 13]],
+            [4, 1, 2, 1, 13, 13],
+        ]
         for i in range(5):
-            self.assertTrue(ltd.flatten(list_nested, max_depth=i+1) == list_flat[i])
+            self.assertTrue(ltd.flatten(list_nested, max_depth=i + 1) == list_flat[i])
 
     def test_element_at_depth(self):
         test_list = [1, 2, 3, [[4], [[5]], [6, 7]], [[8, 9], [10, 11, [12, [13, 13]]]], 14, [15], [16, 17]]
@@ -80,13 +75,13 @@ class Test(TestCase):
         self.assertTrue(res == a)
 
     def test_repeat_dict(self):
-        d = {"a": "red",
-             "b": (5, 4, 3),
-             "c": True}
+        d = {"a": "red", "b": (5, 4, 3), "c": True}
 
-        res = {0: {"a": "red", "b": 5, "c": True},
-               1: {"a": "red", "b": 4, "c": True},
-               2: {"a": "red", "b": 3, "c": True}}
+        res = {
+            0: {"a": "red", "b": 5, "c": True},
+            1: {"a": "red", "b": 4, "c": True},
+            2: {"a": "red", "b": 3, "c": True},
+        }
         dr = ltd.repeat_dict(d=d, n=3)
         self.assertTrue(res == dr)
 
@@ -112,11 +107,9 @@ class Test(TestCase):
         # o = ObjectDict(d)
 
     def test_list_of_dicts2dict_of_lists(self):
-        d0 = [dict(a=1, b=2, c=3), dict(a=11, b=22, c=33), dict(a=111, b=222, c=333)]
+        d0 = [{"a": 1, "b": 2, "c": 3}, {"a": 11, "b": 22, "c": 33}, {"a": 111, "b": 222, "c": 333}]
 
-        d1_true = dict(a=np.array([1, 11, 111]),
-                       b=np.array([2, 22, 222]),
-                       c=np.array([3, 33, 333]))
+        d1_true = {"a": np.array([1, 11, 111]), "b": np.array([2, 22, 222]), "c": np.array([3, 33, 333])}
 
         d1 = ltd.list_of_dicts2dict_of_lists(d=d0)
         self.assertTrue(ltd.compare_dicts(d1, d1_true))

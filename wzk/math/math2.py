@@ -21,7 +21,7 @@ GOLDEN_RATIO = (np.sqrt(5.0) + 1) / 2
 def make_monotonous_descending(x: ArrayLike) -> np.ndarray:
     x = np.asarray(x).copy()
     for i in range(len(x)):
-        x[i] = x[:i+1].min()
+        x[i] = x[: i + 1].min()
     return x
 
 
@@ -47,10 +47,9 @@ def make_even_odd(x: ArrayLike, mode: str, rounding: int = +1) -> ArrayLike:
 
 
 # Normalize
-def normalize_01(x: ArrayLike,
-                 low: ArrayLike | None = None,
-                 high: ArrayLike | None = None,
-                 axis: int | None = None) -> np.ndarray:
+def normalize_01(
+    x: ArrayLike, low: ArrayLike | None = None, high: ArrayLike | None = None, axis: int | None = None
+) -> np.ndarray:
     """
     Normalize [low, high] to [0, 1]
     low and high should either be scalars or have the same dimension as the last dimension of x
@@ -62,17 +61,16 @@ def normalize_01(x: ArrayLike,
     if high is None:
         high = np.max(x, axis=axis, keepdims=True)
 
-    return (x-low) / (high-low)
+    return (x - low) / (high - low)
 
 
 def denormalize_01(x: ArrayLike, low: ArrayLike, high: ArrayLike) -> np.ndarray:
     return x * (high - low) + low
 
 
-def normalize11(x: ArrayLike,
-                low: ArrayLike | None = None,
-                high: ArrayLike | None = None,
-                axis: int | None = None) -> np.ndarray:
+def normalize11(
+    x: ArrayLike, low: ArrayLike | None = None, high: ArrayLike | None = None, axis: int | None = None
+) -> np.ndarray:
     """
     Normalize [low, high] to [-1, 1]
     low and high should either be scalars or have the same dimension as the last dimension of x
@@ -91,25 +89,22 @@ def denormalize11(x: ArrayLike, low: ArrayLike, high: ArrayLike) -> np.ndarray:
     Denormalize [-1, 1] to [low, high]
     low and high should either be scalars or have the same dimension as the last dimension of x
     """
-    return (x + 1) * (high - low)/2 + low
+    return (x + 1) * (high - low) / 2 + low
 
 
 # Standardize
-def standardize_01(x: ArrayLike,
-                   mean: ArrayLike | None,
-                   std: ArrayLike | None,
-                   axis: int | None = None) -> np.ndarray:
+def standardize_01(x: ArrayLike, mean: ArrayLike | None, std: ArrayLike | None, axis: int | None = None) -> np.ndarray:
     if mean is None:
         mean = np.mean(x, axis=axis, keepdims=True)
 
     if std is None:
         std = np.std(x, axis=axis, keepdims=True)
 
-    return (x-mean) / std
+    return (x - mean) / std
 
 
 def destandardize_01(x: ArrayLike, mean: ArrayLike, std: ArrayLike) -> np.ndarray:
-    return mean + x*std
+    return mean + x * std
 
 
 def euclidean_norm(arr: ArrayLike, axis: int = -1, squared: bool = False) -> np.ndarray:
@@ -138,9 +133,9 @@ def discretize(x: ArrayLike, step: float) -> ArrayLike:
 
 
 def dnorm_dx(x: ArrayLike, x_norm: ArrayLike | None = None) -> np.ndarray:
-    """ ∂ |x| / ∂ x
-     normalization over last dimension
-     """
+    """∂ |x| / ∂ x
+    normalization over last dimension
+    """
     if x_norm is None:
         x_norm = np.linalg.norm(x, axis=-1)
 
@@ -189,7 +184,7 @@ def dxnorm_dx(x: ArrayLike, return_norm: bool = False) -> np.ndarray | tuple[np.
     # Off-Diagonal
     dxn_x[..., np.arange(n_dim)[..., np.newaxis], off_diag_idx] = -x[..., np.newaxis] * x[..., off_diag_idx]
 
-    dxn_x *= (x_squared.sum(axis=-1, keepdims=True)**(-3/2))[..., np.newaxis]
+    dxn_x *= (x_squared.sum(axis=-1, keepdims=True) ** (-3 / 2))[..., np.newaxis]
 
     if return_norm:
         x /= np.sqrt(x_squared.sum(axis=-1, keepdims=True))
@@ -229,7 +224,7 @@ def divisors(n: int, with_1_and_n: bool = False) -> list[int]:
     factors = {}
     nn = n
     i = 2
-    while i*i <= nn:
+    while i * i <= nn:
         while nn % i == 0:
             factors[i] = factors.get(i, 0) + 1
             nn //= i
@@ -244,7 +239,7 @@ def divisors(n: int, with_1_and_n: bool = False) -> list[int]:
         if k == len(primes):
             yield 1
         else:
-            rest = generate(k+1)
+            rest = generate(k + 1)
             prime = primes[k]
             for _factor in rest:
                 prime_to_i = 1
@@ -317,9 +312,9 @@ def log_b(x: ArrayLike, base: float = np.e) -> np.ndarray:
     return np.log(x) / np.log(base)
 
 
-def assimilate_orders_of_magnitude(a: ArrayLike,
-                                   b: ArrayLike,
-                                   base: int = 10) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def assimilate_orders_of_magnitude(
+    a: ArrayLike, b: ArrayLike, base: int = 10
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     a_mean = np.abs(a).mean()
     b_mean = np.abs(b).mean()
     a_mean_log = np.log(a_mean)
@@ -339,23 +334,20 @@ def rosenbrock2d(xy: ArrayLike, a: float = 1, b: float = 100) -> np.ndarray:
     # Minimum f(a, a**2) = 0
     xy = np.array(xy)
     x, y = xy[..., 0], xy[..., 1]
-    return (a - x)**2 + b*(y - x**2)**2
+    return (a - x) ** 2 + b * (y - x**2) ** 2
 
 
 def d_rosenbrock2d(xy: ArrayLike, a: float = 1, b: float = 100) -> np.ndarray:
     xy = np.array(xy)
     x, y = xy.T
-    dx = -2*(a-x) - 4*b*(y-x**2)*x
-    dy =          + 2*b*(y-x**2)
+    dx = -2 * (a - x) - 4 * b * (y - x**2) * x
+    dy = +2 * b * (y - x**2)
     return np.concatenate([dx[..., np.newaxis], dy[..., np.newaxis]], axis=-1)
 
 
-def bisection(f: Callable[[float], float],
-              a: float,
-              b: float,
-              tol: float,
-              max_depth: int = 50,
-              _depth: int = 0) -> float:
+def bisection(
+    f: Callable[[float], float], a: float, b: float, tol: float, max_depth: int = 50, _depth: int = 0
+) -> float:
     """
     aka binary search
 
@@ -372,15 +364,19 @@ def bisection(f: Callable[[float], float],
 
     # HEURISTIC
     if np.sign(fa) == np.sign(fb):
-        logger.debug("The scalars a %s and b %s do not bound a root. "
-                     "A heuristic is tried to shift the limits, but this is not guaranteed to work; "
-                     "only if the function is monotonic. "
-                     "Check the limits again manually!.", a, b)
+        logger.debug(
+            "The scalars a %s and b %s do not bound a root. "
+            "A heuristic is tried to shift the limits, but this is not guaranteed to work; "
+            "only if the function is monotonic. "
+            "Check the limits again manually!.",
+            a,
+            b,
+        )
 
         if (np.sign(fa) == +1 and fa < fb) or (np.sign(fa) == -1 and fa > fb):
-            return bisection(f=f, a=a/2, b=a, tol=tol, _depth=_depth + 1)
+            return bisection(f=f, a=a / 2, b=a, tol=tol, _depth=_depth + 1)
         else:
-            return bisection(f=f, a=b, b=2*b, tol=tol, _depth=_depth + 1)
+            return bisection(f=f, a=b, b=2 * b, tol=tol, _depth=_depth + 1)
 
     # get midpoint
     m = (a + b) / 2
@@ -402,13 +398,15 @@ def bisection(f: Callable[[float], float],
 
 
 # Derivative
-def numeric_derivative(fun: Callable[..., ArrayLike],
-                       x: ArrayLike,
-                       eps: float = 1e-5,
-                       axis: int = -1,
-                       mode: str = "central",
-                       diff: Callable[[ArrayLike, ArrayLike], ArrayLike] | None = None,
-                       **kwargs_fun: Any) -> np.ndarray:
+def numeric_derivative(
+    fun: Callable[..., ArrayLike],
+    x: ArrayLike,
+    eps: float = 1e-5,
+    axis: int = -1,
+    mode: str = "central",
+    diff: Callable[[ArrayLike, ArrayLike], ArrayLike] | None = None,
+    **kwargs_fun: Any,
+) -> np.ndarray:
     """
     Use the central, forward or backward difference scheme to calculate the numeric derivative of function at point x.
     'axis' indicates the dimensions of the free variables.
@@ -424,6 +422,7 @@ def numeric_derivative(fun: Callable[..., ArrayLike],
     derv = np.empty(fun_shape + var_shape)
 
     if diff is None:
+
         def diff(a, b):
             return a - b
 
@@ -435,14 +434,13 @@ def numeric_derivative(fun: Callable[..., ArrayLike],
         update_eps_mat(_idx=idx)
 
         if mode == "central":
-            derv[(Ellipsis,) + idx] = diff(fun(x + eps_mat, **kwargs_fun),
-                                           fun(x - eps_mat, **kwargs_fun)) / (2 * eps)
+            derv[(Ellipsis,) + idx] = diff(fun(x + eps_mat, **kwargs_fun), fun(x - eps_mat, **kwargs_fun)) / (2 * eps)
 
         elif mode == "forward":
-            derv[(Ellipsis, ) + idx] = diff(fun(x + eps_mat, **kwargs_fun), f_x) / eps
+            derv[(Ellipsis,) + idx] = diff(fun(x + eps_mat, **kwargs_fun), f_x) / eps
 
         elif mode == "backward":
-            derv[(Ellipsis, ) + idx] = diff(f_x, fun(x - eps_mat, **kwargs_fun)) / eps
+            derv[(Ellipsis,) + idx] = diff(f_x, fun(x - eps_mat, **kwargs_fun)) / eps
 
     return derv
 
@@ -469,51 +467,49 @@ def magic(n: int, m: int | None = None) -> np.ndarray:
     if n == 1:
         mat = np.array([[1]])
     elif n == 2:
-        mat = np.array([[1, 3],
-                        [4, 2]])
+        mat = np.array([[1, 3], [4, 2]])
     elif n % 2 == 1:
-        p = np.arange(1, n+1)
-        mat = n*np.mod(p[:, None] + p - (n+3)//2, n) + np.mod(p[:, None] + 2*p-2, n) + 1
+        p = np.arange(1, n + 1)
+        mat = n * np.mod(p[:, None] + p - (n + 3) // 2, n) + np.mod(p[:, None] + 2 * p - 2, n) + 1
     elif n % 4 == 0:
-        j = np.mod(np.arange(1, n+1), 4) // 2
+        j = np.mod(np.arange(1, n + 1), 4) // 2
         k = j[:, None] == j
-        mat = np.arange(1, n*n+1, n)[:, None] + np.arange(n)
-        mat[k] = n*n + 1 - mat[k]
+        mat = np.arange(1, n * n + 1, n)[:, None] + np.arange(n)
+        mat[k] = n * n + 1 - mat[k]
     else:
-        p = n//2
+        p = n // 2
         mat = magic(p)
-        mat = np.block([[mat, mat+2*p*p], [mat+3*p*p, mat+p*p]])
+        mat = np.block([[mat, mat + 2 * p * p], [mat + 3 * p * p, mat + p * p]])
         i = np.arange(p)
-        k = (n-2)//4
-        j = np.concatenate([np.arange(k), np.arange(n-k+1, n)])
-        mat[np.ix_(np.concatenate([i, i+p]), j)] = mat[np.ix_(np.concatenate([i+p, i]), j)]
-        mat[np.ix_([k, k+p], [0, k])] = mat[np.ix_([k+p, k], [0, k])]
+        k = (n - 2) // 4
+        j = np.concatenate([np.arange(k), np.arange(n - k + 1, n)])
+        mat[np.ix_(np.concatenate([i, i + p]), j)] = mat[np.ix_(np.concatenate([i + p, i]), j)]
+        mat[np.ix_([k, k + p], [0, k])] = mat[np.ix_([k + p, k], [0, k])]
 
-    mat = mat[:shape[0], :shape[1]]
+    mat = mat[: shape[0], : shape[1]]
     return mat
 
 
 # Clustering
-def k_farthest_neighbors(x: np.ndarray,
-                         k: int,
-                         weighting: np.ndarray | None = None,
-                         mode: str = "inverse_sum") -> np.ndarray:
+def k_farthest_neighbors(
+    x: np.ndarray, k: int, weighting: np.ndarray | None = None, mode: str = "inverse_sum"
+) -> np.ndarray:
     n = len(x)
     eps = 1e-6
     m_dist = x[np.newaxis, :, :] - x[:, np.newaxis, :]
     weighting = np.ones(x.shape[-1]) if weighting is None else weighting
-    m_dist = ((m_dist * weighting)**2).sum(axis=-1)
+    m_dist = ((m_dist * weighting) ** 2).sum(axis=-1)
 
     cum_dist = m_dist.sum(axis=-1)
 
     idx = np.array([np.argmax(cum_dist)])
 
-    for i in range(k-1):
+    for i in range(k - 1):
         m_dist_cur = m_dist[idx]
 
         if mode == "inverse_sum":
-            m_dist_cur[np.arange(i+1), idx] = 1
-            obj = -np.sum(1/(m_dist_cur+eps), axis=0)
+            m_dist_cur[np.arange(i + 1), idx] = 1
+            obj = -np.sum(1 / (m_dist_cur + eps), axis=0)
 
         elif mode == "sum":
             obj = np.sum(m_dist_cur, axis=0)
@@ -536,6 +532,7 @@ def vis_k_farthest_neighbors() -> None:
     idx = k_farthest_neighbors(x=x, k=k)
 
     from wzk import new_fig
+
     fig, ax = new_fig(aspect="equal")
     ax.plot(*x.T, ls="", marker="o", color="b", markersize=5, alpha=0.5)
     ax.plot(*x[idx, :].T, ls="", marker="x", color="r", markersize=10)
@@ -566,7 +563,7 @@ def irwin_hall_distribution(x: ArrayLike, n: int = 2) -> np.ndarray:
 
 
 def test_dxnorm_dx() -> None:
-    x = np.vstack([magic(3).T]*3)
+    x = np.vstack([magic(3).T] * 3)
     j = dxnorm_dx(x)
     logger.debug(j[0])
 
@@ -590,11 +587,9 @@ def get_lower(n: int) -> np.ndarray:
     return get_upper(n=n).T
 
 
-def project2null(A: np.ndarray,
-                 x: np.ndarray,
-                 clip: float | None = None,
-                 clip_mode: str | None = None,
-                 _rcond: float = __RCOND) -> np.ndarray:
+def project2null(
+    A: np.ndarray, x: np.ndarray, clip: float | None = None, clip_mode: str | None = None, _rcond: float = __RCOND
+) -> np.ndarray:
     """
     Clipping happens before and after the projection step.
     If the determinant of the projection is not larger than 1, the second clipping has no effect.

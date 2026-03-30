@@ -20,8 +20,8 @@ def limits2voxel_size(shape, limits, unify=True):
 
 def __mode2offset(voxel_size, mode="c"):
     """Modes
-        'c': center
-        'b': boundary
+    'c': center
+    'b': boundary
 
     """
     if mode == "c":
@@ -66,10 +66,11 @@ def create_grid(limits, shape, mode="c", flatten=False):
     n_dim = len(limits)
 
     ll = i2x(i=np.zeros(n_dim), limits=limits, mode=mode, shape=shape)
-    ur = i2x(i=np.array(shape)-1, limits=limits, mode=mode, shape=shape)
+    ur = i2x(i=np.array(shape) - 1, limits=limits, mode=mode, shape=shape)
 
-    x = np.array(np.meshgrid(*[np.linspace(start=ll[i], stop=ur[i], num=shape[i]) for i in range(n_dim)],
-                             indexing="ij"))
+    x = np.array(
+        np.meshgrid(*[np.linspace(start=ll[i], stop=ur[i], num=shape[i]) for i in range(n_dim)], indexing="ij")
+    )
 
     x = np.moveaxis(x, 0, -1)
     if flatten:
@@ -78,11 +79,16 @@ def create_grid(limits, shape, mode="c", flatten=False):
 
 
 def grid_lines(limits, shape, combine: bool = True):
-    lines = [np.array(np.meshgrid(*[np.linspace(limits[j, 0], limits[j, 1], 2 if i == j else shape[j]+1)
-                                    for j in range(3)],
-                                  indexing="ij"))
-             for i in range(3)]
-    lines = [np.swapaxes(ax, 1+i, 1) for i, ax in enumerate(lines)]
+    lines = [
+        np.array(
+            np.meshgrid(
+                *[np.linspace(limits[j, 0], limits[j, 1], 2 if i == j else shape[j] + 1) for j in range(3)],
+                indexing="ij",
+            )
+        )
+        for i in range(3)
+    ]
+    lines = [np.swapaxes(ax, 1 + i, 1) for i, ax in enumerate(lines)]
     lines = [np.reshape(ax, (3, 2, -1)).T for ax in lines]
 
     if combine:

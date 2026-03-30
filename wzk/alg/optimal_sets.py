@@ -18,9 +18,13 @@ def idx_times_all(idx: list[int] | np.ndarray, n: int) -> np.ndarray:
     return idx2
 
 
-def greedy(n: int, k: int, fun: Callable[[np.ndarray], np.ndarray],
-           i0: list[int] | np.ndarray | None = None,
-           log_level: int = 0) -> tuple[np.ndarray, float]:
+def greedy(
+    n: int,
+    k: int,
+    fun: Callable[[np.ndarray], np.ndarray],
+    i0: list[int] | np.ndarray | None = None,
+    log_level: int = 0,
+) -> tuple[np.ndarray, float]:
     """
     choose k elements out of a set with size n
     fun(idx_list) measures how good the current choice is
@@ -46,13 +50,16 @@ def greedy(n: int, k: int, fun: Callable[[np.ndarray], np.ndarray],
     return s, o
 
 
-def detmax(fun: Callable[[np.ndarray], np.ndarray],
-           x0: np.ndarray | None = None,
-           n: int = 100, k: int = 30,
-           excursion: int = 10,
-           method: str = "add->remove",
-           max_loop: int = 3,
-           log_level: int = 0) -> tuple[np.ndarray, float]:
+def detmax(
+    fun: Callable[[np.ndarray], np.ndarray],
+    x0: np.ndarray | None = None,
+    n: int = 100,
+    k: int = 30,
+    excursion: int = 10,
+    method: str = "add->remove",
+    max_loop: int = 3,
+    log_level: int = 0,
+) -> tuple[np.ndarray, float]:
     """
     method:  'add->remove'
              'remove->add'
@@ -60,7 +67,7 @@ def detmax(fun: Callable[[np.ndarray], np.ndarray],
 
     improvement_threshold = 1e-2
     if x0 is None:
-        x0 = greedy(n=n, k=k, fun=fun, log_level=log_level-1)
+        x0 = greedy(n=n, k=k, fun=fun, log_level=log_level - 1)
         # x0 = math2.random_subset(n=n, k=k, m=1, dtype=np.int16)[0]
 
     def __add(x: np.ndarray, nn: int) -> tuple[np.ndarray, float]:
@@ -75,9 +82,9 @@ def detmax(fun: Callable[[np.ndarray], np.ndarray],
 
     def remove(x: np.ndarray, exc: int) -> tuple[np.ndarray, float]:
         oo = None
-        for _ in range(1, exc+1):
+        for _ in range(1, exc + 1):
             x = np.repeat([x], repeats=len(x), axis=0)
-            x = x[np.logical_not(np.eye(len(x), dtype=bool))].reshape(len(x), len(x)-1)
+            x = x[np.logical_not(np.eye(len(x), dtype=bool))].reshape(len(x), len(x) - 1)
 
             oo = fun(x)
             idx_min = np.argmin(oo)
@@ -90,7 +97,7 @@ def detmax(fun: Callable[[np.ndarray], np.ndarray],
 
     def add(x: np.ndarray, nn: int, exc: int) -> tuple[np.ndarray, float]:
         oo = None
-        for _ in range(1, exc+1):
+        for _ in range(1, exc + 1):
             x, oo = __add(x=x, nn=nn)
 
         return np.sort(x), oo
@@ -103,8 +110,7 @@ def detmax(fun: Callable[[np.ndarray], np.ndarray],
         return np.sort(x), oo
 
     o = np.inf
-    for q in range(1, excursion+1):
-
+    for q in range(1, excursion + 1):
         for i in range(max_loop):  # noqa: B007
             o_old = o
             if method == "add->remove":
@@ -122,18 +128,23 @@ def detmax(fun: Callable[[np.ndarray], np.ndarray],
                 break
 
         if log_level >= 2:
-            logger.debug("Depth: %d | Loop %d | Objective: %.4g | Configuration: %s", q, i+1, o, x0)
+            logger.debug("Depth: %d | Loop %d | Objective: %.4g | Configuration: %s", q, i + 1, o, x0)
 
     if log_level >= 1:
         logger.debug("Objective: %.4g | Configuration: %s", o, x0)
     return x0, o
 
 
-def random(n: int, k: int, m: int, fun: Callable[[np.ndarray], np.ndarray],
-           chunk: int = 1000,
-           n_processes: int = 10,
-           dtype: type = np.uint8,
-           log_level: int = 0) -> tuple[np.ndarray, np.ndarray]:
+def random(
+    n: int,
+    k: int,
+    m: int,
+    fun: Callable[[np.ndarray], np.ndarray],
+    chunk: int = 1000,
+    n_processes: int = 10,
+    dtype: type = np.uint8,
+    log_level: int = 0,
+) -> tuple[np.ndarray, np.ndarray]:
 
     def fun2(_m: int) -> tuple[np.ndarray, np.ndarray]:
         _idx = math2.random_subset(n=n, k=k, m=_m, dtype=dtype)
@@ -153,9 +164,9 @@ def random(n: int, k: int, m: int, fun: Callable[[np.ndarray], np.ndarray],
     return idx, o
 
 
-def ga(n: int, k: int, m: int,
-       fun: Callable[[np.ndarray], np.ndarray],
-       log_level: int, **kwargs) -> tuple[np.ndarray, np.ndarray]:
+def ga(
+    n: int, k: int, m: int, fun: Callable[[np.ndarray], np.ndarray], log_level: int, **kwargs
+) -> tuple[np.ndarray, np.ndarray]:
     from wzk.alg.ga_kofn import kofn
 
     best, ancestors = kofn(n=n, k=k, fitness_fun=fun, pop_size=m, log_level=log_level, **kwargs)

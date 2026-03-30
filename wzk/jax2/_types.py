@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeAlias
+from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
@@ -9,13 +9,13 @@ from jaxtyping import Array, Bool, Float, Int, Num
 float32 = jnp.float32
 int32 = jnp.int32
 
-Scalar: TypeAlias = float | int | np.number[Any]
-ArrayLike: TypeAlias = Array | np.ndarray[Any, Any]
+type Scalar = float | int | np.number[Any]
+type ArrayLike = Array | np.ndarray[Any, Any]
 
-FloatArray: TypeAlias = Float[Array, "..."]
-IntArray: TypeAlias = Int[Array, "..."]
-BoolArray: TypeAlias = Bool[Array, "..."]
-NumArray: TypeAlias = Num[Array, "..."]
+type FloatArray = Float[Array, "..."]
+type IntArray = Int[Array, "..."]
+type BoolArray = Bool[Array, "..."]
+type NumArray = Num[Array, "..."]
 
-ShapeLike: TypeAlias = int | tuple[int, ...] | list[int]
-AxisLike: TypeAlias = int | tuple[int, ...] | list[int] | None
+type ShapeLike = int | tuple[int, ...] | list[int]
+type AxisLike = int | tuple[int, ...] | list[int] | None

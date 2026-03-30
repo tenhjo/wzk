@@ -1,5 +1,4 @@
 import math
-from typing import Dict
 
 
 def deg_to_rads(deg: float) -> float:
@@ -14,13 +13,15 @@ def is_null_or_undefined(value: float) -> bool:
     return bool(value is None)
 
 
-def rotate_point(origin_x: float, origin_y: float, x: float, y: float, radians_x: float, radians_y: float) -> dict[str, float]:
+def rotate_point(
+    origin_x: float, origin_y: float, x: float, y: float, radians_x: float, radians_y: float
+) -> dict[str, float]:
 
     v = {"x": x - origin_x, "y": y - origin_y}
     vx = (v["x"] * math.cos(radians_x)) - (v["y"] * math.sin(radians_x))
     vy = (v["x"] * math.sin(radians_y)) + (v["y"] * math.cos(radians_y))
-    return {"x": vx + origin_x,
-            "y": vy + origin_y}
+    return {"x": vx + origin_x, "y": vy + origin_y}
+
 
 ##
 

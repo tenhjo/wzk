@@ -55,8 +55,7 @@ def __theta_wrapper(theta: ArrayLike) -> tuple[ArrayLike, tuple[int, ...]]:
     return theta, shape
 
 
-def trans_theta2frame(trans: ArrayLike | None = None,
-                      theta: ArrayLike | None = None) -> np.ndarray:
+def trans_theta2frame(trans: ArrayLike | None = None, theta: ArrayLike | None = None) -> np.ndarray:
     theta, shape = __theta_wrapper(theta)
 
     f = initialize_frames(shape=shape, n_dim=2)

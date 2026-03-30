@@ -27,17 +27,16 @@ def stack_videos(videos=None, file=None):
         in_i_str = " -i ".join(in_i)
         stack_str = "".join([f"[{j}:v]" for j in range(s1)])
 
-        os.system(f"ffmpeg -i {in_i_str} "
-                  f"{kwargs} "
-                  f'-filter_complex "{stack_str}"hstack=inputs={s1}[v] -map "[v]" '
-                  f"{uuid_list[i]}")
+        os.system(
+            f"ffmpeg -i {in_i_str} "
+            f"{kwargs} "
+            f'-filter_complex "{stack_str}"hstack=inputs={s1}[v] -map "[v]" '
+            f"{uuid_list[i]}"
+        )
 
     in_i_str = " -i ".join(uuid_list)
     stack_str = "".join([f"[{j}:v]" for j in range(s0)])
-    os.system(f"ffmpeg -i {in_i_str} "
-              f"{kwargs} "
-              f'-filter_complex "{stack_str}"vstack=inputs={s0}[v] -map "[v]" '
-              f"{file}")
+    os.system(f'ffmpeg -i {in_i_str} {kwargs} -filter_complex "{stack_str}"vstack=inputs={s0}[v] -map "[v]" {file}')
 
     for u in uuid_list:
         os.remove(u)

@@ -6,15 +6,24 @@ from wzk.mpl2 import new_fig, plt, ticks
 class Test(TestCase):
     def test_set_ticks_position(self):
         fig, ax = new_fig()
-        positions = ["left", "top", "right", "bottom",
-                     "all", "none",
-                     "default", "inverse",
-                     ("bottom", "right"), ("top", "left"),
-                     ("bottom", "top"), ("left", "right"),
-                     ("left", "bottom", "right"),
-                     ("top", "bottom", "right"),
-                     ("top", "left", "right"),
-                     ("top", "left", "bottom")]
+        positions = [
+            "left",
+            "top",
+            "right",
+            "bottom",
+            "all",
+            "none",
+            "default",
+            "inverse",
+            ("bottom", "right"),
+            ("top", "left"),
+            ("bottom", "top"),
+            ("left", "right"),
+            ("left", "bottom", "right"),
+            ("top", "bottom", "right"),
+            ("top", "left", "right"),
+            ("top", "left", "bottom"),
+        ]
 
         for p in positions:
             ticks.set_ticks_position(ax=ax, position=p)
@@ -56,10 +65,10 @@ class Test(TestCase):
         ticks.change_tick_appearance(ax, position="right", v=0.6, size=30, color="magenta")
 
         ax.text(0.5, 0.5, "Each Axis should have one larger tick in different colors", ha="center", weight="bold")
-        ax.annotate("bottom", (0.6, 0), (0.6, 0.4), arrowprops=dict(arrowstyle="->"))
-        ax.annotate("top", (0.4, 1), (0.4, 0.6), arrowprops=dict(arrowstyle="->"))
-        ax.annotate("left", (0, 0.4), (0.4, 0.4), arrowprops=dict(arrowstyle="->"))
-        ax.annotate("right", (1, 0.6), (0.6, 0.6), arrowprops=dict(arrowstyle="->"))
+        ax.annotate("bottom", (0.6, 0), (0.6, 0.4), arrowprops={"arrowstyle": "->"})
+        ax.annotate("top", (0.4, 1), (0.4, 0.6), arrowprops={"arrowstyle": "->"})
+        ax.annotate("left", (0, 0.4), (0.4, 0.4), arrowprops={"arrowstyle": "->"})
+        ax.annotate("right", (1, 0.6), (0.6, 0.6), arrowprops={"arrowstyle": "->"})
         self.assertTrue(True)
 
     def test_transform_tick_labels(self):

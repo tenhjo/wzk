@@ -1,4 +1,3 @@
-
 import zlib
 
 import numpy as np
@@ -53,15 +52,26 @@ def image_array_shape(shape, n_samples=None, n_dim=None, n_channels=None):
     return shape
 
 
-def initialize_image_array(shape: tuple, n_dim: int = None, n_samples: int = None, n_channels: int = None,
-                           dtype=None, initialization: str = "zeros") -> np.ndarray:
+def initialize_image_array(
+    shape: tuple,
+    n_dim: int | None = None,
+    n_samples: int | None = None,
+    n_channels: int | None = None,
+    dtype=None,
+    initialization: str = "zeros",
+) -> np.ndarray:
     shape = image_array_shape(shape=shape, n_dim=n_dim, n_samples=n_samples, n_channels=n_channels)
     return np2.initialize_array(shape=shape, mode=initialization, dtype=dtype)
 
 
-def reshape_img(img, n_dim=2, sample_dim=True, channel_dim=True,
-                n_samples=None,  # either
-                n_channels=None):  # or. infer the other
+def reshape_img(
+    img,
+    n_dim=2,
+    sample_dim=True,
+    channel_dim=True,
+    n_samples=None,  # either
+    n_channels=None,
+):  # or. infer the other
 
     shape = img.shape[1]  # Can go wrong for 1D
 
@@ -70,9 +80,9 @@ def reshape_img(img, n_dim=2, sample_dim=True, channel_dim=True,
         n_samples = 1
 
     elif n_samples is None:
-        n_samples = img.size // (shape ** n_dim) // n_channels
+        n_samples = img.size // (shape**n_dim) // n_channels
     elif n_channels is None:
-        n_channels = img.size // (shape ** n_dim) // n_samples
+        n_channels = img.size // (shape**n_dim) // n_samples
 
     if n_samples == 1 and not sample_dim:
         n_samples = None
@@ -119,7 +129,7 @@ def add_padding(img, padding, value):
 
     new_shape = shape + padding_arr.sum(axis=1)
     new_img = np.full(shape=new_shape, fill_value=value, dtype=img.dtype)
-    new_img[np2.slicen(padding_arr[:, 0], padding_arr[:, 0]+shape)] = img
+    new_img[np2.slicen(padding_arr[:, 0], padding_arr[:, 0] + shape)] = img
     return new_img
 
 
@@ -153,7 +163,7 @@ def pooling(mat, kernel, method="max", pad=False):
     else:
         ny = m // ky
         nx = n // kx
-        mat_pad = mat[:ny * ky, :nx * kx, ...]
+        mat_pad = mat[: ny * ky, : nx * kx, ...]
 
     new_shape = (ny, ky, nx, kx) + mat.shape[2:]
 
@@ -216,8 +226,9 @@ def compressed2img(img_cmp, shape, n_dim=None, n_channels=None, dtype=None):
     shape2 = image_array_shape(shape=shape, n_dim=n_dim, n_channels=n_channels)
     if np.shape(img_cmp):
         n_samples = np.size(img_cmp)
-        img_arr = initialize_image_array(shape=shape, n_dim=n_dim, n_samples=n_samples, n_channels=n_channels,
-                                         dtype=dtype)
+        img_arr = initialize_image_array(
+            shape=shape, n_dim=n_dim, n_samples=n_samples, n_channels=n_channels, dtype=dtype
+        )
         for i in range(n_samples):
             img_arr[i, ...] = np.frombuffer(bytearray(zlib.decompress(img_cmp[i])), dtype=dtype).reshape(shape2)
         return img_arr
@@ -226,8 +237,7 @@ def compressed2img(img_cmp, shape, n_dim=None, n_channels=None, dtype=None):
         return np.frombuffer(bytearray(zlib.decompress(img_cmp)), dtype=dtype).reshape(shape2)
 
 
-def volume_slice_gif(volume, file, axis=2,
-                     duration=50, loop=0, optimize=True):
+def volume_slice_gif(volume, file, axis=2, duration=50, loop=0, optimize=True):
     # duration = 50  # ms, duration per frame
 
     file = files.ensure_file_extension(file, "gif")
@@ -237,5 +247,4 @@ def volume_slice_gif(volume, file, axis=2,
 
     volume = volume.transpose(axis_time + axis_img)
     img_list = [Image.fromarray(volume[i, :, :]).convert("P") for i in range(volume.shape[0])]
-    img_list[0].save(file, save_all=True, append_images=img_list[1:],
-                     optimize=optimize, duration=duration, loop=loop)
+    img_list[0].save(file, save_all=True, append_images=img_list[1:], optimize=optimize, duration=duration, loop=loop)

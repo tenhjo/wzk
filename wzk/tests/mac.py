@@ -5,7 +5,7 @@ import numpy as np
 
 def send_key(key_code):
     assert isinstance(key_code, int)
-    os.system(f'osascript -e \'tell application "System Events"\' -e \'key code {key_code}\' -e \' end tell\'')
+    os.system(f"osascript -e 'tell application \"System Events\"' -e 'key code {key_code}' -e ' end tell'")
 
 
 def change_brightness(brightness):

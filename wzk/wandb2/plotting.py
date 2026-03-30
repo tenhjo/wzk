@@ -60,11 +60,14 @@ def log_path(key: str, path: np.ndarray, step: int | None = None, joint_names: l
     if joint_names is None:
         joint_names = [f"j{i}" for i in range(n_dof)]
 
-    data = {f"{key}/{name}": wandb.plot.line_series(
-        xs=list(range(n_wp)),
-        ys=[path[:, i].tolist()],
-        keys=[name],
-        title=f"{key}/{name}",
-        xname="waypoint",
-    ) for i, name in enumerate(joint_names)}
+    data = {
+        f"{key}/{name}": wandb.plot.line_series(
+            xs=list(range(n_wp)),
+            ys=[path[:, i].tolist()],
+            keys=[name],
+            title=f"{key}/{name}",
+            xname="waypoint",
+        )
+        for i, name in enumerate(joint_names)
+    }
     wandb.log(data, step=step)

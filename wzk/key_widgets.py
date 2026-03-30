@@ -1,4 +1,3 @@
-
 import time
 
 import numpy as np
@@ -15,7 +14,7 @@ from wzk import ltd, np2, printing
 
 
 class KeyListener:
-    def __init__(self, key2callback: dict = None, combine_to_words=True, pass_key=False, start_listening=True):
+    def __init__(self, key2callback: dict | None = None, combine_to_words=True, pass_key=False, start_listening=True):
         self.key2callback = key2callback
 
         self.k = ""
@@ -38,7 +37,7 @@ class KeyListener:
             k = key.name  # other keys
         return k
 
-    def add_callback(self, key2callback: dict = None, start_listening=True):
+    def add_callback(self, key2callback: dict | None = None, start_listening=True):
         self.key2callback.update(key2callback)
         if start_listening:
             self.start_listening()
@@ -54,7 +53,6 @@ class KeyListener:
         elif on_release and not on_press:
             self.listener = keyboard.Listener(on_release=self.on_press)
         else:
-
             raise NotImplementedError
 
         self.listener.start()
@@ -66,7 +64,7 @@ class KeyListener:
         self.is_listening = False
 
     def in_keys(self, k):
-        return [k in keys[:len(k)] for keys in self.key2callback]
+        return [k in keys[: len(k)] for keys in self.key2callback]
 
     def __combine_to_words(self, k):
         if not self.combine_to_words:
@@ -110,8 +108,20 @@ class KeyListener:
 
 
 class KeySlider(KeyListener):
-    def __init__(self, callback, step, mi, ma, x=None, periodic=False,
-                 keys=None, start_listening=True, dtype=float, log_level=0, _factor=20):
+    def __init__(
+        self,
+        callback,
+        step,
+        mi,
+        ma,
+        x=None,
+        periodic=False,
+        keys=None,
+        start_listening=True,
+        dtype=float,
+        log_level=0,
+        _factor=20,
+    ):
         self._factor = _factor
         if x is None:
             self.value = (ma - mi) / 2
@@ -135,11 +145,11 @@ class KeySlider(KeyListener):
 
     def get_key2callback(self):
         if self.keys is None:
-            k2k = dict(left="left", right="right", up="up", down="down")
+            k2k = {"left": "left", "right": "right", "up": "up", "down": "down"}
         else:
             k2k = self.keys
         k2k_i = ltd.invert_dict(k2k)
-        k2s = dict(left=(-1, 0), right=(+1, 0), up=(-1, 1), down=(+1, 1))
+        k2s = {"left": (-1, 0), "right": (+1, 0), "up": (-1, 1), "down": (+1, 1)}
 
         key2callback = {k2k[k]: lambda kk: self.update(step=k2s[k2k_i[kk]]) for k in k2k}
         return key2callback
@@ -186,7 +196,6 @@ class KeySlider(KeyListener):
 
 
 class BoxLimitsKeySlider:
-
     def __init__(self, limits, x=None, names=None, callback_x=None, callback_j=None):
         # Parameters
         self.__m = 100
@@ -219,8 +228,16 @@ class BoxLimitsKeySlider:
         self.ks_x.pass_key = True
         self.ks_x.combine_to_words = True
 
-        ks_j = KeySlider(callback=self.change_j, step=1, mi=0, ma=self.n, periodic=True, x=0,
-                         keys=dict(left="w", right="s"), start_listening=False)
+        ks_j = KeySlider(
+            callback=self.change_j,
+            step=1,
+            mi=0,
+            ma=self.n,
+            periodic=True,
+            x=0,
+            keys={"left": "w", "right": "s"},
+            start_listening=False,
+        )
         self.ks_x.add_callback(key2callback=ks_j.key2callback, start_listening=True)
 
         self.print_state(clear_previous=False)
@@ -333,11 +350,12 @@ def try_KeySlider():
 
 def try_KeyListener():
     log_print("test KeyListener with `w,a,s,d`")
-    key2callback = dict(w=lambda: log_print("ww"),
-                        a=lambda: log_print("aa"),
-                        s=lambda: log_print("ss"),
-                        d=lambda: log_print("dd")
-                        )
+    key2callback = {
+        "w": lambda: log_print("ww"),
+        "a": lambda: log_print("aa"),
+        "s": lambda: log_print("ss"),
+        "d": lambda: log_print("dd"),
+    }
     kl = KeyListener(key2callback=key2callback)
     input("Press enter to to next test")
     kl.stop_listening()

@@ -1,4 +1,3 @@
-
 import datetime
 from itertools import combinations
 from typing import Literal
@@ -16,12 +15,19 @@ from wzk.mpl2.figure import new_fig, plt, subplot_grid
 from wzk.mpl2.legend import rectangle_legend
 
 
-def imshow(img: np.ndarray, ax: plt.Axes = None, h=None,
-           cmap=None,
-           limits: np.ndarray = None,
-           origin: Literal["upper", "lower"] = "lower",
-           axis_order: Literal["ij->yx", "ij->xy"] = "ij->yx",
-           mask: np.ndarray = None, vmin: float = None, vmax: float = None, **kwargs):
+def imshow(
+    img: np.ndarray,
+    ax: plt.Axes = None,
+    h=None,
+    cmap=None,
+    limits: np.ndarray = None,
+    origin: Literal["upper", "lower"] = "lower",
+    axis_order: Literal["ij->yx", "ij->xy"] = "ij->yx",
+    mask: np.ndarray = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    **kwargs,
+):
     """
 
     ## origin: upper
@@ -69,7 +75,7 @@ def imshow(img: np.ndarray, ax: plt.Axes = None, h=None,
     if "label" in kwargs:
         kwargs2 = kwargs.copy()
         kwargs2["color"] = cmap
-        rectangle_legend(ax=ax, xy=limits[:, 0]-1, **kwargs2)
+        rectangle_legend(ax=ax, xy=limits[:, 0] - 1, **kwargs2)
 
     return ax.imshow(img, extent=extent, origin=origin, **kwargs)
 
@@ -137,7 +143,9 @@ def color_plot_connected(y, color_s, x=None, connect_jumps=True, ax=None, **kwar
         h.append(ax.plot(x[i:j], y[i:j], c=cur_col, **kwargs)[0])
 
         if connect_jumps:
-            h.append(line_2colored(ax=ax, x=x[j - 1:j + 1], y=y[j - 1:j + 1], colors=color_s[j - 1:j + 1], **kwargs))
+            h.append(
+                line_2colored(ax=ax, x=x[j - 1 : j + 1], y=y[j - 1 : j + 1], colors=color_s[j - 1 : j + 1], **kwargs)
+            )
         i = j
 
     return h
@@ -169,8 +177,10 @@ def line_2colored(x, y, colors, ax=None, **kwargs):
         xh = np.mean(x)
     yh = np.mean(y)
 
-    h = [ax.plot([x[0], xh], [y[0], yh], c=colors[0], **kwargs)[0],
-         ax.plot([xh, x[1]], [yh, y[1]], c=colors[1], **kwargs)[0]]
+    h = [
+        ax.plot([x[0], xh], [y[0], yh], c=colors[0], **kwargs)[0],
+        ax.plot([xh, x[1]], [yh, y[1]], c=colors[1], **kwargs)[0],
+    ]
     return h
 
 
@@ -221,21 +231,25 @@ def get_hist(ax):
     return n, bins
 
 
-def error_area(x, y, y_std,
-               ax,
-               kwargs, kwargs_std):
+def error_area(x, y, y_std, ax, kwargs, kwargs_std):
     ax.plot(x, y, **kwargs)
-    ax.fill_between(x, y-y_std, y+y_std, **kwargs_std)
+    ax.fill_between(x, y - y_std, y + y_std, **kwargs_std)
 
 
-def quiver(xy, uv,
-           ax=None, h=None,
-           **kwargs):
+def quiver(xy, uv, ax=None, h=None, **kwargs):
 
     if h is None:
-        h = ax.quiver(xy[..., 0].ravel(), xy[..., 1].ravel(), uv[..., 0].ravel(), uv[..., 1].ravel(),
-                      angles="xy", scale=1, units="xy", scale_units="xy",
-                      **kwargs)
+        h = ax.quiver(
+            xy[..., 0].ravel(),
+            xy[..., 1].ravel(),
+            uv[..., 0].ravel(),
+            uv[..., 1].ravel(),
+            angles="xy",
+            scale=1,
+            units="xy",
+            scale_units="xy",
+            **kwargs,
+        )
     else:
         h.set_offsets(xy)
         h.set_UVC(*uv.T)
@@ -262,8 +276,7 @@ def grid_lines_data(ax, x, limits: str = "ax", **kwargs):
         ax.set_xlim(ax.get_xlim())
         ax.set_ylim(ax.get_ylim())
     elif limits == "data":
-        limits = np.array([[x[:, 0].min(), x[:, 0].max()],
-                           [x[:, 1].min(), x[:, 1].max()]])
+        limits = np.array([[x[:, 0].min(), x[:, 0].max()], [x[:, 1].min(), x[:, 1].max()]])
     else:
         raise ValueError
 
@@ -271,35 +284,31 @@ def grid_lines_data(ax, x, limits: str = "ax", **kwargs):
     ax.hlines(x[..., 1].ravel(), xmin=limits[0, 0], xmax=limits[0, 1], **kwargs)
 
 
-def update_vlines(h, x, ymin: float = None, ymax: float = None):
+def update_vlines(h, x, ymin: float | None = None, ymax: float | None = None):
     seg_old = h.get_segments()
     if ymin is None:
         ymin = seg_old[0][0, 1]
     if ymax is None:
         ymax = seg_old[0][1, 1]
 
-    seg_new = [np.array([[xx, ymin],
-                         [xx, ymax]]) for xx in x]
+    seg_new = [np.array([[xx, ymin], [xx, ymax]]) for xx in x]
 
     h.set_segments(seg_new)
 
 
-def update_hlines(h, y, xmin: float = None, xmax: float = None):
+def update_hlines(h, y, xmin: float | None = None, xmax: float | None = None):
     seg_old = h.get_segments()
     if xmin is None:
         xmin = seg_old[0][0, 0]
     if xmax is None:
         xmax = seg_old[0][1, 0]
 
-    seg_new = [np.array([[xmin, yy],
-                         [xmax, yy]]) for yy in y]
+    seg_new = [np.array([[xmin, yy], [xmax, yy]]) for yy in y]
 
     h.set_segments(seg_new)
 
 
-def hist_vlines(x, name, bins=100,
-                hl_idx=None, hl_color=None, hl_name=None,
-                lower_perc=None, upper_perc=None):
+def hist_vlines(x, name, bins=100, hl_idx=None, hl_color=None, hl_name=None, lower_perc=None, upper_perc=None):
 
     if lower_perc is not None:
         _range = (np.percentile(x, lower_perc), np.percentile(x, upper_perc))
@@ -311,7 +320,7 @@ def hist_vlines(x, name, bins=100,
     perc_i = []
     if hl_idx is not None:
         hl_idx, hl_color, hl_name = np2.scalar2array(hl_idx, hl_color, hl_name, shape=np.size(hl_idx))
-        for i, c, n in zip(hl_idx, hl_color, hl_name):
+        for i, c, n in zip(hl_idx, hl_color, hl_name, strict=False):
             perc_i.append(np.sum(x[i] > x))
             label = None if n is None else f"{n} | {perc_i[-1]} / {len(x)}"
             ax.vlines(x[i], ymin=0, ymax=len(x), lw=4, color=c, label=label)
@@ -331,20 +340,20 @@ def vis_cost_landscape(fun, x0, stepsize, n, n_contour=50, mode="contour"):
     v0 *= stepsize / np.linalg.norm(v0)
     v1 *= stepsize / np.linalg.norm(v1)
 
-    ll = x0 - n//2 * (v0 + v1)
+    ll = x0 - n // 2 * (v0 + v1)
 
     c = np.zeros((n, n))
     for i0 in range(n):
         printing.progress_bar(i=i0, n=n, eta=True, prefix=f"Compute Cost Landscape {n}x{n}")
         for i1 in range(n):
-            c[i0, i1] = fun(ll + v0*i0 + v1*i1)
+            c[i0, i1] = fun(ll + v0 * i0 + v1 * i1)
 
     log_print(c.min(), c.max())
     i, j = np.where(c == c.min())
-    x_min = ll + i*v0 + j*v1
+    x_min = ll + i * v0 + j * v1
 
     c = np.clip(c, a_min=0, a_max=np.percentile(c, 95))
-    sn2 = stepsize*n/2
+    sn2 = stepsize * n / 2
     x, y = np.meshgrid(np.linspace(-sn2, +sn2, n), np.linspace(-sn2, +sn2, n), indexing="ij")
 
     if mode == "contour":
@@ -363,11 +372,24 @@ def vis_cost_landscape(fun, x0, stepsize, n, n_contour=50, mode="contour"):
 
 
 #
-def correlation_plot(a, b, name_a, name_b,
-                     regression_line=True,
-                     lower_perc=0, upper_perc=100,
-                     labels=None, colors=None, markers="o", markersizes=None, alphas=None, zorders=None,
-                     ax=None, log_level=1, **kwargs):
+def correlation_plot(
+    a,
+    b,
+    name_a,
+    name_b,
+    regression_line=True,
+    lower_perc=0,
+    upper_perc=100,
+    labels=None,
+    colors=None,
+    markers="o",
+    markersizes=None,
+    alphas=None,
+    zorders=None,
+    ax=None,
+    log_level=1,
+    **kwargs,
+):
 
     if ax is None:
         fig, ax = new_fig(width=10, title=f"Correlation: {name_a} | {name_b}")
@@ -377,8 +399,10 @@ def correlation_plot(a, b, name_a, name_b,
     a_all = np.concatenate(a)
     b_all = np.concatenate(b)
 
-    limits = np.array([[np.percentile(a_all, lower_perc), np.percentile(a_all, upper_perc)],
-                       [np.percentile(b_all, lower_perc), np.percentile(b_all, upper_perc)]])
+    limits = np.array([
+        [np.percentile(a_all, lower_perc), np.percentile(a_all, upper_perc)],
+        [np.percentile(b_all, lower_perc), np.percentile(b_all, upper_perc)],
+    ])
 
     limits = limits2.add_safety_limits(limits=limits, factor=0.01)
 
@@ -393,13 +417,14 @@ def correlation_plot(a, b, name_a, name_b,
     else:
         r = None
 
-    labels, colors, markers, markersizes, alphas, zorders = \
-        np2.scalar2array(labels, colors, markers, markersizes, alphas, zorders, shape=len(a))
+    labels, colors, markers, markersizes, alphas, zorders = np2.scalar2array(
+        labels, colors, markers, markersizes, alphas, zorders, shape=len(a)
+    )
 
-    for i, (aa, bb, la, co, ma, ms, al, zo) in enumerate(zip(a, b,
-                                                             labels, colors, markers, markersizes, alphas, zorders)):
-
-        if regression_line and i+1 == len(a):
+    for i, (aa, bb, la, co, ma, ms, al, zo) in enumerate(
+        zip(a, b, labels, colors, markers, markersizes, alphas, zorders, strict=False)
+    ):
+        if regression_line and i + 1 == len(a):
             la = None if la is None else la.format(r)
             ax.plot(aa, bb, color=co, label=la, ls="-", marker=ms, alpha=al, zorder=zo)
         else:
@@ -416,24 +441,21 @@ def correlation_plot(a, b, name_a, name_b,
     return ax
 
 
-def plot_circles(x, r,
-                 ax=None, h=None,
-                 color=None, alpha=None,
-                 **kwargs):
+def plot_circles(x, r, ax=None, h=None, color=None, alpha=None, **kwargs):
     # https://stackoverflow.com/questions/48172928/scale-matplotlib-pyplot-axes-scatter-markersize-by-x-scale
     x = np.reshape(x, (-1, 2))
     r = np2.scalar2array(r, shape=len(x))
 
     if h is None:
         h = []
-        for x_i, r_i in zip(x, r):
+        for x_i, r_i in zip(x, r, strict=False):
             c = patches.Circle(xy=x_i, radius=r_i, alpha=alpha, color=color, **kwargs)
             ax.add_patch(c)
             h.append(c)
         return h
 
     else:
-        for h_i, x_i, r_i in zip(h, x, r):
+        for h_i, x_i, r_i in zip(h, x, r, strict=False):
             h_i.set_center(x_i)
             h_i.set_radius(r_i)
 
@@ -448,18 +470,18 @@ def plot_circles(x, r,
 def plot_points_and_connection(ax, a, b, kwargs_a, kwargs_b, kwargs_c):
     ax.plot(*a.T, **kwargs_a)
     ax.plot(*b.T, **kwargs_b)
-    ax.plot(np.concatenate([a[:, 0:1], b[:, 0:1]], axis=1).T,
-            np.concatenate([a[:, 1:2], b[:, 1:2]], axis=1).T,
-            **kwargs_c)
+    ax.plot(
+        np.concatenate([a[:, 0:1], b[:, 0:1]], axis=1).T, np.concatenate([a[:, 1:2], b[:, 1:2]], axis=1).T, **kwargs_c
+    )
 
 
 def plot_colored_segments(ax, x, y, c, a, **kwargs):
     n = len(x)
-    assert len(x)-1 == len(c)
+    assert len(x) - 1 == len(c)
 
-    c, a = np2.scalar2array(c, a, shape=n-1)
-    for i in range(n-1):
-        ax.plot(x[i:i+2], y[i:i+2], color=c[i], alpha=a[i], **kwargs)
+    c, a = np2.scalar2array(c, a, shape=n - 1)
+    for i in range(n - 1):
+        ax.plot(x[i : i + 2], y[i : i + 2], color=c[i], alpha=a[i], **kwargs)
 
 
 def try_plot_colored_segments():

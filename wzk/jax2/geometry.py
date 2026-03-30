@@ -35,11 +35,7 @@ def arccos2(c: ArrayLike):
     return jnp.arccos(c)
 
 
-def get_arc(xy: ArrayLike,
-            radius: float,
-            theta0: float = 0.0,
-            theta1: float = 2 * jnp.pi,
-            n: int | float = 0.01):
+def get_arc(xy: ArrayLike, radius: float, theta0: float = 0.0, theta1: float = 2 * jnp.pi, n: int | float = 0.01):
     theta0, theta1 = theta_wrapper(theta0=theta0, theta1=theta1)
     n = angle_resolution_wrapper(n, angle=theta1 - theta0)
 
@@ -71,10 +67,7 @@ def theta_wrapper(theta0: float, theta1: float | None) -> tuple[float, float]:
 
 
 def rectangle(limits: np.ndarray | None):
-    v = np.array([[0, 0],
-                  [0, 1],
-                  [1, 0],
-                  [1, 1]], dtype=int32)
+    v = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=int32)
 
     if limits is not None:
         v = limits[np.arange(2)[np.newaxis, :].repeat(4, axis=0), v]
@@ -88,32 +81,16 @@ def get_triangle_center(x: ArrayLike):
 
 
 def cube(limits: np.ndarray | None = None):
-    v = np.array([[0, 0, 0],
-                  [0, 0, 1],
-                  [0, 1, 0],
-                  [0, 1, 1],
-                  [1, 0, 0],
-                  [1, 0, 1],
-                  [1, 1, 0],
-                  [1, 1, 1]], dtype=int32)
+    v = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]], dtype=int32)
 
     if limits is not None:
         v = limits[np.arange(3)[np.newaxis, :].repeat(8, axis=0), v]
 
-    e = np.array([[0, 1], [0, 2], [0, 4],
-                  [1, 3], [1, 5],
-                  [2, 3], [2, 6],
-                  [3, 7],
-                  [4, 5], [4, 6],
-                  [5, 7],
-                  [6, 7]], dtype=int32)
+    e = np.array(
+        [[0, 1], [0, 2], [0, 4], [1, 3], [1, 5], [2, 3], [2, 6], [3, 7], [4, 5], [4, 6], [5, 7], [6, 7]], dtype=int32
+    )
 
-    f = np.array([[0, 2, 3, 1],
-                  [0, 4, 5, 1],
-                  [0, 4, 6, 2],
-                  [1, 5, 7, 3],
-                  [2, 6, 7, 3],
-                  [4, 6, 7, 5]], dtype=int32)
+    f = np.array([[0, 2, 3, 1], [0, 4, 5, 1], [0, 4, 6, 2], [1, 5, 7, 3], [2, 6, 7, 3], [4, 6, 7, 5]], dtype=int32)
 
     return jnp.asarray(v, dtype=int32), jnp.asarray(e, dtype=int32), jnp.asarray(f, dtype=int32)
 
@@ -129,11 +106,13 @@ def faces4_to_3(f4: ArrayLike):
 
 
 def box(limits: np.ndarray):
-    x = np.array([[limits[0, 0], limits[1, 0]],
-                  [limits[0, 1], limits[1, 0]],
-                  [limits[0, 1], limits[1, 1]],
-                  [limits[0, 0], limits[1, 1]],
-                  [limits[0, 0], limits[1, 0]]])
+    x = np.array([
+        [limits[0, 0], limits[1, 0]],
+        [limits[0, 1], limits[1, 0]],
+        [limits[0, 1], limits[1, 1]],
+        [limits[0, 0], limits[1, 1]],
+        [limits[0, 0], limits[1, 0]],
+    ])
     return jnp.asarray(x)
 
 
@@ -175,9 +154,7 @@ def make_rhs(xyz: ArrayLike, order: tuple[int, int] = (0, 1)):
 
     xyz = xyz / np.linalg.norm(xyz, axis=-1, keepdims=True)
 
-    cross_correlation_rhs = np.array([[0, +3, -2],
-                                      [-3, 0, +1],
-                                      [+2, -1, 0]])
+    cross_correlation_rhs = np.array([[0, +3, -2], [-3, 0, +1], [+2, -1, 0]])
 
     i, j = order
     k = cross_correlation_rhs[i, j]
@@ -246,14 +223,16 @@ def projection_point_plane(p: ArrayLike, o: ArrayLike, u: ArrayLike, v: ArrayLik
     return p0 + p
 
 
-def __line_line(x1: ArrayLike,
-                x3: ArrayLike,
-                o: ArrayLike,
-                u: ArrayLike,
-                v: ArrayLike,
-                uu: ArrayLike,
-                vv: ArrayLike,
-                _return_mu: bool):
+def __line_line(
+    x1: ArrayLike,
+    x3: ArrayLike,
+    o: ArrayLike,
+    u: ArrayLike,
+    v: ArrayLike,
+    uu: ArrayLike,
+    vv: ArrayLike,
+    _return_mu: bool,
+):
     mua, mub = __clip_ppp(o=o, u=u, v=-v, uu=uu, vv=vv)
 
     xa = x1 + mua[..., jnp.newaxis] * u
@@ -286,9 +265,7 @@ def line_line(line_a: ArrayLike, line_b: ArrayLike, _return_mu: bool = False):
 
     uu = (u * u).sum(axis=-1)
     vv = (v * v).sum(axis=-1)
-    return __line_line(x1=x1, x3=x3,
-                       o=o, u=u, v=v, uu=uu, vv=vv,
-                       _return_mu=_return_mu)
+    return __line_line(x1=x1, x3=x3, o=o, u=u, v=v, uu=uu, vv=vv, _return_mu=_return_mu)
 
 
 def line_line_pairs(lines: ArrayLike, pairs: ArrayLike, _return_mu: bool = False):
@@ -302,9 +279,7 @@ def line_line_pairs(lines: ArrayLike, pairs: ArrayLike, _return_mu: bool = False
     o = x1 - x3
 
     uuvv = (uv * uv).sum(axis=-1)
-    return __line_line(x1=x1, x3=x3,
-                       o=o, u=u, v=v, uu=uuvv[..., a], vv=uuvv[..., b],
-                       _return_mu=_return_mu)
+    return __line_line(x1=x1, x3=x3, o=o, u=u, v=v, uu=uuvv[..., a], vv=uuvv[..., b], _return_mu=_return_mu)
 
 
 def __line2capsule(xa: ArrayLike, xb: ArrayLike, ra: ArrayLike, rb: ArrayLike):
@@ -351,8 +326,8 @@ def circle_circle_intersection(xy0: ArrayLike, r0: float, xy1: ArrayLike, r1: fl
     if d == 0 and r0 == r1:
         return None
 
-    a = (r0 ** 2 - r1 ** 2 + d ** 2) / (2 * d)
-    h = np.sqrt(r0 ** 2 - a ** 2)
+    a = (r0**2 - r1**2 + d**2) / (2 * d)
+    h = np.sqrt(r0**2 - a**2)
     d01 = (xy1 - xy0) / d
 
     xy2 = xy0 + a * d01[::+1] * [+1, +1]
@@ -374,8 +349,8 @@ def ray_sphere_intersection(rays: ArrayLike, spheres: ArrayLike, r: ArrayLike | 
     if r is None:
         r = spheres[..., 3:].T
 
-    co = (o[..., jnp.newaxis, :] - c[..., jnp.newaxis, :, :])
-    res = (u * co).sum(axis=-1) ** 2 - (co ** 2).sum(axis=-1) + jnp.asarray(r) ** 2
+    co = o[..., jnp.newaxis, :] - c[..., jnp.newaxis, :, :]
+    res = (u * co).sum(axis=-1) ** 2 - (co**2).sum(axis=-1) + jnp.asarray(r) ** 2
     return res >= 0
 
 
@@ -392,7 +367,7 @@ def angle_between_vectors(a: ArrayLike, b: ArrayLike):
 def angle_between_axis_and_point(f: ArrayLike, p: ArrayLike, axis: int = 2):
     f = jnp.asarray(f)
     p = jnp.asarray(p)
-    d = (p - f[..., :-1, -1])
+    d = p - f[..., :-1, -1]
     dn = d / jnp.linalg.norm(d, axis=-1, keepdims=True)
 
     v = f[..., :-1, axis]
@@ -420,7 +395,7 @@ def rotation_between_vectors(a: ArrayLike, b: ArrayLike):
     i = jnp.zeros(a.shape[:-1] + (3, 3), dtype=a.dtype)
     i = i.at[..., :, :].set(jnp.eye(3, dtype=a.dtype))
 
-    factor = ((1 - c) / (s ** 2 + 1e-12))[..., jnp.newaxis, jnp.newaxis]
+    factor = ((1 - c) / (s**2 + 1e-12))[..., jnp.newaxis, jnp.newaxis]
     r = i + vx + factor * (vx @ vx)
     return r
 
@@ -435,7 +410,7 @@ def sample_points_on_disc(radius: float, shape: ShapeLike | None = None, key: ja
     shape = np2.shape_wrapper(shape=shape)
     key = _rng_key(key=key)
     key_rho, key_theta = jax.random.split(key)
-    rho = jnp.sqrt(jax.random.uniform(key_rho, shape=shape, minval=0.0, maxval=radius ** 2, dtype=float32))
+    rho = jnp.sqrt(jax.random.uniform(key_rho, shape=shape, minval=0.0, maxval=radius**2, dtype=float32))
     theta = jax.random.uniform(key_theta, shape=shape, minval=0.0, maxval=2 * jnp.pi, dtype=float32)
     return jnp.stack((rho * jnp.cos(theta), rho * jnp.sin(theta)), axis=-1)
 
@@ -475,8 +450,8 @@ def sample_points_in_ellipse_nd(shape: ShapeLike, size: ArrayLike, key: jax.Arra
 def hyper_sphere_volume(n_dim: int, r: float = 1.0) -> float:
     n2 = n_dim
     if n_dim % 2 == 0:
-        return (np.pi ** n2) / math.factorial(n2) * r ** n_dim
-    return 2 * (math.factorial(n2) * (4 * np.pi) ** n2) / math.factorial(n_dim) * r ** n_dim
+        return (np.pi**n2) / math.factorial(n2) * r**n_dim
+    return 2 * (math.factorial(n2) * (4 * np.pi) ** n2) / math.factorial(n_dim) * r**n_dim
 
 
 def get_points_on_circle(x: ArrayLike, r: ArrayLike, n: int = 10, endpoint: bool = False):
@@ -488,7 +463,9 @@ def get_points_on_circle(x: ArrayLike, r: ArrayLike, n: int = 10, endpoint: bool
     return points
 
 
-def get_points_on_multicircles(x: ArrayLike, r: ArrayLike, n: int = 10, endpoint1: bool = False, endpoint2: bool = True):
+def get_points_on_multicircles(
+    x: ArrayLike, r: ArrayLike, n: int = 10, endpoint1: bool = False, endpoint2: bool = True
+):
     points = np.asarray(get_points_on_circle(x=x, r=r, n=n, endpoint=endpoint1))
     hull = ConvexHull(points.reshape(-1, 2))
     if endpoint2:
@@ -517,10 +494,7 @@ def get_distance_to_ellipsoid(x: ArrayLike, shape: ArrayLike):
     return d
 
 
-def get_x_intersections(x_a: ArrayLike,
-                        x_b: ArrayLike,
-                        threshold: float = 0.001,
-                        map_i_ab: bool = True):
+def get_x_intersections(x_a: ArrayLike, x_b: ArrayLike, threshold: float = 0.001, map_i_ab: bool = True):
     x_a = np.asarray(x_a)
     x_b = np.asarray(x_b)
     if len(x_a) * len(x_b) < 1_000_000:

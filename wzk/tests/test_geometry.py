@@ -7,7 +7,6 @@ from wzk import geometry, testing
 
 
 class Test(unittest.TestCase):
-
     def test_rotation_between_vectors(self):
         rng = np.random.default_rng(0)
         a, b = rng.random((2, 3))
@@ -32,6 +31,7 @@ class Test(unittest.TestCase):
 
     def speed_mink(self):
         from wzk import tic, toc
+
         n = 12
         m = 50
         lines = np.random.random((m, n, 2, 3))
@@ -43,12 +43,12 @@ class Test(unittest.TestCase):
         _ = np.array(list(combinations(np.arange(n), 2)))
 
         tic()
-        for i in range(100):
+        for _i in range(100):
             _ = geometry.line_line_pairs(lines=lines, pairs=pairs)
         toc("mink")
 
         tic()
-        for i in range(100):
+        for _i in range(100):
             _ = geometry.line_line_pairs(lines=lines, pairs=pairs)
         toc("d1234")
 
@@ -56,14 +56,18 @@ class Test(unittest.TestCase):
 
     def __check_capsule_capsule(self, capsule_a, capsule_b, radius_a, radius_b, d_true=None):
 
-        xa, xb, d00 = geometry.capsule_capsule(line_a=capsule_a[::+1], radius_a=radius_a,
-                                               line_b=capsule_b[::+1], radius_b=radius_b)
-        xa, xb, d01 = geometry.capsule_capsule(line_a=capsule_a[::+1], radius_a=radius_a,
-                                               line_b=capsule_b[::-1], radius_b=radius_b)
-        xa, xb, d10 = geometry.capsule_capsule(line_a=capsule_a[::-1], radius_a=radius_a,
-                                               line_b=capsule_b[::+1], radius_b=radius_b)
-        xa, xb, d11 = geometry.capsule_capsule(line_a=capsule_a[::-1], radius_a=radius_a,
-                                               line_b=capsule_b[::-1], radius_b=radius_b)
+        xa, xb, d00 = geometry.capsule_capsule(
+            line_a=capsule_a[::+1], radius_a=radius_a, line_b=capsule_b[::+1], radius_b=radius_b
+        )
+        xa, xb, d01 = geometry.capsule_capsule(
+            line_a=capsule_a[::+1], radius_a=radius_a, line_b=capsule_b[::-1], radius_b=radius_b
+        )
+        xa, xb, d10 = geometry.capsule_capsule(
+            line_a=capsule_a[::-1], radius_a=radius_a, line_b=capsule_b[::+1], radius_b=radius_b
+        )
+        xa, xb, d11 = geometry.capsule_capsule(
+            line_a=capsule_a[::-1], radius_a=radius_a, line_b=capsule_b[::-1], radius_b=radius_b
+        )
 
         d = np.array([d00, d01, d10, d11])
         self.assertTrue(np.allclose(d, d.mean()), msg=f"{d.mean()} | {d}")
@@ -77,16 +81,13 @@ class Test(unittest.TestCase):
         for _ in range(m):
             capsule_a, capsule_b = rng.random((2, 2, 3))
             radius_a, radius_b = rng.random(2)
-            self.__check_capsule_capsule(capsule_a=capsule_a, capsule_b=capsule_b,
-                                         radius_a=radius_a, radius_b=radius_b)
+            self.__check_capsule_capsule(capsule_a=capsule_a, capsule_b=capsule_b, radius_a=radius_a, radius_b=radius_b)
 
     def test_capsule_capsule_closest(self):
 
         offset = 0.01
-        capsule_a = np.array([[-offset, 0.0, 0.0],
-                              [-1, -1, -1]])
-        capsule_b = np.array([[+offset, 0.0, 0.0],
-                              [-1, -1, -1]])
+        capsule_a = np.array([[-offset, 0.0, 0.0], [-1, -1, -1]])
+        capsule_b = np.array([[+offset, 0.0, 0.0], [-1, -1, -1]])
 
         rng = np.random.default_rng(3)
         m = 200
@@ -99,8 +100,9 @@ class Test(unittest.TestCase):
             radius_a, radius_b = rng.uniform(low=0, high=offset / 2, size=2)
 
             d_true = 2 * offset - radius_a - radius_b
-            self.__check_capsule_capsule(capsule_a=capsule_a, capsule_b=capsule_b,
-                                         radius_a=radius_a, radius_b=radius_b, d_true=d_true)
+            self.__check_capsule_capsule(
+                capsule_a=capsule_a, capsule_b=capsule_b, radius_a=radius_a, radius_b=radius_b, d_true=d_true
+            )
 
 
 if __name__ == "__main__":

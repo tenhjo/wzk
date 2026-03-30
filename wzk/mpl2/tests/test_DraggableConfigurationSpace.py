@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 
 import numpy as np
@@ -10,7 +9,6 @@ verbose = 1
 
 
 class Test(TestCase):
-
     def test_DraggableConfigSpace(self):
         x = np.random.random((20, 3))
         limits = np.zeros((x.shape[-1], 2))

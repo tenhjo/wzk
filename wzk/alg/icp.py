@@ -5,6 +5,7 @@ by Alvin Wan, per:
 Scaling iterative closest point algorithm for registration of m–D point sets
  - Du et al. (https://doi.org/10.1016/j.jvcir.2010.02.005)
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -15,8 +16,9 @@ from wzk.logger import setup_logger
 logger = setup_logger(__name__)
 
 
-def best_fit_transform(A: np.ndarray, B: np.ndarray,
-                       scaling: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+def best_fit_transform(
+    A: np.ndarray, B: np.ndarray, scaling: bool = False
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """
     Calculates the least-squares best-fit transform between corresponding 3D points A->B
     Input:
@@ -81,10 +83,13 @@ def nearest_neighbor(src: np.ndarray, dst: np.ndarray) -> tuple[np.ndarray, np.n
     return distances.ravel(), indices.ravel()
 
 
-def icp(A: np.ndarray, B: np.ndarray,
-        init_pose: np.ndarray | None = None,
-        max_iterations: int = 100,
-        tolerance: float = 1e-10) -> tuple[np.ndarray, float, np.ndarray]:
+def icp(
+    A: np.ndarray,
+    B: np.ndarray,
+    init_pose: np.ndarray | None = None,
+    max_iterations: int = 100,
+    tolerance: float = 1e-10,
+) -> tuple[np.ndarray, float, np.ndarray]:
     """
     The Iterative Closest Point method
     Input:
@@ -100,8 +105,8 @@ def icp(A: np.ndarray, B: np.ndarray,
 
     # make points homogeneous, copy them to maintain the originals
     n, n_dim = A.shape
-    src = np.ones((n_dim+1, A.shape[0]))
-    dst = np.ones((n_dim+1, B.shape[0]))
+    src = np.ones((n_dim + 1, A.shape[0]))
+    dst = np.ones((n_dim + 1, B.shape[0]))
     src[:-1, :] = np.copy(A.T)
     dst[:-1, :] = np.copy(B.T)
 
@@ -126,7 +131,7 @@ def icp(A: np.ndarray, B: np.ndarray,
 
             # check error
             mean_error = np.sum(distances) / distances.size
-            if abs(prev_error-mean_error) < tolerance:
+            if abs(prev_error - mean_error) < tolerance:
                 break
             prev_error = mean_error
 
@@ -137,11 +142,12 @@ def icp(A: np.ndarray, B: np.ndarray,
 
     except (ValueError, np.linalg.LinAlgError) as e:
         logger.debug(e)
-        return np.eye(n_dim+1), 1, np.array([np.inf])
+        return np.eye(n_dim + 1), 1, np.array([np.inf])
 
 
 def try_random() -> None:
     from wzk import mpl2, spatial
+
     n = 10
     x0 = np.random.random((n, 3))
     x1 = x0 + 0.1

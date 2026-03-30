@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 
 import numpy as np
@@ -10,6 +9,7 @@ from wzk.logger import log_print
 class Test(TestCase):
     def test_a(self):
         from wzk.spatial.difference import frame_difference
+
         a = spatial.sample_frames(x_low=np.zeros(3), x_high=np.ones(3))
         b = spatial.sample_frames(x_low=np.zeros(3), x_high=np.ones(3))
 

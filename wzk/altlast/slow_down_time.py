@@ -43,17 +43,12 @@ def _solve_peak_vel(
     # -> k v^2 - (aL/mean) v + aL = 0
     quad_b = max_acc * path_length / mean_clamped
     disc = max(
-        quad_b * quad_b
-        - 4.0 * __smoothstep_max_deriv * max_acc * path_length,
+        quad_b * quad_b - 4.0 * __smoothstep_max_deriv * max_acc * path_length,
         0.0,
     )
-    v_peak = (
-        quad_b - float(np.sqrt(disc))
-    ) / (2.0 * __smoothstep_max_deriv)
+    v_peak = (quad_b - float(np.sqrt(disc))) / (2.0 * __smoothstep_max_deriv)
 
-    v_distance_limit = float(
-        np.sqrt(path_length * max_acc / __smoothstep_max_deriv)
-    )
+    v_distance_limit = float(np.sqrt(path_length * max_acc / __smoothstep_max_deriv))
     v_cap = min(max_vel, v_distance_limit)
     return float(np.clip(v_peak, 0.0, v_cap))
 
@@ -88,7 +83,7 @@ def _build_time_profile(
 
     tau = t[down] - (ramp_time + cruise_time)
     x_down = tau / ramp_time
-    s[down] = (ramp_distance + cruise_distance + v_peak * ramp_time * (x_down - _integral_smoothstep(x=x_down)))
+    s[down] = ramp_distance + cruise_distance + v_peak * ramp_time * (x_down - _integral_smoothstep(x=x_down))
     s[-1] = path_length
 
     return s
@@ -156,7 +151,7 @@ def slow_down_between_two_q(
     v_cap = min(max_vel, float(np.sqrt(L * max_acc / __smoothstep_max_deriv)))
     mean_vel = safety * L / (L / v_cap + __smoothstep_max_deriv * v_cap / max_acc)
 
-    return slow_down_q_path( q=q, mean_vel=mean_vel, max_vel=max_vel, max_acc=max_acc, timestep=timestep)
+    return slow_down_q_path(q=q, mean_vel=mean_vel, max_vel=max_vel, max_acc=max_acc, timestep=timestep)
 
 
 def slow_down_between_two_q_list(
@@ -168,9 +163,10 @@ def slow_down_between_two_q_list(
 ):
 
     q_path_list_smooth = []
-    for i, q_path in enumerate(q_list):
-        path_smooth = slow_down_between_two_q(q_start=q_path[0], q_end=q_path[-1], max_vel=max_vel, max_acc=max_acc,
-                                              timestep=timestep, safety=safety)
+    for _i, q_path in enumerate(q_list):
+        path_smooth = slow_down_between_two_q(
+            q_start=q_path[0], q_end=q_path[-1], max_vel=max_vel, max_acc=max_acc, timestep=timestep, safety=safety
+        )
         q_path_list_smooth.append(path_smooth.tolist())
         print(len(path_smooth))
     return q_path_list_smooth
@@ -181,21 +177,16 @@ if __name__ == "__main__":
 
     q_start = np.array([0.0])
     q_end = np.array([1])
-    q2 = slow_down_between_two_q(q_start=q_start, q_end=q_end,
-                                 max_vel=0.6, max_acc=1.0, timestep=0.001)
+    q2 = slow_down_between_two_q(q_start=q_start, q_end=q_end, max_vel=0.6, max_acc=1.0, timestep=0.001)
     dq = q2[1:] - q2[:-1]
     ddq = dq[1:] - dq[:-1]
 
     print("samples:", q2.shape[0])
     print("peak vel:", float(np.max(np.abs(dq))) / __TIMESTEP)
-    print("peak acc:", float(np.max(np.abs(ddq))) / (__TIMESTEP ** 2) if ddq.size else 0.0)
+    print("peak acc:", float(np.max(np.abs(ddq))) / (__TIMESTEP**2) if ddq.size else 0.0)
 
     # fig, ax = mpl2.new_fig(n_rows=3)
     # ax[0].plot(q2)
     # ax[1].plot(dq)
     # ax[2].plot(ddq)
     # fig.show()
-
-
-
-

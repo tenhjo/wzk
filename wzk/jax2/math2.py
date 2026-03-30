@@ -25,7 +25,7 @@ GOLDEN_RATIO = jnp.asarray((jnp.sqrt(5.0) + 1) / 2, dtype=float32)
 def make_monotonous_descending(x: ArrayLike) -> np.ndarray:
     x = np.asarray(x).copy()
     for i in range(len(x)):
-        x[i] = x[:i + 1].min()
+        x[i] = x[: i + 1].min()
     return x
 
 
@@ -78,10 +78,7 @@ def denormalize11(x: ArrayLike, low: ArrayLike, high: ArrayLike):
     return (x + 1) * (high - low) / 2 + low
 
 
-def standardize_01(x: ArrayLike,
-                   mean: ArrayLike | None,
-                   std: ArrayLike | None,
-                   axis: AxisLike = None):
+def standardize_01(x: ArrayLike, mean: ArrayLike | None, std: ArrayLike | None, axis: AxisLike = None):
     x = jnp.asarray(x)
     if mean is None:
         mean = jnp.mean(x, axis=axis, keepdims=True)
@@ -98,8 +95,8 @@ def destandardize_01(x: ArrayLike, mean: ArrayLike, std: ArrayLike):
 def euclidean_norm(arr: ArrayLike, axis: int = -1, squared: bool = False):
     arr = jnp.asarray(arr)
     if squared:
-        return (arr ** 2).sum(axis=axis)
-    return jnp.sqrt((arr ** 2).sum(axis=axis))
+        return (arr**2).sum(axis=axis)
+    return jnp.sqrt((arr**2).sum(axis=axis))
 
 
 def discretize(x: ArrayLike, step: float):
@@ -134,7 +131,7 @@ def dxnorm_dx(x: ArrayLike, return_norm: bool = False):
     x = jnp.asarray(x)
     n_dim = x.shape[-1]
 
-    x_squared = x ** 2
+    x_squared = x**2
     sq_sum = x_squared.sum(axis=-1, keepdims=True)
     inv = jnp.where(sq_sum > 0, sq_sum ** (-1.5), 0.0)
 
@@ -152,13 +149,13 @@ def dxnorm_dx(x: ArrayLike, return_norm: bool = False):
 
 def smooth_step(x: ArrayLike):
     x = jnp.asarray(x)
-    res = -2 * x ** 3 + 3 * x ** 2
+    res = -2 * x**3 + 3 * x**2
     return jnp.clip(res, 0, 1)
 
 
 def smoother_step(x: ArrayLike):
     x = jnp.asarray(x)
-    res = +6 * x ** 5 - 15 * x ** 4 + 10 * x ** 3
+    res = +6 * x**5 - 15 * x**4 + 10 * x**3
     return jnp.clip(res, 0, 1)
 
 
@@ -252,23 +249,20 @@ def assimilate_orders_of_magnitude(a: ArrayLike, b: ArrayLike, base: int = 10):
 def rosenbrock2d(xy: ArrayLike, a: float = 1, b: float = 100):
     xy = jnp.asarray(xy)
     x, y = xy[..., 0], xy[..., 1]
-    return (a - x) ** 2 + b * (y - x ** 2) ** 2
+    return (a - x) ** 2 + b * (y - x**2) ** 2
 
 
 def d_rosenbrock2d(xy: ArrayLike, a: float = 1, b: float = 100):
     xy = jnp.asarray(xy)
     x, y = xy.T
-    dx = -2 * (a - x) - 4 * b * (y - x ** 2) * x
-    dy = 2 * b * (y - x ** 2)
+    dx = -2 * (a - x) - 4 * b * (y - x**2) * x
+    dy = 2 * b * (y - x**2)
     return jnp.concatenate([dx[..., jnp.newaxis], dy[..., jnp.newaxis]], axis=-1)
 
 
-def bisection(f: Callable[[float], float],
-              a: float,
-              b: float,
-              tol: float,
-              max_depth: int = 50,
-              _depth: int = 0) -> float:
+def bisection(
+    f: Callable[[float], float], a: float, b: float, tol: float, max_depth: int = 50, _depth: int = 0
+) -> float:
     assert a < b
 
     fa, fb = f(a), f(b)
@@ -293,13 +287,15 @@ def bisection(f: Callable[[float], float],
     raise ValueError("Should not happen!")
 
 
-def numeric_derivative(fun: Callable[..., ArrayLike],
-                       x: ArrayLike,
-                       eps: float = 1e-5,
-                       axis: AxisLike = -1,
-                       mode: str = "central",
-                       diff: Callable[[ArrayLike, ArrayLike], ArrayLike] | None = None,
-                       **kwargs_fun: Any):
+def numeric_derivative(
+    fun: Callable[..., ArrayLike],
+    x: ArrayLike,
+    eps: float = 1e-5,
+    axis: AxisLike = -1,
+    mode: str = "central",
+    diff: Callable[[ArrayLike, ArrayLike], ArrayLike] | None = None,
+    **kwargs_fun: Any,
+):
     axis = sh.axis_wrapper(axis=axis, n_dim=np.ndim(x))
 
     x_np = np.array(x)
@@ -309,6 +305,7 @@ def numeric_derivative(fun: Callable[..., ArrayLike],
     derv = np.empty(fun_shape + var_shape)
 
     if diff is None:
+
         def diff(a, b):
             return a - b
 
@@ -317,8 +314,9 @@ def numeric_derivative(fun: Callable[..., ArrayLike],
         b2.insert(eps_mat, val=eps, idx=idx, axis=axis)
 
         if mode == "central":
-            derv[(Ellipsis,) + idx] = diff(fun(x_np + eps_mat, **kwargs_fun),
-                                           fun(x_np - eps_mat, **kwargs_fun)) / (2 * eps)
+            derv[(Ellipsis,) + idx] = diff(fun(x_np + eps_mat, **kwargs_fun), fun(x_np - eps_mat, **kwargs_fun)) / (
+                2 * eps
+            )
 
         elif mode == "forward":
             derv[(Ellipsis,) + idx] = diff(fun(x_np + eps_mat, **kwargs_fun), f_x) / eps
@@ -344,8 +342,7 @@ def magic(n: int, m: int | None = None):
     if n == 1:
         mat = np.array([[1]])
     elif n == 2:
-        mat = np.array([[1, 3],
-                        [4, 2]])
+        mat = np.array([[1, 3], [4, 2]])
     elif n % 2 == 1:
         p = np.arange(1, n + 1)
         mat = n * np.mod(p[:, None] + p - (n + 3) // 2, n) + np.mod(p[:, None] + 2 * p - 2, n) + 1
@@ -364,7 +361,7 @@ def magic(n: int, m: int | None = None):
         mat[np.ix_(np.concatenate([i, i + p]), j)] = mat[np.ix_(np.concatenate([i + p, i]), j)]
         mat[np.ix_([k, k + p], [0, k])] = mat[np.ix_([k + p, k], [0, k])]
 
-    mat = mat[:shape[0], :shape[1]]
+    mat = mat[: shape[0], : shape[1]]
     return jnp.asarray(mat, dtype=int32)
 
 
@@ -404,11 +401,9 @@ def get_lower(n: int) -> np.ndarray:
     return get_upper(n=n).T
 
 
-def project2null(A: ArrayLike,
-                 x: ArrayLike,
-                 clip: float | None = None,
-                 clip_mode: str | None = None,
-                 _rcond: float = __RCOND):
+def project2null(
+    A: ArrayLike, x: ArrayLike, clip: float | None = None, clip_mode: str | None = None, _rcond: float = __RCOND
+):
     x = np2.clip2(x, clip=clip, mode=clip_mode)
 
     A = jnp.asarray(A)
@@ -442,6 +437,7 @@ def solve_lstsq(A: ArrayLike, b: ArrayLike, rcond: float | None = None):
         return jnp.linalg.lstsq(A, b, rcond=rcond)[0]
 
     if A.ndim == 3 and b.ndim == 2:
+
         def _solve_lstsq(args):
             a_i, b_i = args
             return jnp.linalg.lstsq(a_i, b_i, rcond=rcond)[0]

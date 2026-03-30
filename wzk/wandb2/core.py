@@ -10,13 +10,15 @@ from wzk.logger import setup_logger
 logger = setup_logger(__name__)
 
 
-def init(project: str,
-         name: str | None = None,
-         config: dict[str, Any] | None = None,
-         tags: list[str] | None = None,
-         group: str | None = None,
-         mode: str = "online",
-         **kwargs: Any) -> Run:
+def init(
+    project: str,
+    name: str | None = None,
+    config: dict[str, Any] | None = None,
+    tags: list[str] | None = None,
+    group: str | None = None,
+    mode: str = "online",
+    **kwargs: Any,
+) -> Run:
     """Initialize a W&B run. Thin wrapper around wandb.init with sensible defaults."""
     run = wandb.init(
         project=project,

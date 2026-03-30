@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 
 from wzk import tic, tictoc, time2, toc
@@ -23,12 +22,31 @@ class Test(TestCase):
         self.assertTrue(t < 0.9)
 
     def test_get_timestamp(self):
-        s = time2.get_timestamp(year=True, month=True, day=True, hour=True, minute=True, second=True, millisecond=True,
-                                date_separator=".", time_separator=":", date_time_separator=" ")
+        s = time2.get_timestamp(
+            year=True,
+            month=True,
+            day=True,
+            hour=True,
+            minute=True,
+            second=True,
+            millisecond=True,
+            date_separator=".",
+            time_separator=":",
+            date_time_separator=" ",
+        )
         log_print(s)
-        s = time2.get_timestamp(year=True, month=False, day=False, hour=False, minute=False, second=False,
-                                millisecond=False,
-                                date_separator=".", time_separator=":", date_time_separator=" ")
+        s = time2.get_timestamp(
+            year=True,
+            month=False,
+            day=False,
+            hour=False,
+            minute=False,
+            second=False,
+            millisecond=False,
+            date_separator=".",
+            time_separator=":",
+            date_time_separator=" ",
+        )
         log_print(s)
 
     def test_tictoc2(self):

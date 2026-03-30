@@ -19,17 +19,19 @@ from wzk.logger import setup_logger
 logger = setup_logger(__name__)
 
 
-__open_cmd_dict = {"Linux": "xdg-open",
-                   "Darwin": "open",
-                   "Windows": "start"}
+__open_cmd_dict = {"Linux": "xdg-open", "Darwin": "open", "Windows": "start"}
 
 # ICLOUD = 'Library/Mobile Documents/com~apple~CloudDocs'
 
-EXT_DICT = {"pkl": "pkl", "pickle": "pickle",
-            "json": "json",
-            "txt": "text", "text": "txt",
-            "mat": "mat",
-            "msgpack": "msgpack"}
+EXT_DICT = {
+    "pkl": "pkl",
+    "pickle": "pickle",
+    "json": "json",
+    "txt": "text",
+    "text": "txt",
+    "mat": "mat",
+    "msgpack": "msgpack",
+}
 
 
 def get_pythonpath() -> list[str]:
@@ -129,10 +131,7 @@ def replace_with_link(src: str, file_list: list[str]) -> None:
         os.symlink(src=src, dst=file)
 
 
-def __read_head_tail(file: str,
-                     n: int = 1,
-                     squeeze: bool = True,
-                     head_or_tail: str = "head") -> str | list[str]:
+def __read_head_tail(file: str, n: int = 1, squeeze: bool = True, head_or_tail: str = "head") -> str | list[str]:
     # TODO: pathlib — Path(file).read_text().splitlines() with slicing
     assert head_or_tail == "head" or head_or_tail == "tail"
     s = os.popen(f"{head_or_tail} -n {n} {file}").read()
@@ -153,9 +152,13 @@ def read_tail(file: str, n: int = 1, squeeze: bool = True) -> str | list[str]:
 
 
 # --- Directories ------------------------------------------------------------------------------------------------------
-def listdir(directory: str, only_files: bool = False, sort: bool = True,
-            ignore_files: tuple[str, ...] = (".DS_Store",),
-            ignore_patterns: list[str] | None = None) -> list[str]:
+def listdir(
+    directory: str,
+    only_files: bool = False,
+    sort: bool = True,
+    ignore_files: tuple[str, ...] = (".DS_Store",),
+    ignore_patterns: list[str] | None = None,
+) -> list[str]:
     # TODO: pathlib — list(Path(directory).iterdir())
 
     fl = os.listdir(directory)
@@ -192,7 +195,7 @@ def ensure_file_extension(file: str, ext: str) -> str:  # TODO: pathlib — Path
     if file[-len(ext)] != ext:
         idx_dot = file[::-1].find(".")
         if idx_dot != -1:
-            file = file[:-(idx_dot+1)]
+            file = file[: -(idx_dot + 1)]
         file += ext
 
     return file
@@ -201,7 +204,7 @@ def ensure_file_extension(file: str, ext: str) -> str:  # TODO: pathlib — Path
 def remove_file_extension(file: str, ext: str) -> str:  # TODO: pathlib — Path(file).stem
     ext = __ensure_extension_point(ext)
     file = ensure_file_extension(file=file, ext=ext)
-    file = file[:-len(ext)]
+    file = file[: -len(ext)]
     return file
 
 
@@ -214,6 +217,7 @@ def change_file_extension(file: str, ext_old: str, ext_new: str) -> str:
 
 # –-- IO --- -----------------------------------------------------------------------------------------------------------
 # - pickle
+
 
 def save_pickle(obj: object, file: str) -> None:
     # TODO: pathlib — Path(file).parent.mkdir(...), Path(file).write_bytes(pickle.dumps(obj))
@@ -281,11 +285,14 @@ def save_object2txt(file: str, obj: object) -> None:
 
 # --- NPY --------------------------------------------------------------------------------------------------------------
 # *.npy and *.npz files (maybe own module)
-def combine_npz_files(*, directory: str,
-                      pattern: str | None = None,
-                      file_list: list[str] | None = None,
-                      save: bool = True,
-                      log_level: int = 0) -> dict[str, np.ndarray]:
+def combine_npz_files(
+    *,
+    directory: str,
+    pattern: str | None = None,
+    file_list: list[str] | None = None,
+    save: bool = True,
+    log_level: int = 0,
+) -> dict[str, np.ndarray]:
 
     if file_list is None:
         if pattern is None:
@@ -317,26 +324,23 @@ def combine_npz_files(*, directory: str,
     return new_dict
 
 
-def combine_npy_files2(directory: str,
-                       new_name: str = "combined_{new_len}") -> None:
+def combine_npy_files2(directory: str, new_name: str = "combined_{new_len}") -> None:
     # TODO: pathlib — Path(directory) / file
     directory = os.path.normpath(path=directory)
     file_list = [file for file in os.listdir(directory) if ".npy" in file]
-    arr = np.concatenate([np.load(f"{directory}/{file}", allow_pickle=False)
-                          for file in file_list], axis=0)
+    arr = np.concatenate([np.load(f"{directory}/{file}", allow_pickle=False) for file in file_list], axis=0)
     np.save(file=f"{directory}/{new_name.format(new_len=len(arr))}.npy", arr=arr)
 
 
-def combine_npy_files(directory: str,
-                      new_name: str = "combined_{new_len}",
-                      delete_singles: bool = False) -> np.ndarray:
+def combine_npy_files(directory: str, new_name: str = "combined_{new_len}", delete_singles: bool = False) -> np.ndarray:
     # TODO: pathlib — Path(directory) / file, Path.glob("*.npy")
     directory = os.path.normpath(path=directory)
     file_list = [file for file in os.listdir(directory) if ".npy" in file]
     logger.debug("Combining npy files from %s: %s", directory, file_list)
 
-    arr = np.concatenate([np.load(f"{directory}/{file}", allow_pickle=True)[np.newaxis, :]
-                          for file in file_list], axis=0)
+    arr = np.concatenate(
+        [np.load(f"{directory}/{file}", allow_pickle=True)[np.newaxis, :] for file in file_list], axis=0
+    )
 
     if arr.dtype.hasobject:
         arr = [np.concatenate(a) if isinstance(a[0], (tuple, list, np.ndarray)) else a for a in arr.T]
@@ -351,9 +355,7 @@ def combine_npy_files(directory: str,
     return arr
 
 
-def clip_npz_file(n_samples: int,
-                  file: str,
-                  save: bool = True) -> dict[str, np.ndarray]:
+def clip_npz_file(n_samples: int, file: str, save: bool = True) -> dict[str, np.ndarray]:
     # TODO: pathlib — Path(file).parent, Path(file).stem, Path(file).suffix
     directory, file = os.path.split(file)
     file_name, file_extension = os.path.splitext(file)
@@ -379,9 +381,7 @@ def copy2clipboard(file: str) -> None:
     https://apple.stackexchange.com/questions/15318/using-terminal-to-copy-a-file-to-clipboard
     -> works only for mac!
     """
-    subprocess.run(["osascript",
-                    "-e",
-                    f'set the clipboard to POSIX file "{file}"'])
+    subprocess.run(["osascript", "-e", f'set the clipboard to POSIX file "{file}"'])
 
 
 # --- chmod ---
@@ -405,11 +405,9 @@ def are_files_identical(file_a: str, file_b: str) -> bool:
 
 
 # --- Directory Magic --------------------------------------------------------------------------------------------------
-def split_files_into_dirs(file_list: list[str] | None,
-                          bool_fun: object,
-                          dir_list: list[str],
-                          base_dir: str | None = None,
-                          mode: str = "dry") -> None:
+def split_files_into_dirs(
+    file_list: list[str] | None, bool_fun: object, dir_list: list[str], base_dir: str | None = None, mode: str = "dry"
+) -> None:
     # TODO: pathlib — Path operations throughout
 
     if base_dir is not None:
@@ -447,8 +445,7 @@ def split_files_into_dirs(file_list: list[str] | None,
         logger.debug("'dry' mode is activated by default, to apply the changes use mode='wet')")
 
 
-def dir_dir2file_array(directory: str | None = None,
-                       combine_str: bool = True) -> list[list[str]]:
+def dir_dir2file_array(directory: str | None = None, combine_str: bool = True) -> list[list[str]]:
     """
     -directory/
     ----subA/
@@ -484,8 +481,7 @@ def dir_dir2file_array(directory: str | None = None,
     return file_arr
 
 
-def rename_directories_inbetween(directory: str, inbetweens: str,
-                                 new_inbetweens: str = "") -> None:
+def rename_directories_inbetween(directory: str, inbetweens: str, new_inbetweens: str = "") -> None:
     for directory_i, _directory_list, file_list in os.walk(directory):
         for f in file_list:
             old = f"{directory_i}/{f}"

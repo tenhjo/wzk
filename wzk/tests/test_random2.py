@@ -14,7 +14,7 @@ class Test(TestCase):
 
             x = np.random.uniform(low=-1, high=+1, size=(n, 2))
             d = np.linalg.norm(x, axis=-1)
-            b = np.logical_and(r-w < d, d < r+w)
+            b = np.logical_and(r - w < d, d < r + w)
             return x[b]
 
         nn = 1000

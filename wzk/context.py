@@ -6,7 +6,7 @@ def __set_attribute_safe(obj, attribute, value, fail_on_error=True):
         setattr(obj, attribute, value)
     except AttributeError:
         if fail_on_error:
-            raise AttributeError
+            raise
 
 
 @contextmanager

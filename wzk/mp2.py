@@ -41,9 +41,7 @@ def vectorize(fun, *args, n_dimx=1):
     return fun_vec
 
 
-def mp_wrapper(*args, fun,
-               n_processes=1, max_chunk_size=None, use_loop=False,
-               start_method=None):
+def mp_wrapper(*args, fun, n_processes=1, max_chunk_size=None, use_loop=False, start_method=None):
     """
     Multiprocessing Wrapper for a function with a single argument.
     arg must be an iterative and will be split along its first dimension and fed to the different processes
@@ -87,6 +85,7 @@ def mp_wrapper(*args, fun,
         return fun(*args)
 
     if len(args) == 0:
+
         def fun_i():
             np.random.seed(None)
             return fun()
@@ -95,17 +94,18 @@ def mp_wrapper(*args, fun,
             queue.put((i_process, fun_i()))
 
     else:
-        n_samples_pp, n_samples_pp_cs = \
-            get_n_samples_per_process(n_samples=n_samples, n_processes=n_processes)
+        n_samples_pp, n_samples_pp_cs = get_n_samples_per_process(n_samples=n_samples, n_processes=n_processes)
 
         if isinstance(args[0], int):
             if max_chunk_size is None:
+
                 def fun_i(i_process):
                     np.random.seed(None)
 
                     return fun(n_samples_pp[i_process])
 
             else:
+
                 def fun_i(i_process):
                     np.random.seed(None)
 
@@ -115,19 +115,22 @@ def mp_wrapper(*args, fun,
 
         else:
             if max_chunk_size is not None:
+
                 def fun_i(i_process):
                     np.random.seed(None)
 
                     n_s = n_samples_pp[i_process]
                     ns_pp, ns_pp_cs = get_n_samples_per_process(n_samples=n_s, n_processes=n_s // max_chunk_size)
-                    return combine_results([fun(*map(lambda a: a[ns_pp_cs[j]:ns_pp_cs[j+1]], args))
-                                            for j in range(len(ns_pp_cs)-1)])
+                    return combine_results([
+                        fun(*(a[ns_pp_cs[j] : ns_pp_cs[j + 1]] for a in args)) for j in range(len(ns_pp_cs) - 1)
+                    ])
+
             else:
+
                 def fun_i(i_process):
                     np.random.seed(None)
 
-                    return fun(*map(lambda a: a[n_samples_pp_cs[i_process]:n_samples_pp_cs[i_process+1]],
-                                    args))
+                    return fun(*(a[n_samples_pp_cs[i_process] : n_samples_pp_cs[i_process + 1]] for a in args))
 
         if use_loop:
             return combine_results([fun_i(i_process=ip) for ip in range(n_processes)])
@@ -168,8 +171,7 @@ def mp_wrapper(*args, fun,
 def combine_results(results):
     if isinstance(results[0], tuple):
         results = ltd.change_tuple_order(results)
-        return tuple([np.concatenate(r, axis=0) if np.ndim(r[0]) > 0 else np.array(r)
-                      for r in results])
+        return tuple([np.concatenate(r, axis=0) if np.ndim(r[0]) > 0 else np.array(r) for r in results])
     else:
         if results[0] is None:
             return None

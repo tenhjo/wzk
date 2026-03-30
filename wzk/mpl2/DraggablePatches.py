@@ -24,8 +24,7 @@ class DummyPatch:
 class DraggablePatch(DummyPatch):
     lock = None  # only one can be animated at a time
 
-    def __init__(self, ax, vary_xy=(True, True), limits=None, callback=None,
-                 wsad=None, **kwargs):
+    def __init__(self, ax, vary_xy=(True, True), limits=None, callback=None, wsad=None, **kwargs):
         super().__init__()
         ax.add_patch(self)
 
@@ -192,14 +191,17 @@ class DraggablePatch(DummyPatch):
 
 
 class DraggableCircle(patches.Circle, DraggablePatch):
-    def __init__(self,
-                 ax,
-                 xy: np.ndarray | list | tuple,
-                 radius,
-                 vary_xy=(True, True), callback=None,
-                 limits=None,
-                 wsad=None,
-                 **kwargs):
+    def __init__(
+        self,
+        ax,
+        xy: np.ndarray | list | tuple,
+        radius,
+        vary_xy=(True, True),
+        callback=None,
+        limits=None,
+        wsad=None,
+        **kwargs,
+    ):
         patches.Circle.__init__(self, xy=(xy[0], xy[1]), radius=radius, **kwargs)
         DraggablePatch.__init__(self, ax=ax, vary_xy=vary_xy, callback=callback, limits=limits, wsad=wsad)
 
@@ -211,11 +213,7 @@ class DraggableCircle(patches.Circle, DraggablePatch):
 
 
 class DraggableEllipse(patches.Ellipse, DraggablePatch):
-    def __init__(self,
-                 ax,
-                 xy, width, height, angle=0,
-                 vary_xy=(True, True), callback=None, limits=None,
-                 **kwargs):
+    def __init__(self, ax, xy, width, height, angle=0, vary_xy=(True, True), callback=None, limits=None, **kwargs):
         """
         If fig_width_inch or height are None,
         they are computed to form a circle for the aspect and Measurements ratio of the axis.
@@ -237,11 +235,7 @@ class DraggableEllipse(patches.Ellipse, DraggablePatch):
 
 
 class DraggableRectangle(patches.Rectangle, DraggablePatch):
-    def __init__(self, *,
-                 ax,
-                 xy, width, height, angle=0,
-                 vary_xy=(True, True), callback=None, limits=None,
-                 **kwargs):
+    def __init__(self, *, ax, xy, width, height, angle=0, vary_xy=(True, True), callback=None, limits=None, **kwargs):
         patches.Rectangle.__init__(self, xy=xy, width=width, height=height, angle=angle, **kwargs)
         DraggablePatch.__init__(self, ax=ax, vary_xy=vary_xy, callback=callback, limits=limits)
 
@@ -310,7 +304,7 @@ class DraggablePatchList:
         x = self.__value_wrapper(v=x, v_cur=xy_cur[:, 0], n=n)
         y = self.__value_wrapper(v=y, v_cur=xy_cur[:, 1], n=n)
 
-        for ii, xx, yy in zip(idx, x, y):
+        for ii, xx, yy in zip(idx, x, y, strict=False):
             self.dp_list[ii].set_xy_drag(xy=(xx, yy))
 
     def __set_or_add_callback_drag(self, callback, idx, mode):
@@ -320,10 +314,10 @@ class DraggablePatchList:
         callback = self.__value_wrapper(v=callback, v_cur=callback_cur, n=n)
 
         if mode == "set":
-            for ii, cc in zip(idx, callback):
+            for ii, cc in zip(idx, callback, strict=False):
                 self.dp_list[ii].set_callback_drag(callback=cc)
         elif mode == "add":
-            for ii, cc in zip(idx, callback):
+            for ii, cc in zip(idx, callback, strict=False):
                 self.dp_list[ii].add_callback_drag(cc)
         else:
             raise ValueError(f"Unknown mode: {mode}")
@@ -346,39 +340,35 @@ class DraggableCircleList(DraggablePatchList):
 
     def append(self, ax, xy, radius, **kwargs):
         radius = np2.scalar2array(radius, shape=xy.shape[0])
-        for xy_i, radius_i in zip(xy, radius):
+        for xy_i, radius_i in zip(xy, radius, strict=False):
             self.dp_list.append(DraggableCircle(ax=ax, xy=xy_i, radius=radius_i, **kwargs))
 
 
 class DraggableEllipseList(DraggablePatchList):
-    def __init__(self, ax,
-                 xy, width, height, angle=0,
-                 **kwargs):
+    def __init__(self, ax, xy, width, height, angle=0, **kwargs):
         super().__init__()
         self.append(ax, xy=xy, width=width, height=height, angle=angle, **kwargs)
 
-    def append(self, ax,
-               xy, width, height, angle, **kwargs):
+    def append(self, ax, xy, width, height, angle, **kwargs):
         width, height, angle = np2.scalar2array(width, height, angle, shape=xy.shape[0])
-        for xy_i, width_i, height_i, angle_i in zip(xy, width, height, angle):
-            self.dp_list.append(DraggableEllipse(ax=ax,
-                                                 xy=xy_i, width=width_i, height=height_i, angle=angle_i, **kwargs))
+        for xy_i, width_i, height_i, angle_i in zip(xy, width, height, angle, strict=False):
+            self.dp_list.append(
+                DraggableEllipse(ax=ax, xy=xy_i, width=width_i, height=height_i, angle=angle_i, **kwargs)
+            )
 
 
 class DraggableRectangleList(DraggablePatchList):
-    def __init__(self, ax,
-                 xy, width, height, angle=0,
-                 **kwargs):
+    def __init__(self, ax, xy, width, height, angle=0, **kwargs):
         super().__init__()
         self.append(ax, xy=xy, width=width, height=height, angle=angle, **kwargs)
 
-    def append(self, ax,
-               xy, width, height, angle, **kwargs):
+    def append(self, ax, xy, width, height, angle, **kwargs):
         width, height, angle = np2.scalar2array(width, height, angle, shape=xy.shape[0])
 
-        for xy_i, width_i, height_i, angle_i in zip(xy, width, height, angle):
-            self.dp_list.append(DraggableRectangle(ax=ax,
-                                                   xy=xy_i, width=width_i, height=height_i, angle=angle_i, **kwargs))
+        for xy_i, width_i, height_i, angle_i in zip(xy, width, height, angle, strict=False):
+            self.dp_list.append(
+                DraggableRectangle(ax=ax, xy=xy_i, width=width_i, height=height_i, angle=angle_i, **kwargs)
+            )
 
 
 class DraggableFrame(DraggableCircleList):
@@ -392,12 +382,14 @@ class DraggableFrame(DraggableCircleList):
         self.v = np.array([1, 0])
         xv = self.__x_v2xv(x=xy, v=self.v)
 
-        super().__init__(ax, xy=np.vstack([xy, xv]), radius=np.array([self.size_radius_center * self.size,
-                                                                      self.size_radius_handle * self.size]),
-                         **kwargs)
+        super().__init__(
+            ax,
+            xy=np.vstack([xy, xv]),
+            radius=np.array([self.size_radius_center * self.size, self.size_radius_handle * self.size]),
+            **kwargs,
+        )
 
-        self.h = plot_coordinate_frames(ax=ax, x=xy, dcm=self.__v2dcm(self.v),
-                                        mode="quiver", zorder=10, **kwargs)
+        self.h = plot_coordinate_frames(ax=ax, x=xy, dcm=self.__v2dcm(self.v), mode="quiver", zorder=10, **kwargs)
         super().add_callback_drag(self.update_x, idx=0)
         super().add_callback_drag(self.update_v, idx=1)
 

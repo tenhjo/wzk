@@ -16,15 +16,13 @@ verbose = 1
 
 
 class TestDraggableCircle(TestCase):
-
     def test_circles(self):
         fig, ax = new_fig(aspect="equal", title="Circles")
 
-        c1 = DraggableCircle(xy=(.2, .4), radius=.1, ax=ax, color="y", alpha=0.5, hatch="///")
-        c2 = DraggableCircle(xy=(.2, .4), radius=.1, ax=ax, color="r")
+        c1 = DraggableCircle(xy=(0.2, 0.4), radius=0.1, ax=ax, color="y", alpha=0.5, hatch="///")
+        c2 = DraggableCircle(xy=(0.2, 0.4), radius=0.1, ax=ax, color="r")
 
-        c1.set_limits(limits=np.array(((0.1, 0.2),
-                                       (0.1, 0.2))))
+        c1.set_limits(limits=np.array(((0.1, 0.2), (0.1, 0.2))))
         c2.set_color("g")
         c2.set_center(xy=(0.4, 0.4))
         c2.set_radius(radius=0.02)
@@ -48,16 +46,17 @@ class TestDraggableEllipse(TestCase):
 
 
 class TestDraggablePatchList(TestCase):
-
     def test_ellipses(self):
         fig, ax = new_fig(aspect="equal", title="Ellipses + Rectangles")
         DraggableEllipse(ax=ax, xy=(0.5, 0.6), width=0.1, height=0.2, vary_xy=(False, True), color="k")
         DraggableRectangle(ax=ax, xy=(0.6, 0.5), width=0.2, height=0.1, vary_xy=(True, False), color="k")
 
-        DraggableEllipseList(ax=ax, xy=np.random.uniform(low=0.1, high=0.4, size=(3, 2)),
-                             width=0.06, height=0.09, alpha=0.7, color="b")
-        DraggableRectangleList(ax=ax, xy=np.random.uniform(low=0.6, high=0.9, size=(3, 2)),
-                               width=0.06, height=0.09, alpha=0.7, color="r")
+        DraggableEllipseList(
+            ax=ax, xy=np.random.uniform(low=0.1, high=0.4, size=(3, 2)), width=0.06, height=0.09, alpha=0.7, color="b"
+        )
+        DraggableRectangleList(
+            ax=ax, xy=np.random.uniform(low=0.6, high=0.9, size=(3, 2)), width=0.06, height=0.09, alpha=0.7, color="r"
+        )
 
         if verbose == 0:
             close_all()
@@ -66,7 +65,6 @@ class TestDraggablePatchList(TestCase):
 
 
 class TestDraggableFrame(TestCase):
-
     def test_frame(self):
         fig, ax = new_fig(aspect="equal")
         df = DraggableFrame(ax=ax, xy=np.zeros(2), scale=0.4, color="red")

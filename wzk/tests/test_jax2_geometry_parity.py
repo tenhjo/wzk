@@ -50,10 +50,8 @@ def test_capsule_capsule():
         capsule_a, capsule_b = rng.normal(size=(2, 2, 3))
         radius_a, radius_b = rng.uniform(0.0, 0.4, size=2)
 
-        _, _, d0 = geometry.capsule_capsule(line_a=capsule_a, radius_a=radius_a,
-                                            line_b=capsule_b, radius_b=radius_b)
-        _, _, d1 = jax2.capsule_capsule(line_a=capsule_a, radius_a=radius_a,
-                                        line_b=capsule_b, radius_b=radius_b)
+        _, _, d0 = geometry.capsule_capsule(line_a=capsule_a, radius_a=radius_a, line_b=capsule_b, radius_b=radius_b)
+        _, _, d1 = jax2.capsule_capsule(line_a=capsule_a, radius_a=radius_a, line_b=capsule_b, radius_b=radius_b)
         assert np.allclose(np.asarray(d0), np.asarray(d1), atol=1e-6, rtol=1e-6)
 
 

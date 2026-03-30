@@ -14,20 +14,18 @@ logger = setup_logger(__name__)
 
 def p_normal_skew(x: ArrayLike, loc: float = 0.0, scale: float = 1.0, a: float = 0.0) -> np.ndarray:
     from scipy.stats import norm
+
     t = (x - loc) / scale
-    return 2 * norm.pdf(t) * norm.cdf(a*t)
+    return 2 * norm.pdf(t) * norm.cdf(a * t)
 
 
-def normal_skew_int(loc: float = 0.0,
-                    scale: float = 1.0,
-                    a: float = 0.0,
-                    low: int | None = None,
-                    high: int | None = None,
-                    size: int = 1) -> np.ndarray | int:
+def normal_skew_int(
+    loc: float = 0.0, scale: float = 1.0, a: float = 0.0, low: int | None = None, high: int | None = None, size: int = 1
+) -> np.ndarray | int:
     if low is None:
-        low = loc-10*scale
+        low = loc - 10 * scale
     if high is None:
-        high = loc+10*scale+1
+        high = loc + 10 * scale + 1
 
     p_max = p_normal_skew(x=loc, loc=loc, scale=scale, a=a)
 
@@ -66,13 +64,12 @@ def noise(shape: int | tuple[int, ...], scale: float, mode: str = "normal") -> n
         raise ValueError(f"Unknown mode '{mode}'")
 
 
-def get_n_in2(n_in: int, n_out: int,
-              n_total: int, n_current: int,
-              safety_factor: float = 1.01,
-              max_factor: int = 128) -> int:
+def get_n_in2(
+    n_in: int, n_out: int, n_total: int, n_current: int, safety_factor: float = 1.01, max_factor: int = 128
+) -> int:
 
     if n_out == 0:
-        n_in2 = n_in*2
+        n_in2 = n_in * 2
     else:
         n_in2 = (n_total - n_current) * n_in / n_out
 
@@ -81,8 +78,7 @@ def get_n_in2(n_in: int, n_out: int,
     return n_in2
 
 
-def fun2n(fun: Callable[[int], np.ndarray], n: int,
-          max_iter: int = 100, max_factor: int = 128) -> np.ndarray:
+def fun2n(fun: Callable[[int], np.ndarray], n: int, max_iter: int = 100, max_factor: int = 128) -> np.ndarray:
     """
     Wrapper to repeatedly call a function fun(n_i) -> x and concatenate its outputs until len(x) >= n
     Useful for function which samples randomly
@@ -94,7 +90,6 @@ def fun2n(fun: Callable[[int], np.ndarray], n: int,
 
     n_in = n
     for i in range(max_iter):
-
         n_in = get_n_in2(n_in=n_in, n_out=len(x_new), n_total=n, n_current=len(x), max_factor=max_factor)
 
         x_new = fun(n_in)
@@ -110,9 +105,9 @@ def fun2n(fun: Callable[[int], np.ndarray], n: int,
         return x
 
 
-def choose_from_sections(n_total: int, n_sections: int,
-                         n_choose_per_section: int | ArrayLike,
-                         flatten: bool = True) -> np.ndarray:
+def choose_from_sections(
+    n_total: int, n_sections: int, n_choose_per_section: int | ArrayLike, flatten: bool = True
+) -> np.ndarray:
     n_i = np.array_split(np.arange(n_total), n_sections)
 
     n_choose_per_section = np2.scalar2array(n_choose_per_section, shape=n_sections)
@@ -169,7 +164,7 @@ def block_shuffle(arr: np.ndarray | int, block_size: int, inside: bool = False) 
     if inside:
         idx = np.arange(n)
         for i in range(0, n, block_size):
-            np.random.shuffle(idx[i:i + block_size])
+            np.random.shuffle(idx[i : i + block_size])
         return arr[idx]
 
     else:

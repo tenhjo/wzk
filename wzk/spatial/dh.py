@@ -23,10 +23,12 @@ def dh2frame(q: float, d: float, theta: float, a: float, alpha: float) -> np.nda
     cos_al = np.cos(alpha)
     sin_al = np.sin(alpha)
 
-    return np.array([[cos_th, -sin_th, 0., a],
-                     [cos_al * sin_th, cos_al * cos_th, -sin_al, -d * sin_al],
-                     [sin_al * sin_th, sin_al * cos_th, cos_al, d * cos_al],
-                     [0, 0, 0, 1]])
+    return np.array([
+        [cos_th, -sin_th, 0.0, a],
+        [cos_al * sin_th, cos_al * cos_th, -sin_al, -d * sin_al],
+        [sin_al * sin_th, sin_al * cos_th, cos_al, d * cos_al],
+        [0, 0, 0, 1],
+    ])
 
 
 def dh2frame_all(dh: np.ndarray) -> np.ndarray:
@@ -85,6 +87,4 @@ def dh2frame_2d(q: float, theta: float, a: float) -> np.ndarray:
     cos_th = np.cos(theta + q)
     sin_th = np.sin(theta + q)
 
-    return np.array([[cos_th, -sin_th, a],
-                     [sin_th, cos_th, 0],
-                     [0, 0, 1]])
+    return np.array([[cos_th, -sin_th, a], [sin_th, cos_th, 0], [0, 0, 1]])

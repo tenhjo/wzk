@@ -58,8 +58,7 @@ def find_array_occurrences(a: ArrayLike, o: ArrayLike) -> np.ndarray:
     return i
 
 
-def get_element_overlap(arr1: ArrayLike,
-                        arr2: ArrayLike | None = None) -> np.ndarray:
+def get_element_overlap(arr1: ArrayLike, arr2: ArrayLike | None = None) -> np.ndarray:
     if arr2 is None:
         arr2 = arr1
 
@@ -121,10 +120,9 @@ def get_interval_indices(bool_array: ArrayLike, expand: bool = False) -> np.ndar
     return interval_list
 
 
-def get_cropping_indices(pos: ArrayLike,
-                         shape_small: ArrayLike,
-                         shape_big: ArrayLike,
-                         mode: str = "lower_left") -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def get_cropping_indices(
+    pos: ArrayLike, shape_small: ArrayLike, shape_big: ArrayLike, mode: str = "lower_left"
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     shape_small, shape_big = args2arrays(shape_small, shape_big)
 
     if mode == "center":
@@ -179,10 +177,7 @@ def find_largest_consecutives(x: ArrayLike) -> tuple[int, np.ndarray]:
     return n, find_consecutives(x, n=n)
 
 
-def find_block_shuffled_order(a: ArrayLike,
-                              b: ArrayLike,
-                              block_size: int,
-                              threshold: float) -> np.ndarray:
+def find_block_shuffled_order(a: ArrayLike, b: ArrayLike, block_size: int, threshold: float) -> np.ndarray:
     n = len(a)
     m = len(b)
     assert n == m
@@ -193,8 +188,7 @@ def find_block_shuffled_order(a: ArrayLike,
 
     for i in range(nn):
         for j in range(nn):
-            d = (a[i * block_size:(i + 1) * block_size] -
-                 b[j * block_size:(j + 1) * block_size])
+            d = a[i * block_size : (i + 1) * block_size] - b[j * block_size : (j + 1) * block_size]
 
             d = np.abs(d).max()
             if d < threshold:
@@ -207,5 +201,5 @@ def find_block_shuffled_order(a: ArrayLike,
 def align_shapes(a: ArrayLike, b: ArrayLike) -> np.ndarray:
     idx = find_subarray(a=a, b=b).item()
     aligned_shape = np.full(shape=len(a), fill_value=-1, dtype=int32)
-    aligned_shape[idx:idx + len(b)] = 1
+    aligned_shape[idx : idx + len(b)] = 1
     return aligned_shape

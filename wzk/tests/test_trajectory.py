@@ -22,17 +22,11 @@ class Test(TestCase):
         self.assertTrue(testing.compare_arrays(x_ss, x_true))
 
         # B
-        x = np.array([[0, 1],
-                      [1, 1],
-                      [2, 2]])
+        x = np.array([[0, 1], [1, 1], [2, 2]])
         # B1
         n = 2
         x_ss = trajectory.get_substeps(x=x, n=n)
-        x_true = np.array([[0, 1],
-                           [0.5, 1],
-                           [1, 1],
-                           [1.5, 1.5],
-                           [2, 2]])
+        x_true = np.array([[0, 1], [0.5, 1], [1, 1], [1.5, 1.5], [2, 2]])
         self.assertTrue(testing.compare_arrays(x_ss, x_true))
         # B2
         x_ss = trajectory.get_substeps(x=x, n=0)
@@ -51,20 +45,17 @@ class Test(TestCase):
         inner = np.full((10, 5, 3), 0)
         start = np.full((1, 1, 3), 1)
         end = np.full((1, 1, 3), 2)
-        __assert(full=trajectory.inner2full(inner=inner, start=start, end=end),
-                 shape=(10, 7, 3))
+        __assert(full=trajectory.inner2full(inner=inner, start=start, end=end), shape=(10, 7, 3))
 
         inner = np.full((10, 5, 3), 0)
         start = np.full((1, 3), 1)
         end = np.full((1, 3), 2)
-        __assert(full=trajectory.inner2full(inner=inner, start=start, end=end),
-                 shape=(10, 7, 3))
+        __assert(full=trajectory.inner2full(inner=inner, start=start, end=end), shape=(10, 7, 3))
 
         inner = np.full((10, 5, 3), 0)
         start = np.full(3, 1)
         end = np.full(3, 2)
-        __assert(full=trajectory.inner2full(inner=inner, start=start, end=end),
-                 shape=(10, 7, 3))
+        __assert(full=trajectory.inner2full(inner=inner, start=start, end=end), shape=(10, 7, 3))
 
     def test_get_substeps_adjusted(self):
         x = np.array([0, 2, 10, 19])[:, np.newaxis]
@@ -75,10 +66,7 @@ class Test(TestCase):
         x = np.deg2rad(np.array([[-150], [+150], [90], [-20]]))
         x2 = trajectory.get_substeps_adjusted(x=x, n=12, is_periodic=[True])
         x2 = np.rad2deg(x2)
-        true = np.array([-150, -170, 170.,
-                         150, 130, 110,
-                         90, 68, 46, 24, 2,
-                         -20])[:, np.newaxis]
+        true = np.array([-150, -170, 170.0, 150, 130, 110, 90, 68, 46, 24, 2, -20])[:, np.newaxis]
         self.assertTrue(testing.compare_arrays(x2, true))
 
     def test_get_path_adjusted(self):

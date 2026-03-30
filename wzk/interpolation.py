@@ -1,4 +1,3 @@
-
 import numpy as np
 from scipy.interpolate import CubicSpline, PPoly, splev, splrep
 from scipy.linalg import solve_banded
@@ -21,7 +20,7 @@ def get_tangents(x, y, mode="i1"):
 
     h = np.diff(x)
     g = np.diff(y)
-    s = g/h
+    s = g / h
 
     la = h[1:] / (h[:-1] + h[1:])
     mu = 1 - la
@@ -35,9 +34,9 @@ def get_tangents(x, y, mode="i1"):
         la3n = h3[+1:] / (h3[:-1] + h3[1:])
         la3p = h3[:-1] / (h3[:-1] + h3[1:])
 
-        a_in = np.concatenate([[0, -3], -3*la3n])
+        a_in = np.concatenate([[0, -3], -3 * la3n])
         a_ii = np.full(n, 4)
-        a_ip = np.concatenate([-3*la3p, [-3, 0]])
+        a_ip = np.concatenate([-3 * la3p, [-3, 0]])
         ab = np.vstack([a_in, a_ii, a_ip])
 
         b[0] = s[0]
@@ -82,22 +81,22 @@ def get_coefficients(p, m, x=None):
     m0 = m[:-1]
     m1 = m[1:]
 
-    c = np.empty((4, len(p)-1))
+    c = np.empty((4, len(p) - 1))
 
     # Assume unit interval
     if x is None:
         c[0] = p0
         c[1] = m0
-        c[2] = -3*p0 + 3*p1 - 2*m0 - m1
-        c[3] = +2*p0 - 2*p1 + 1*m0 + m1
+        c[2] = -3 * p0 + 3 * p1 - 2 * m0 - m1
+        c[3] = +2 * p0 - 2 * p1 + 1 * m0 + m1
 
     else:
         h = np.diff(x)
 
         c[0] = p0
         c[1] = m0
-        c[2] = (-3*p0 + 3*p1 - (2*m0 + m1)*h) / h**2
-        c[3] = (+2*p0 - 2*p1 + 1*(m0 + m1)*h) / h**3
+        c[2] = (-3 * p0 + 3 * p1 - (2 * m0 + m1) * h) / h**2
+        c[3] = (+2 * p0 - 2 * p1 + 1 * (m0 + m1) * h) / h**3
 
     # In scipy - equivalent
     # g = np.diff(p)
@@ -135,20 +134,20 @@ def scale_coefficients(c, x):
 def test_interpolation_paper():
     n = 1000
     # Paper
-    x = np.array([0.5, 3.5, 6, 8.5, 11., 14., 17., 20.])
-    y = np.array([93., 104., 120., 98., 86., 102., 81., 90.])
+    x = np.array([0.5, 3.5, 6, 8.5, 11.0, 14.0, 17.0, 20.0])
+    y = np.array([93.0, 104.0, 120.0, 98.0, 86.0, 102.0, 81.0, 90.0])
     plot_3_splines(x=x, y=y, n=n, title="Blood-Glucose Level")
 
-    x = np.array([0., 3., 5., 6., 8., 11.])
-    y = np.array([0., 1., 2., 4., 5., 6.])
+    x = np.array([0.0, 3.0, 5.0, 6.0, 8.0, 11.0])
+    y = np.array([0.0, 1.0, 2.0, 4.0, 5.0, 6.0])
     plot_3_splines(x=x, y=y, n=n, title="Monotone Example")
 
-    x = np.array([0., 0.3, 1., 1.8, 3., 4.2, 5., 5.7, 6.])
-    y = np.sqrt(9 - (x - 3)**2)
+    x = np.array([0.0, 0.3, 1.0, 1.8, 3.0, 4.2, 5.0, 5.7, 6.0])
+    y = np.sqrt(9 - (x - 3) ** 2)
     plot_3_splines(x=x, y=y, n=n, title="Circle")
 
     x = np.array([0.1, 0.2, 0.6, 1.0, 1.2, 1.4])
-    y = 1/x**2
+    y = 1 / x**2
     plot_3_splines(x=x, y=y, n=n, title="1/x2")
 
     #
@@ -177,7 +176,7 @@ def test_interpolation2():
     n = 100
     n05 = 100
     x = np.arange(5)
-    y = np.array([2, 3., 4., 5., 2.])
+    y = np.array([2, 3.0, 4.0, 5.0, 2.0])
     plot_3_splines(x=x, y=y, n=n, title="Kink")
 
     x, y = get_substeps_adjusted(x=np.vstack((x, y)).T, n=n05).T
@@ -280,7 +279,7 @@ def dummy1():
     # y = np.sort(y)
     xy = np.vstack((x, y)).T
     xy_fine = get_substeps_adjusted(x=xy, n=n_new)
-    xy_fine2 = get_substeps_adjusted(x=xy, n=n_new*2)
+    xy_fine2 = get_substeps_adjusted(x=xy, n=n_new * 2)
 
     # fig, ax = new_fig()
     # ax.plot(*xy.T, alpha=0.5, marker='x')
@@ -324,7 +323,7 @@ def dummy2():
     y = np.random.random(n_old) * 2
     # y = np.sort(y)
     xy = np.vstack((x, y)).T
-    xy_fine = get_substeps_adjusted(x=xy, n=n_new//n_fraction)
+    xy_fine = get_substeps_adjusted(x=xy, n=n_new // n_fraction)
 
     # fig, ax = new_fig()
     # ax.plot(*xy.T, alpha=0.5, marker='x')
@@ -336,13 +335,13 @@ def dummy2():
 
     idx = np.nonzero(np.abs(np.diff(y_fine_diff)) > 1e-5)[0]
     n = 5
-    kernel = np.zeros(2*n)
+    kernel = np.zeros(2 * n)
     kernel[:n] = 1 / np.linspace(10, np.sqrt(2.25), num=n) ** 2
     kernel[n:] = 1 - kernel[:n][::-1]
     y_fine_diff2 = y_fine_diff.copy()
     for i in idx:
-        d = y_fine_diff2[i+1] - y_fine_diff2[i]
-        y_fine_diff2[i-n+1:i+n+1] = y_fine_diff2[i] + d * kernel
+        d = y_fine_diff2[i + 1] - y_fine_diff2[i]
+        y_fine_diff2[i - n + 1 : i + n + 1] = y_fine_diff2[i] + d * kernel
 
     fig, ax = new_fig()
     ax.plot(y_fine_diff)
@@ -402,7 +401,7 @@ def dummy3():
     y_diff_fine = get_substeps(y_diff[:, np.newaxis], n=100)[:, 0]
     # x_fine = get_substeps(x_old[1:][:, np.newaxis], n=100)[:, 0]
 
-    y_diff_fine_smooth = smooth_vel(y_diff_fine.copy(), kernel_size=11, iterations=1, alpha=1.)
+    y_diff_fine_smooth = smooth_vel(y_diff_fine.copy(), kernel_size=11, iterations=1, alpha=1.0)
 
     fig, ax = new_fig()
     ax.plot(y_diff_fine, alpha=0.5, marker="x")
@@ -448,7 +447,7 @@ def smooth_vel_test():
     ax.legend()
 
 
-def smooth_vel(v, kernel_size=9, iterations=1, alpha=1.):
+def smooth_vel(v, kernel_size=9, iterations=1, alpha=1.0):
     # kernel = np.array([1/2, 0, 1/2])
     # kernel = np.array([1/6, 1/3, 0, 1/3, 1/6])
     # kernel = np.array([1/12, 1/8, 1/8, 1/6, 0, 1/6, 1/8, 1/8, 1/12])
@@ -465,8 +464,8 @@ def smooth_vel(v, kernel_size=9, iterations=1, alpha=1.):
 
     # alpha = 1
     for _ in range(iterations):
-        for i in range(k2, n-k2):
-            v_window = v[i-k2:i+k2+1]
+        for i in range(k2, n - k2):
+            v_window = v[i - k2 : i + k2 + 1]
             mean_i = np.mean(v_window)
             diff = v[i] - mean_i
             v_window += kernel * alpha * diff

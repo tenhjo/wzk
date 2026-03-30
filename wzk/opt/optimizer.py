@@ -1,6 +1,7 @@
 """
 Gradient Descent
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -49,6 +50,7 @@ class NAG(Momentum):
     Nesterov Accelerated Gradient
     Modified version which does not need a different location of evaluation.
     """
+
     name = "NAG"
 
     def update(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
@@ -68,7 +70,7 @@ class Adagrad(Optimizer):
         self.g += v**2
 
         ss = self.ss / _rms(self.g, self.eps)
-        return - ss * v
+        return -ss * v
 
 
 class Adadelta(Optimizer):
@@ -81,11 +83,11 @@ class Adadelta(Optimizer):
         self.e_x = 0
 
     def update(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
-        self.e_g = self.lmbda*self.e_g + (1-self.lmbda)*v**2
-        self.e_x = self.lmbda*self.e_x + (1-self.lmbda)*x**2
+        self.e_g = self.lmbda * self.e_g + (1 - self.lmbda) * v**2
+        self.e_x = self.lmbda * self.e_x + (1 - self.lmbda) * x**2
 
         ss = _rms(self.e_x, self.eps) / _rms(self.e_g, self.eps)
-        return - ss * v
+        return -ss * v
 
 
 class RMSprop(Optimizer):
@@ -98,10 +100,10 @@ class RMSprop(Optimizer):
         self.e_g = 0
 
     def update(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
-        self.e_g = self.lmbda*self.e_g + (1-self.lmbda)*v**2
+        self.e_g = self.lmbda * self.e_g + (1 - self.lmbda) * v**2
 
         ss = self.ss / _rms(self.e_g, self.eps)
-        return - ss * v
+        return -ss * v
 
 
 class Adam(Optimizer):
@@ -118,58 +120,58 @@ class Adam(Optimizer):
         self.beta2t = 1
 
     def _adam(self, v: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        self.m = self.beta1 * self.m + (1-self.beta1) * v
-        self.v = self.beta2 * self.v + (1-self.beta2) * v**2
+        self.m = self.beta1 * self.m + (1 - self.beta1) * v
+        self.v = self.beta2 * self.v + (1 - self.beta2) * v**2
         self.beta1t *= self.beta1
         self.beta2t *= self.beta2
-        mt = self.m / (1-self.beta1t)
-        vt = self.v / (1-self.beta2t)
+        mt = self.m / (1 - self.beta1t)
+        vt = self.v / (1 - self.beta2t)
         return mt, vt
 
     def update(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
         mt, vt = self._adam(v=v)
         ss = self.ss / (np.sqrt(vt) + self.eps)
-        return - ss * mt
+        return -ss * mt
 
 
 class AdaMax(Adam):
     name = "AdaMax"
 
     def update(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
-        self.m = self.beta1 * self.m + (1-self.beta1) * v
+        self.m = self.beta1 * self.m + (1 - self.beta1) * v
         self.beta1t *= self.beta1
-        mt = self.m / (1-self.beta1t)
+        mt = self.m / (1 - self.beta1t)
 
         ut_a = self.beta2 * self.v
         ut_b = np.linalg.norm(v, axis=self.axis)
         ut = np.where(ut_a > ut_b, ut_a, ut_b)
-        self.v = self.beta2 * self.v + (1-self.beta2) * ut_b**2
+        self.v = self.beta2 * self.v + (1 - self.beta2) * ut_b**2
         ss = self.ss / ut
         try:
-            return - ss * mt
+            return -ss * mt
         except ValueError:
-            return - ss[..., np.newaxis] * mt
+            return -ss[..., np.newaxis] * mt
 
 
 class Nadam(Adam):
     """Nesterov-accelerated Adaptive Moment Estimation"""
+
     name = "Nadam"
 
     def update(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
         mt, vt = self._adam(v=v)
 
-        return - self.ss / (np.sqrt(vt) + self.eps) * ((self.beta1 * mt) + (1-self.beta1) / (1-self.beta1t) * v)
+        return -self.ss / (np.sqrt(vt) + self.eps) * ((self.beta1 * mt) + (1 - self.beta1) / (1 - self.beta1t) * v)
 
 
 class AMSGrad(Adam):
-
     def update(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
         self.m = self.beta1 * self.m + (1 - self.beta1) * v
-        v = self.beta2 * self.v + (1 - self.beta1) * v ** 2
+        v = self.beta2 * self.v + (1 - self.beta1) * v**2
         self.v = np.max(self.v, v)
 
         ss = self.ss / (np.sqrt(self.v) + self.eps)
-        return - ss * self.m
+        return -ss * self.m
 
 
 class AdaptiveStep(Optimizer):
@@ -184,7 +186,7 @@ class AdaptiveStep(Optimizer):
     def update(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
         dx = np.abs(x - self.x)
         dv = np.abs(v - self.v)
-        dv2 = np.linalg.norm(dv, axis=self.axis)**2
+        dv2 = np.linalg.norm(dv, axis=self.axis) ** 2
         b0 = dv2 == 0
         dv2[b0] = 1
 
@@ -197,11 +199,12 @@ class AdaptiveStep(Optimizer):
         self.x = x
         self.v = v
 
-        return - ss * v
+        return -ss * v
 
 
-def update_x(x: np.ndarray, p: np.ndarray, a: np.ndarray,
-             x2: np.ndarray, xtol: float, b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def update_x(
+    x: np.ndarray, p: np.ndarray, a: np.ndarray, x2: np.ndarray, xtol: float, b: np.ndarray
+) -> tuple[np.ndarray, np.ndarray]:
 
     dx = a[b, np.newaxis, np.newaxis] * p[b]  # axis only one newaxis
     x2[b] = x[b] + dx
@@ -210,9 +213,14 @@ def update_x(x: np.ndarray, p: np.ndarray, a: np.ndarray,
 
 
 class LinesearchBacktracking(Optimizer):
-    def __init__(self, ss: float,
-                 fun: Callable[[np.ndarray], np.ndarray] | None = None,
-                 c: float = 1e-1, tau: float = 1/3, xtol: float = 1e-5) -> None:
+    def __init__(
+        self,
+        ss: float,
+        fun: Callable[[np.ndarray], np.ndarray] | None = None,
+        c: float = 1e-1,
+        tau: float = 1 / 3,
+        xtol: float = 1e-5,
+    ) -> None:
         self.fun = fun
         self.c = c
         self.tau = tau

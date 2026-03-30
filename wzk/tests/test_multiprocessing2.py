@@ -45,25 +45,25 @@ class Test(TestCase):
 
         res3 = mp2.mp_wrapper(a, b, c, fun=fun__multiple_arr_in, n_processes=n_processes)
         res3b = mp2.mp_wrapper(a, b, c, fun=fun__multiple_arr_in, n_processes=n_processes, use_loop=True)
-        self.assertTrue(np.allclose(res3, a+b+c))
+        self.assertTrue(np.allclose(res3, a + b + c))
         self.assertTrue(ltd.list_allclose(res3, res3b))
 
         res4 = mp2.mp_wrapper(989, fun=fun__multiple_arr_out, n_processes=n_processes)
         res4b = mp2.mp_wrapper(989, fun=fun__multiple_arr_out, n_processes=n_processes, use_loop=True)
         for i in range(1, 5):
-            self.assertTrue(np.allclose(res4[i-1], np.full((989, i), i)))
+            self.assertTrue(np.allclose(res4[i - 1], np.full((989, i), i)))
         self.assertTrue(all(ltd.list_allclose(res4, res4b)))
 
         res5 = mp2.mp_wrapper(1007, fun=fun__multiple_out, n_processes=n_processes)
         res5b = mp2.mp_wrapper(1007, fun=fun__multiple_out, n_processes=n_processes, use_loop=True)
         for i in range(1, 3):
-            self.assertTrue(np.allclose(res5[i-1], np.full((1007, i), i)))
+            self.assertTrue(np.allclose(res5[i - 1], np.full((1007, i), i)))
         self.assertTrue(all(ltd.list_allclose(res5, res5b)))
 
         res6 = mp2.mp_wrapper(1007, fun=fun__multiple_out, n_processes=n_processes, max_chunk_size=10)
         res6b = mp2.mp_wrapper(1007, fun=fun__multiple_out, n_processes=n_processes, use_loop=True)
         for i in range(1, 3):
-            self.assertTrue(np.allclose(res6[i-1], np.full((1007, i), i)))
+            self.assertTrue(np.allclose(res6[i - 1], np.full((1007, i), i)))
         self.assertTrue(all(ltd.list_allclose(res6[:2], res6b[:2])))
 
     def test_time(self):

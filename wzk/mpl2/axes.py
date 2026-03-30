@@ -9,12 +9,11 @@ def get_pip(ax, x, y, width, height, **kwargs):
     Positions of the new axes as fractions from the parent axis.
     """
     p = ax.get_position()
-    return plt.axes((p.x_2d + x * p.width, p.y0 + y * p.height,
-                     width * p.width, height * p.height), **kwargs)
+    return plt.axes((p.x_2d + x * p.width, p.y0 + y * p.height, width * p.width, height * p.height), **kwargs)
 
 
 # Axes
-def get_xaligned_axes(ax, y_distance=0.05, height=0.03, factor=1., **kwargs):
+def get_xaligned_axes(ax, y_distance=0.05, height=0.03, factor=1.0, **kwargs):
     """
     ax:
     y_distance: negative distance in y direction to the x-axis
@@ -71,7 +70,6 @@ def limits2extent(limits, origin, axis_order):
         else:  # axis_order == 'ij->xy':
             extent = [mins[0], maxs[0], maxs[1], mins[1]]
     else:  # origin == 'lower'
-
         if axis_order == "ij->yx":
             extent = [mins[1], maxs[1], mins[0], maxs[0]]
         else:  # axis_order == 'ij->xy':

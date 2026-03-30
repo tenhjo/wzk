@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 from typing import Any
 
 import numpy as np
@@ -8,9 +9,11 @@ from ._types import ArrayLike, ShapeLike, int32
 from .basics import max_size, scalar2array
 
 
-def arangen(start: ArrayLike | ShapeLike | None = None,
-            end: ArrayLike | ShapeLike | None = None,
-            step: ArrayLike | ShapeLike | None = None) -> list[np.ndarray]:
+def arangen(
+    start: ArrayLike | ShapeLike | None = None,
+    end: ArrayLike | ShapeLike | None = None,
+    step: ArrayLike | ShapeLike | None = None,
+) -> list[np.ndarray]:
     """N-dimensional arange."""
     n = max_size(start, end, step)
     start, end, step = scalar2array(start, end, step, shape=n)
@@ -23,15 +26,17 @@ def arange_between(i: ArrayLike, n: int) -> np.ndarray:
         i = np.insert(i, 0, 0)
 
     j = np.zeros(n, dtype=int32)
-    for v, (i0, i1) in enumerate(zip(i[:-1], i[1:])):
+    for v, (i0, i1) in enumerate(itertools.pairwise(i)):
         j[i0:i1] = v
 
     return j
 
 
-def slicen(start: ArrayLike | ShapeLike | None = None,
-           end: ArrayLike | ShapeLike | None = None,
-           step: ArrayLike | ShapeLike | None = None) -> tuple[slice, ...]:
+def slicen(
+    start: ArrayLike | ShapeLike | None = None,
+    end: ArrayLike | ShapeLike | None = None,
+    step: ArrayLike | ShapeLike | None = None,
+) -> tuple[slice, ...]:
     """N-dimensional slice tuple."""
     n = max_size(start, end, step)
     start, end, step = scalar2array(start, end, step, shape=n)
@@ -43,13 +48,10 @@ def range2slice(r: range) -> slice:
 
 
 def slice2range(s: slice) -> range:
-    return range(0 if s.start is None else s.start,
-                 s.stop,
-                 1 if s.step is None else s.step)
+    return range(0 if s.start is None else s.start, s.stop, 1 if s.step is None else s.step)
 
 
-def __slice_or_range2tuple(sor: slice | range | int | tuple[int, ...] | None,
-                           type2: str) -> tuple[Any, Any, Any]:
+def __slice_or_range2tuple(sor: slice | range | int | tuple[int, ...] | None, type2: str) -> tuple[Any, Any, Any]:
     if type2 == "slice":
         default1, default2, default3 = None, None, None
     elif type2 == "range":

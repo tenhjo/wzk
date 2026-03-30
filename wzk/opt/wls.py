@@ -1,4 +1,5 @@
 """Weighted Least Squares"""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -10,11 +11,13 @@ from scipy.optimize import least_squares
 from wzk import mp2
 
 
-def nl_wls(fun_delta: Callable[[np.ndarray], np.ndarray],
-           x0: np.ndarray,
-           w_sqrt: np.ndarray | None = None,
-           max_nfev: int = 100,
-           log_level: int = 0) -> np.ndarray:
+def nl_wls(
+    fun_delta: Callable[[np.ndarray], np.ndarray],
+    x0: np.ndarray,
+    w_sqrt: np.ndarray | None = None,
+    max_nfev: int = 100,
+    log_level: int = 0,
+) -> np.ndarray:
     """non-linear weighted least squares
     == min_x (y - f(beta, x))' W (y - f(beta, x))
     """
@@ -38,11 +41,13 @@ def nl_wls(fun_delta: Callable[[np.ndarray], np.ndarray],
     return res.x
 
 
-def nl_wls_mp(fun_delta: Callable[[np.ndarray], np.ndarray],
-              x0_list: np.ndarray,
-              w_sqrt: np.ndarray | None = None,
-              n_processes: int = 1,
-              log_level: int = 0) -> np.ndarray:
+def nl_wls_mp(
+    fun_delta: Callable[[np.ndarray], np.ndarray],
+    x0_list: np.ndarray,
+    w_sqrt: np.ndarray | None = None,
+    n_processes: int = 1,
+    log_level: int = 0,
+) -> np.ndarray:
     # least_squares does not work with multiprocessing -> use joblib
 
     if np.ndim(x0_list) == 1:  # if only one x0 is provided
@@ -57,7 +62,9 @@ def nl_wls_mp(fun_delta: Callable[[np.ndarray], np.ndarray],
     n_samples = len(x0_list)
     n_samples_pp, n_samples_pp_cs = mp2.get_n_samples_per_process(n_samples=n_samples, n_processes=n_processes)
 
-    arg_list = [x0_list[n_samples_pp_cs[i_process]:n_samples_pp_cs[i_process+1]] for i_process in range(n_processes)]
+    arg_list = [
+        x0_list[n_samples_pp_cs[i_process] : n_samples_pp_cs[i_process + 1]] for i_process in range(n_processes)
+    ]
 
     x_list = Parallel(n_jobs=n_processes)(delayed(fun_delta_mp)(arg) for arg in arg_list)
     x_list = np.reshape(x_list, np.shape(x0_list))
@@ -95,14 +102,13 @@ def wls_1d(x: np.ndarray, y: np.ndarray, w: np.ndarray | None = None) -> tuple[f
     xw_sum = np.sum(x * w) / w_sum
     yw_sum = np.sum(y * w) / w_sum
 
-    beta_1 = np.sum(w * (x - xw_sum) * (y - yw_sum)) / float(np.sum(w * (x - xw_sum)**2))
+    beta_1 = np.sum(w * (x - xw_sum) * (y - yw_sum)) / float(np.sum(w * (x - xw_sum) ** 2))
     beta_0 = yw_sum - beta_1 * xw_sum
 
     return beta_0, beta_1
 
 
-def __ih_combine_deltas_to_wls(delta: np.ndarray,
-                                weighting: np.ndarray | float | None) -> np.ndarray:
+def __ih_combine_deltas_to_wls(delta: np.ndarray, weighting: np.ndarray | float | None) -> np.ndarray:
     if weighting is not None:
         if isinstance(weighting, (int, float)):
             weighting = np.eye(len(delta.ravel())) * weighting
@@ -110,9 +116,12 @@ def __ih_combine_deltas_to_wls(delta: np.ndarray,
     return delta.ravel()
 
 
-def combine_deltas_to_wls(delta_a: np.ndarray, delta_b: np.ndarray,
-                           weighting_a: np.ndarray | float | None = None,
-                           weighting_b: np.ndarray | float | None = None) -> np.ndarray:
+def combine_deltas_to_wls(
+    delta_a: np.ndarray,
+    delta_b: np.ndarray,
+    weighting_a: np.ndarray | float | None = None,
+    weighting_b: np.ndarray | float | None = None,
+) -> np.ndarray:
     """"""
     #     min( a' A a + b(x)' B b(x) )
     # ==  min( c' C c)

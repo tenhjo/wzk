@@ -36,9 +36,9 @@ def test_noise_modes():
 
 
 def test_get_n_in2():
-    args = dict(n_in=100, n_out=24, n_total=1000, n_current=220)
+    args = {"n_in": 100, "n_out": 24, "n_total": 1000, "n_current": 220}
     assert random2.get_n_in2(**args) == jax2.get_n_in2(**args)
-    args = dict(n_in=10, n_out=0, n_total=1000, n_current=0)
+    args = {"n_in": 10, "n_out": 0, "n_total": 1000, "n_current": 0}
     assert random2.get_n_in2(**args) == jax2.get_n_in2(**args)
 
 

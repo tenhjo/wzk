@@ -5,7 +5,6 @@ from wzk.mpl2.backend import plt
 
 
 class Test(TestCase):
-
     def test_move_fig(self):
         fig, ax = plt.subplots()
         move_figure.move_fig(fig=fig, position="top right")

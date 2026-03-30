@@ -22,8 +22,15 @@ __quat_canonical = True
 # vectorized versions of scipy's Rotation.from_x().to_y()
 def euler2dcm(euler: np.ndarray, seq: str = "ZXZ") -> np.ndarray:
     """ZXZ == roll pitch yaw"""
-    return Rotation.from_euler(seq, angles=euler.reshape((-1, 3)),
-                               ).as_matrix().reshape(euler.shape[:-1] + (3, 3))
+    return (
+        Rotation
+        .from_euler(
+            seq,
+            angles=euler.reshape((-1, 3)),
+        )
+        .as_matrix()
+        .reshape(euler.shape[:-1] + (3, 3))
+    )
 
 
 def rpy2dcm(rpy: np.ndarray) -> np.ndarray:
@@ -31,29 +38,36 @@ def rpy2dcm(rpy: np.ndarray) -> np.ndarray:
 
 
 def quaternions2dcm(quat: np.ndarray) -> np.ndarray:
-    return Rotation.from_quat(quat.reshape((-1, 4)), scalar_first=__quat_scalar_first,
-                              ).as_matrix().reshape(quat.shape[:-1] + (3, 3))
+    return (
+        Rotation
+        .from_quat(
+            quat.reshape((-1, 4)),
+            scalar_first=__quat_scalar_first,
+        )
+        .as_matrix()
+        .reshape(quat.shape[:-1] + (3, 3))
+    )
 
 
 def rotvec2dcm(rotvec: np.ndarray) -> np.ndarray:
-    return Rotation.from_rotvec(rotvec.reshape((-1, 3))
-                                ).as_matrix().reshape(rotvec.shape[:-1] + (3, 3))
+    return Rotation.from_rotvec(rotvec.reshape((-1, 3))).as_matrix().reshape(rotvec.shape[:-1] + (3, 3))
 
 
 def dcm2euler(dcm: np.ndarray, seq: str = "ZXZ") -> np.ndarray:
-    return Rotation.from_matrix(dcm.reshape((-1, 3, 3))
-                                ).as_euler(seq=seq).reshape(dcm.shape[:-2] + (3,))
+    return Rotation.from_matrix(dcm.reshape((-1, 3, 3))).as_euler(seq=seq).reshape(dcm.shape[:-2] + (3,))
 
 
 def dcm2quaternions(dcm: np.ndarray) -> np.ndarray:
-    return Rotation.from_matrix(dcm.reshape((-1, 3, 3))
-                                ).as_quat(canonical=__quat_canonical, scalar_first=__quat_scalar_first
-                                          ).reshape(dcm.shape[:-2] + (4,))
+    return (
+        Rotation
+        .from_matrix(dcm.reshape((-1, 3, 3)))
+        .as_quat(canonical=__quat_canonical, scalar_first=__quat_scalar_first)
+        .reshape(dcm.shape[:-2] + (4,))
+    )
 
 
 def dcm2rotvec(dcm: np.ndarray) -> np.ndarray:
-    return Rotation.from_matrix(dcm.reshape((-1, 3, 3))
-                                ).as_rotvec().reshape(dcm.shape[:-2] + (3,))
+    return Rotation.from_matrix(dcm.reshape((-1, 3, 3))).as_rotvec().reshape(dcm.shape[:-2] + (3,))
 
 
 # frame2rotation
@@ -108,36 +122,41 @@ def rotx2frame(alpha: float | ArrayLike) -> np.ndarray:
     if isinstance(alpha, (np.ndarray, tuple, list)):
         return np.array([rotx2frame(a) for a in alpha])
 
-    return np.array([[1, 0, 0, 0],
-                     [0, +np.cos(alpha), -np.sin(alpha), 0],
-                     [0, +np.sin(alpha), +np.cos(alpha), 0],
-                     [0, 0, 0, 1]])
+    return np.array([
+        [1, 0, 0, 0],
+        [0, +np.cos(alpha), -np.sin(alpha), 0],
+        [0, +np.sin(alpha), +np.cos(alpha), 0],
+        [0, 0, 0, 1],
+    ])
 
 
 def roty2frame(beta: float | ArrayLike) -> np.ndarray:
     if isinstance(beta, (np.ndarray, tuple, list)):
         return np.array([roty2frame(b) for b in beta])
 
-    return np.array([[+np.cos(beta), 0, +np.sin(beta), 0],
-                     [0, 1, 0, 0],
-                     [-np.sin(beta), 0, +np.cos(beta), 0],
-                     [0, 0, 0, 1]])
+    return np.array([
+        [+np.cos(beta), 0, +np.sin(beta), 0],
+        [0, 1, 0, 0],
+        [-np.sin(beta), 0, +np.cos(beta), 0],
+        [0, 0, 0, 1],
+    ])
 
 
 def rotz2frame(gamma: float | ArrayLike) -> np.ndarray:
     if isinstance(gamma, (np.ndarray, tuple, list)):
         return np.array([rotz2frame(g) for g in gamma])
 
-    return np.array([[+np.cos(gamma), -np.sin(gamma), 0, 0],
-                     [+np.sin(gamma), +np.cos(gamma), 0, 0],
-                     [0, 0, 1, 0],
-                     [0, 0, 0, 1]])
+    return np.array([
+        [+np.cos(gamma), -np.sin(gamma), 0, 0],
+        [+np.sin(gamma), +np.cos(gamma), 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
+    ])
 
 
-def trans2frame(xyz: np.ndarray | None = None,
-                x: ArrayLike | None = None,
-                y: ArrayLike | None = None,
-                z: ArrayLike | None = None) -> np.ndarray:
+def trans2frame(
+    xyz: np.ndarray | None = None, x: ArrayLike | None = None, y: ArrayLike | None = None, z: ArrayLike | None = None
+) -> np.ndarray:
     if xyz is not None:
         f = initialize_frames(shape=xyz.shape[:-1], n_dim=xyz.shape[-1], mode="eye")
         f[..., :-1, -1] = xyz
@@ -196,9 +215,7 @@ def trans_euler2frame(trans: np.ndarray | None = None, euler: np.ndarray | None 
     return f
 
 
-def vrotxyz2dcm(v_rotx: np.ndarray | None,
-                v_roty: np.ndarray | None,
-                v_rotz: np.ndarray | None) -> np.ndarray:
+def vrotxyz2dcm(v_rotx: np.ndarray | None, v_roty: np.ndarray | None, v_rotz: np.ndarray | None) -> np.ndarray:
     s = np2.get_max_shape(v_rotx, v_roty, v_rotz)
     dcm = initialize_frames(shape=s[:-1], n_dim=2, mode="eye")
 
@@ -212,17 +229,15 @@ def vrotxyz2dcm(v_rotx: np.ndarray | None,
     return dcm
 
 
-def trans_vrotxyz2frame(trans: np.ndarray | None,
-                        v_rotx: np.ndarray | None,
-                        v_roty: np.ndarray | None,
-                        v_rotz: np.ndarray | None) -> np.ndarray:
+def trans_vrotxyz2frame(
+    trans: np.ndarray | None, v_rotx: np.ndarray | None, v_roty: np.ndarray | None, v_rotz: np.ndarray | None
+) -> np.ndarray:
     dcm = vrotxyz2dcm(v_rotx=v_rotx, v_roty=v_roty, v_rotz=v_rotz)
     f = trans_dcm2frame(trans=trans, dcm=dcm)
     return f
 
 
-def trans_dcm2frame(trans: np.ndarray | None = None,
-                    dcm: np.ndarray | None = None) -> np.ndarray:
+def trans_dcm2frame(trans: np.ndarray | None = None, dcm: np.ndarray | None = None) -> np.ndarray:
     s = np2.get_max_shape(trans, dcm)
     if dcm is not None:
         s = s[:-1]
@@ -276,7 +291,7 @@ def get_frames_between(f0: np.ndarray, f1: np.ndarray, n: int) -> np.ndarray:
     if np.ndim(f0) == 3 and np.ndim(f1) == 3:
         return np.array([get_frames_between(f0=f0_i, f1=f1_i, n=n) for (f0_i, f1_i) in zip(f0, f1, strict=True)])
 
-    x = trajectory.get_substeps(x=np.concatenate([f0[:-1, -1:], f1[:-1, -1:]], axis=1).T, n=n-1)
+    x = trajectory.get_substeps(x=np.concatenate([f0[:-1, -1:], f1[:-1, -1:]], axis=1).T, n=n - 1)
 
     dm = f0[:-1, :-1].T @ f1[:-1, :-1]
     rv = dcm2rotvec(dm)
@@ -285,7 +300,7 @@ def get_frames_between(f0: np.ndarray, f1: np.ndarray, n: int) -> np.ndarray:
         dm2 = np.zeros((n, 3, 3))
         dm2[:] = np.eye(3)
     else:
-        rvn = rv/a
+        rvn = rv / a
         a2 = np.linspace(0, a, n)
         rv2 = a2[:, np.newaxis] * rvn[np.newaxis, :]
         dm2 = rotvec2dcm(rv2)
@@ -304,10 +319,7 @@ def get_mean_f(f: np.ndarray) -> np.ndarray:
     return f_mean
 
 
-def offset_frame(f: np.ndarray,
-                 i: int | None = None,
-                 vm: np.ndarray | None = None,
-                 offset: float = 0.01) -> np.ndarray:
+def offset_frame(f: np.ndarray, i: int | None = None, vm: np.ndarray | None = None, offset: float = 0.01) -> np.ndarray:
     """
     offset: in [m]
     i: idx along which axis to offset
@@ -397,8 +409,7 @@ def AxBxC(a: np.ndarray, b: np.ndarray, c: np.ndarray) -> np.ndarray:
     x: cross product
     .: dot product
     """
-    return (np.sum(a * c, axis=-1, keepdims=True) * b -
-            np.sum(a * b, axis=-1, keepdims=True) * c)
+    return np.sum(a * c, axis=-1, keepdims=True) * b - np.sum(a * b, axis=-1, keepdims=True) * c
 
 
 def VxDCM(v: np.ndarray, dcm: np.ndarray) -> np.ndarray:

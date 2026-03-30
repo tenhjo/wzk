@@ -10,15 +10,13 @@ def n2train_test(n, split=0.2):
     elif isinstance(split, int) and 0 <= split <= n:
         n_test = split
     else:
-        raise ValueError(f"Unknown value for 'split': {split} ; "
-                         "must either be a float [0, 1] or an int [0, n_samples]")
+        raise ValueError(f"Unknown value for 'split': {split} ; must either be a float [0, 1] or an int [0, n_samples]")
 
     n_train = n - n_test
     return n_train, n_test
 
 
-def train_test_split(*args,
-                     split=0.2, shuffle=False, shuffle_block_size=1, seed=None):
+def train_test_split(*args, split=0.2, shuffle=False, shuffle_block_size=1, seed=None):
     """
     if split == -1, use the same set for training and testing
     If shuffle=False, than the first n_train elements are used for training and the remaining n_test for testing

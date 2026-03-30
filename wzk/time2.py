@@ -4,8 +4,19 @@ from datetime import datetime
 from wzk.printing import print2, verbose_level_wrapper
 
 
-def get_timestamp(t=None, year=True, month=True, day=True, hour=True, minute=True, second=True, millisecond=False,
-                  date_separator="-", date_time_separator="_", time_separator=":"):
+def get_timestamp(
+    t=None,
+    year=True,
+    month=True,
+    day=True,
+    hour=True,
+    minute=True,
+    second=True,
+    millisecond=False,
+    date_separator="-",
+    date_time_separator="_",
+    time_separator=":",
+):
     """
     Crete a datetime string including year, month, day; hour, minute, second, millisecond.
     With options for each of the elements if it should be included and what the symbol separating
@@ -24,9 +35,14 @@ def get_timestamp(t=None, year=True, month=True, day=True, hour=True, minute=Tru
     bool_list = [bool(b) for b in [year, month, day, hour, minute, second, millisecond]]
 
     # Create a list of symbols which separate the elements of the datetime string
-    separator_list = [date_separator, date_separator,
-                      date_time_separator,
-                      time_separator, time_separator, time_separator]
+    separator_list = [
+        date_separator,
+        date_separator,
+        date_time_separator,
+        time_separator,
+        time_separator,
+        time_separator,
+    ]
 
     # Clean the datetime string and split it into separate elements
     stamp_list = str(t)
@@ -41,7 +57,7 @@ def get_timestamp(t=None, year=True, month=True, day=True, hour=True, minute=Tru
     for i in range(len(stamp_list)):
         if bool_list[i]:
             stamp_str += stamp_list[i]
-            if i < len(stamp_list) and sum(bool_list[i+1:]) > 0:
+            if i < len(stamp_list) and sum(bool_list[i + 1 :]) > 0:
                 stamp_str += separator_list[i]
 
     return stamp_str
@@ -51,14 +67,14 @@ __start_stack = []
 __start_named = {}
 
 
-def tic(name: str = None):
+def tic(name: str | None = None):
     if name is None:
         __start_stack.append(time())
     else:
         __start_named[name] = time()
 
 
-def toc(text: str = None, decimals: int = 6, log_level=None) -> float:
+def toc(text: str | None = None, decimals: int = 6, log_level=None) -> float:
     if text is None:
         start = __start_stack.pop()
     else:
@@ -79,14 +95,14 @@ def toc(text: str = None, decimals: int = 6, log_level=None) -> float:
 
 
 class tictoc:
-    def __init__(self, text: str = None, decimals: int = 6, log_level=None):
+    def __init__(self, text: str | None = None, decimals: int = 6, log_level=None):
         self.log_level = verbose_level_wrapper(log_level)
         self.text = "" if text is None else text
         self.decimals = decimals
 
     def __enter__(self):
         tic()
-        print2(self.text+"...", log_level=self.log_level)
+        print2(self.text + "...", log_level=self.log_level)
 
     def __exit__(self, *args):
         toc(text=None, decimals=self.decimals, log_level=self.log_level.add_level(1))

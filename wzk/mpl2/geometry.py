@@ -7,7 +7,7 @@ from wzk.math import geometry as _geometry
 from wzk.mpl2 import Patches2, axes, plotting
 
 
-def draw_arc(xy, radius, theta0=0., theta1=2 * np.pi, n=0.01, ax=None, **kwargs):
+def draw_arc(xy, radius, theta0=0.0, theta1=2 * np.pi, n=0.01, ax=None, **kwargs):
 
     if ax is None:
         ax = plt.gca()
@@ -53,7 +53,7 @@ def fill_circle_intersection(xy0, r0, xy1, r1, ax=None, **kwargs):
     return ((int0, aa00, aa01), (int1, aa10, aa11)), poly
 
 
-def draw_rays(xy, radius0, radius1, theta0=0., theta1=None, n=1, ax=None, **kwargs):
+def draw_rays(xy, radius0, radius1, theta0=0.0, theta1=None, n=1, ax=None, **kwargs):
     if ax is None:
         ax = plt.gca()
 
@@ -61,17 +61,19 @@ def draw_rays(xy, radius0, radius1, theta0=0., theta1=None, n=1, ax=None, **kwar
 
     h = np.zeros(n, dtype=object)
     for i in range(n):
-        a_i = theta0 + (theta1 - theta0) * i/(n-1)
+        a_i = theta0 + (theta1 - theta0) * i / (n - 1)
 
-        h[i] = ax.plot([xy[0] + np.cos(a_i)*radius0, xy[0] + np.cos(a_i)*radius1],
-                       [xy[1] + np.sin(a_i)*radius0, xy[1] + np.sin(a_i)*radius1],
-                       **kwargs)[0]
+        h[i] = ax.plot(
+            [xy[0] + np.cos(a_i) * radius0, xy[0] + np.cos(a_i) * radius1],
+            [xy[1] + np.sin(a_i) * radius0, xy[1] + np.sin(a_i) * radius1],
+            **kwargs,
+        )[0]
     return h
 
 
-def plot_coordinate_frames(ax=None, x=None, dcm=None, f=None, scale=1.0,
-                           color="k", mode="quiver", marker=None,
-                           h=None, **kwargs):
+def plot_coordinate_frames(
+    ax=None, x=None, dcm=None, f=None, scale=1.0, color="k", mode="quiver", marker=None, h=None, **kwargs
+):
     """
     Assume matrix is a homogeneous matrix
 
@@ -106,9 +108,10 @@ def plot_coordinate_frames(ax=None, x=None, dcm=None, f=None, scale=1.0,
             h = [None] * n_samples
         else:
             assert len(h) == n_samples
-        return [plot_coordinate_frames(ax=ax, x=x[i], dcm=dcm[i], color=color, mode=mode, marker=marker, h=h[i],
-                                       **kwargs)
-                for i in range(n_samples)]
+        return [
+            plot_coordinate_frames(ax=ax, x=x[i], dcm=dcm[i], color=color, mode=mode, marker=marker, h=h[i], **kwargs)
+            for i in range(n_samples)
+        ]
 
     x = x[0]
     dcm = dcm[0] * scale
@@ -155,21 +158,22 @@ def plot_coordinate_frames(ax=None, x=None, dcm=None, f=None, scale=1.0,
 
     elif mode == "relative_fancy":
         for i in range(n_dim):
-            h.append(Patches2.RelativeFancyArrow(x[0], x[1], dcm[0, i], dcm[1, i], color=color[i],  **kwargs))
+            h.append(Patches2.RelativeFancyArrow(x[0], x[1], dcm[0, i], dcm[1, i], color=color[i], **kwargs))
             ax.add_patch(h[-1])
     else:
         raise ValueError
 
     if marker is not None:
-        markersize = axes.size_units2points(size=2*kwargs["fig_width_inch"]*np.linalg.norm(dcm, axis=0).mean(), ax=ax)
+        markersize = axes.size_units2points(
+            size=2 * kwargs["fig_width_inch"] * np.linalg.norm(dcm, axis=0).mean(), ax=ax
+        )
         ax.plot(*x, marker=marker, markersize=markersize, color=color[-1], alpha=0.5)
 
     return h
 
 
 # Combination of the building blocks
-def eye_pov(xy, angle, radius, arc, n_rays=3,
-            ax=None, solid_capstyle="round", **kwargs):
+def eye_pov(xy, angle, radius, arc, n_rays=3, ax=None, solid_capstyle="round", **kwargs):
 
     if ax is None:
         ax = plt.gca()
@@ -180,23 +184,45 @@ def eye_pov(xy, angle, radius, arc, n_rays=3,
     pupil_factor = 0.2
     pupil_x = 1
     pupil_radius = radius * pupil_factor
-    pupil_xy = np.array([xy[0] + np.cos(angle) * radius * pupil_x,
-                         xy[1] + np.sin(angle) * radius * pupil_x])
+    pupil_xy = np.array([xy[0] + np.cos(angle) * radius * pupil_x, xy[1] + np.sin(angle) * radius * pupil_x])
 
     rays_radius0 = radius * 0.95
     rays_radius1 = radius * 1.15
     rays_section = 40 / 100
 
-    h_edges = draw_rays(ax=ax, xy=xy, radius0=radius*0.0, radius1=radius,
-                        theta0=angle - arc / 2, theta1=angle + arc / 2, n=2,
-                        solid_capstyle=solid_capstyle, **kwargs)
+    h_edges = draw_rays(
+        ax=ax,
+        xy=xy,
+        radius0=radius * 0.0,
+        radius1=radius,
+        theta0=angle - arc / 2,
+        theta1=angle + arc / 2,
+        n=2,
+        solid_capstyle=solid_capstyle,
+        **kwargs,
+    )
 
-    h_rays = draw_rays(ax=ax, xy=xy, radius0=rays_radius0, radius1=rays_radius1,
-                       theta0=angle - arc/2 * rays_section, theta1=angle + arc/2 * rays_section, n=n_rays,
-                       solid_capstyle=solid_capstyle, **kwargs)
+    h_rays = draw_rays(
+        ax=ax,
+        xy=xy,
+        radius0=rays_radius0,
+        radius1=rays_radius1,
+        theta0=angle - arc / 2 * rays_section,
+        theta1=angle + arc / 2 * rays_section,
+        n=n_rays,
+        solid_capstyle=solid_capstyle,
+        **kwargs,
+    )
 
-    h_arc = draw_arc(ax=ax, xy=xy, radius=cornea_factor, theta0=angle - arc / 2, theta1=angle + arc / 2,
-                     solid_capstyle=solid_capstyle, **kwargs)[1]
+    h_arc = draw_arc(
+        ax=ax,
+        xy=xy,
+        radius=cornea_factor,
+        theta0=angle - arc / 2,
+        theta1=angle + arc / 2,
+        solid_capstyle=solid_capstyle,
+        **kwargs,
+    )[1]
 
     *_, h_pupil = fill_circle_intersection(xy0=xy, r0=cornea_factor, xy1=pupil_xy, r1=pupil_radius, ax=ax, **kwargs)
 
@@ -205,8 +231,7 @@ def eye_pov(xy, angle, radius, arc, n_rays=3,
 
 def plot_box(ax, limits=None, **kwargs):
     if limits is None:
-        limits = np.array([[0, 1],
-                           [0, 1]])
+        limits = np.array([[0, 1], [0, 1]])
 
     x = _geometry.box(limits)
 

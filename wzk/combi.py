@@ -17,7 +17,7 @@ def get_tuples(n: np.ndarray | list | tuple | int, m: int):
 
 
 def __unique_permutations(iterable, r=None):
-    previous = tuple()
+    previous = ()
     for p in permutations(sorted(iterable), r):
         if p > previous:
             previous = p

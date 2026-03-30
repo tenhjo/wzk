@@ -22,13 +22,15 @@ def setup_logger(name, level=logging.DEBUG):
     return logger
 
 
-def log_print(*values,
-              sep: str = " ",
-              end: str = "\n",
-              file=None,
-              flush: bool = False,
-              level: int = logging.INFO,
-              logger: logging.Logger | None = None) -> None:
+def log_print(
+    *values,
+    sep: str = " ",
+    end: str = "\n",
+    file=None,
+    flush: bool = False,
+    level: int = logging.INFO,
+    logger: logging.Logger | None = None,
+) -> None:
     """
     Logger-backed drop-in replacement for print.
     """

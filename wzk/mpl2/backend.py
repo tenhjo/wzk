@@ -1,4 +1,3 @@
-
 import importlib.util
 import os
 import platform
@@ -17,10 +16,7 @@ def __turn_on_headless():
 
 
 def __has_qt_bindings() -> bool:
-    return any(
-        importlib.util.find_spec(module) is not None
-        for module in ("PyQt6", "PySide6", "PyQt5", "PySide2")
-    )
+    return any(importlib.util.find_spec(module) is not None for module in ("PyQt6", "PySide6", "PyQt5", "PySide2"))
 
 
 backend_override = os.environ.get("MPLBACKEND")
@@ -43,7 +39,9 @@ elif platform.system() == "Linux":
 
 elif platform.system() == "Darwin":
     if __has_qt_bindings():
-        mpl.use("QtAgg", force=True)  # Alternative for Mac: 'Qt5Agg', interplay with Pyvista often a bit tricky otherwise
+        mpl.use(
+            "QtAgg", force=True
+        )  # Alternative for Mac: 'Qt5Agg', interplay with Pyvista often a bit tricky otherwise
         # mpl.use("macosx")
         # mpl.use("Qt5Agg")
     else:

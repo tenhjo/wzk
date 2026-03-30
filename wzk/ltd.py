@@ -46,13 +46,14 @@ def nesteddict2namedtuple(name, d):
 
 
 class AttrDict(dict):
-    """ Dictionary subclass whose entries can be accessed by attributes
-        (as well as normally).
-        https://stackoverflow.com/a/59977999/7570817
+    """Dictionary subclass whose entries can be accessed by attributes
+    (as well as normally).
+    https://stackoverflow.com/a/59977999/7570817
     """
+
     def __init__(self, *args, **kwargs):
         def from_nested_dict(data):
-            """ Construct nested AttrDicts from nested dictionaries. """
+            """Construct nested AttrDicts from nested dictionaries."""
             if not isinstance(data, dict):
                 return data
             else:
@@ -103,7 +104,7 @@ def tolist(a):
     if isinstance(a, np.ndarray):
         return a.tolist()
     try:
-        return list(tolist(i) for i in a)
+        return [tolist(i) for i in a]
     except TypeError:
         return a
 
@@ -194,17 +195,14 @@ def atleast_tuple(*tuples, convert=True):
 
 def weave_lists(*args):
     # https://stackoverflow.com/a/27166171/7570817
-    return [a for b in zip(*args) for a in b]
+    return [a for b in zip(*args, strict=False) for a in b]
 
 
 def get_indices(li, el):
     if isinstance(li, np.ndarray):
         li = li.tolist()
 
-    indices = []
-    for eli in el:
-        indices.append(li.index(eli))
-    return indices
+    return [li.index(eli) for eli in el]
 
 
 def el_add(a, b):
@@ -212,7 +210,7 @@ def el_add(a, b):
     Element-wise addition for tuples or lists.
     """
 
-    lst = [aa + bb for aa, bb in zip(a, b)]
+    lst = [aa + bb for aa, bb in zip(a, b, strict=False)]
 
     if isinstance(a, list):
         return lst
@@ -277,7 +275,6 @@ def element_at_depth_gen(lst, d=0, with_index=False, _cur_d=0):
             return el
 
     for i, el in enumerate(lst):
-
         if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
             _cur_d += 1
             if _cur_d < d:
@@ -349,14 +346,14 @@ def dict_set_default(d, default):
 
 def list_allclose(a, b):
     if isinstance(a, (tuple, list)):
-        return np.array([np.allclose(aa, bb) for aa, bb in zip(a, b)])
+        return np.array([np.allclose(aa, bb) for aa, bb in zip(a, b, strict=False)])
     else:
         return np.allclose(a, b)
 
 
 def dict_allclose(a, b):
-    keys_a = sorted(list(a.keys()))
-    keys_b = sorted(list(b.keys()))
+    keys_a = sorted(a.keys())
+    keys_b = sorted(b.keys())
     if keys_a != keys_b:
         return False
 

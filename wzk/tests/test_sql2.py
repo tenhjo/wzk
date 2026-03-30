@@ -1,4 +1,3 @@
-
 import os
 from unittest import TestCase
 
@@ -12,7 +11,6 @@ directory = f"{os.path.split(__file__)[0]}/tmp"
 
 
 class Test(TestCase):
-
     def setUp(self):
         files.mkdirs(directory=directory)
 
@@ -23,13 +21,10 @@ class Test(TestCase):
     def __create_dummy_db(mode):
         if mode == "A":
             columns = ["A", "B", "C", "DD"]
-            data = [[1,   2,   3.3,  4],
-                    [10,  20,  33.3,  40],
-                    [100, 300, 333.3, 400]]
+            data = [[1, 2, 3.3, 4], [10, 20, 33.3, 40], [100, 300, 333.3, 400]]
             df = pd.DataFrame(columns=columns, data=data, index=None)
             return df
         elif mode == "B":
-
             columns = ["aa", "bb", "cc"]
             n = 11
             data = np.random.random((n, 3)).tolist()
@@ -38,27 +33,31 @@ class Test(TestCase):
 
         elif mode == "C":
             columns = ["A", "B", "C"]
-            data = [[1, 1, 33.3],
-                    [1, 2, 33.3],
-                    [3, 3, 33.3],
-                    [1, 4, 33.3],
-                    [2, 5, 33.3],
-                    [1, 6, 33.3],
-                    [1, 7, 33.3],
-                    [4, 8, 33.3]]
+            data = [
+                [1, 1, 33.3],
+                [1, 2, 33.3],
+                [3, 3, 33.3],
+                [1, 4, 33.3],
+                [2, 5, 33.3],
+                [1, 6, 33.3],
+                [1, 7, 33.3],
+                [4, 8, 33.3],
+            ]
             df = pd.DataFrame(columns=columns, data=data, index=None)
             return df
 
         elif mode == "D":
             columns = ["A_f32", "B", "C"]
-            data = [[np.random.random((20, 4)), 1, 33.3],
-                    [np.random.random((20, 4)), 2, 33.3],
-                    [np.random.random((20, 4)), 3, 33.3],
-                    [np.random.random((20, 4)), 4, 33.3],
-                    [np.random.random((20, 4)), 5, 33.3],
-                    [np.random.random((20, 4)), 6, 33.3],
-                    [np.random.random((20, 4)), 7, 33.3],
-                    [np.random.random((20, 4)), 8, 33.3]]
+            data = [
+                [np.random.random((20, 4)), 1, 33.3],
+                [np.random.random((20, 4)), 2, 33.3],
+                [np.random.random((20, 4)), 3, 33.3],
+                [np.random.random((20, 4)), 4, 33.3],
+                [np.random.random((20, 4)), 5, 33.3],
+                [np.random.random((20, 4)), 6, 33.3],
+                [np.random.random((20, 4)), 7, 33.3],
+                [np.random.random((20, 4)), 8, 33.3],
+            ]
             df = pd.DataFrame(columns=columns, data=data, index=None)
             return df
 
@@ -110,7 +109,7 @@ class Test(TestCase):
         #
         c = "A_f32"
         r = [0, 1]
-        v = np.arange(2*20*4).reshape((2, 20, 4))
+        v = np.arange(2 * 20 * 4).reshape((2, 20, 4))
         # v0 = get_values(file=file, table=table, rows=r, columns=c, return_type="list")
         sql2.set_values(file=file, table=table, values=(v,), columns=c, rows=r)
         v1 = sql2.get_values(file=file, table=table, rows=r, columns=c, return_type="list")

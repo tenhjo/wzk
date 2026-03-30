@@ -9,6 +9,7 @@ class HandlerMultiPathCollection(HandlerPathCollection):
     """
     Handler for PathCollections, which scatter uses
     """
+
     def __init__(self, offsets_x=None, **kwargs):
         super().__init__(**kwargs)
         self.offsets_x = offsets_x
@@ -19,18 +20,19 @@ class HandlerMultiPathCollection(HandlerPathCollection):
             center = np.mean([(o[0]) for o in offsets])
             offsets = [(center, o[1]) for o in offsets]
 
-        p = type(orig_handle)(orig_handle.get_paths(), sizes=sizes,
-                              offsets=offsets,
-                              offset_transform=offset_transform,
-                              )
+        p = type(orig_handle)(
+            orig_handle.get_paths(),
+            sizes=sizes,
+            offsets=offsets,
+            offset_transform=offset_transform,
+        )
         return p
 
     @staticmethod
-    def get_pc(ax,
-               paths, sizes,
-               facecolors, edgecolors=None):
-        PC = collections.PathCollection(paths, sizes, transOffset=ax.transData,
-                                        facecolors=facecolors, edgecolors=edgecolors)
+    def get_pc(ax, paths, sizes, facecolors, edgecolors=None):
+        PC = collections.PathCollection(
+            paths, sizes, transOffset=ax.transData, facecolors=facecolors, edgecolors=edgecolors
+        )
         PC.set_transform(transforms.IdentityTransform())
         return PC
 
@@ -40,14 +42,13 @@ class HandlerMultiPathCollection(HandlerPathCollection):
         facecolors = [h.get_facecolors()[0] for h in h_list]
         edgecolors = [h.get_edgecolors()[0] for h in h_list]
         # alphas = [h.get_edgecolors()[0] for h in h_list]
-        return self.get_pc(ax=ax, paths=paths, sizes=sizes,
-                           facecolors=facecolors, edgecolors=edgecolors)
+        return self.get_pc(ax=ax, paths=paths, sizes=sizes, facecolors=facecolors, edgecolors=edgecolors)
 
 
 # Annotations
-def annotate_arrow(ax, xy0, xy1, offset=0.,
-                   xycoords="axes fraction", color="k", arrowstyle="->", zorder=None,
-                   squeeze=True):
+def annotate_arrow(
+    ax, xy0, xy1, offset=0.0, xycoords="axes fraction", color="k", arrowstyle="->", zorder=None, squeeze=True
+):
 
     xy0 = flatten_without_last(xy0)
     xy1 = flatten_without_last(xy1)
@@ -56,12 +57,21 @@ def annotate_arrow(ax, xy0, xy1, offset=0.,
     ab /= np.linalg.norm(ab, axis=-1, keepdims=True)
     xy0 = xy0 + offset * ab
     xy1 = xy1 - offset * ab
-    arrowprops = dict(arrowstyle=arrowstyle,
-                      color=color)
+    arrowprops = {"arrowstyle": arrowstyle, "color": color}
     handles = []
-    for a, b in zip(xy0, xy1):
-        handles.append(ax.annotate("", xytext=a, xy=b, xycoords=xycoords, arrowprops=arrowprops,
-                       verticalalignment="center", horizontalalignment="center", zorder=zorder))
+    for a, b in zip(xy0, xy1, strict=False):
+        handles.append(
+            ax.annotate(
+                "",
+                xytext=a,
+                xy=b,
+                xycoords=xycoords,
+                arrowprops=arrowprops,
+                verticalalignment="center",
+                horizontalalignment="center",
+                zorder=zorder,
+            )
+        )
 
     if squeeze and len(handles) == 1:
         handles = handles[0]
@@ -70,11 +80,13 @@ def annotate_arrow(ax, xy0, xy1, offset=0.,
 
 # Legends
 def make_legend_arrow_lr(legend, orig_handle, xdescent, ydescent, width, height, fontsize):
-    return patches.FancyArrow(x=0, y=height/2, dx=width, dy=0, length_includes_head=True, head_width=0.75*height)
+    return patches.FancyArrow(x=0, y=height / 2, dx=width, dy=0, length_includes_head=True, head_width=0.75 * height)
 
 
 def make_legend_arrow_rl(legend, orig_handle, xdescent, ydescent, width, height, fontsize):
-    return patches.FancyArrow(x=width, y=height/2, dx=-width, dy=0, length_includes_head=True, head_width=0.75*height)
+    return patches.FancyArrow(
+        x=width, y=height / 2, dx=-width, dy=0, length_includes_head=True, head_width=0.75 * height
+    )
 
 
 def make_legend_arrow_wrapper(theta, label2theta_dict=None):
@@ -94,8 +106,10 @@ def make_legend_arrow_wrapper(theta, label2theta_dict=None):
 
         dx = np.cos(theta2) * height
         dy = np.sin(theta2) * height
-        return patches.FancyArrow(x=width/2-dx, y=height/2-dy, dx=2*dx, dy=2*dy, length_includes_head=True,
-                                  head_width=height/2)
+        return patches.FancyArrow(
+            x=width / 2 - dx, y=height / 2 - dy, dx=2 * dx, dy=2 * dy, length_includes_head=True, head_width=height / 2
+        )
+
     return HandlerPatch(patch_func=make_legend_arrow)
 
 
@@ -116,7 +130,7 @@ def remove_duplicate_labels(ax):
     """https://stackoverflow.com/a/26339101/7570817"""
     handles, labels = ax.get_legend_handles_labels()
     new_labels, new_handles = [], []
-    for handle, label in zip(handles, labels):
+    for handle, label in zip(handles, labels, strict=False):
         if label not in new_labels:
             new_labels.append(label)
             new_handles.append(handle)

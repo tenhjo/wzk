@@ -22,8 +22,14 @@ def try_plot_faces():
     n = 10
     n1 = 20
     p = mc2.Visualizer()
-    mc2.plot_faces(vis=p, h=None, x=np.random.random((n, 3)),
-                   faces=np.random.choice(np.arange(n), (n1, 3)), color="blue", alpha=0.3)
+    mc2.plot_faces(
+        vis=p,
+        h=None,
+        x=np.random.random((n, 3)),
+        faces=np.random.choice(np.arange(n), (n1, 3)),
+        color="blue",
+        alpha=0.3,
+    )
 
 
 def try_plot_cube():
@@ -47,7 +53,8 @@ def try_plot_spheres():
 
 
 def try_plot_bimg():
-    from wzk.perlin import perlin_noise_3d
+    from wzk.random.perlin import perlin_noise_3d
+
     bimg = perlin_noise_3d(shape=(256, 256, 256), res=32) < 0.3
     limits = np.zeros((3, 2))
     limits[:, 0] = 1
@@ -84,8 +91,13 @@ def try_coordinate_frames(mode="A"):
         mc2.plot_coordinate_frames(p=p, h=None, f=spatial.sample_frames(shape=5), color="blue", scale=0.1)
 
     elif mode == "C":
-        mc2.plot_coordinate_frames(p=p, h=None, f=spatial.sample_frames(shape=2),
-                                   color=[["red", "green", "blue"], ["orange", "cyan", "magenta"]], scale=0.1)
+        mc2.plot_coordinate_frames(
+            p=p,
+            h=None,
+            f=spatial.sample_frames(shape=2),
+            color=[["red", "green", "blue"], ["orange", "cyan", "magenta"]],
+            scale=0.1,
+        )
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import os
 import socket
 import subprocess
+import warnings
 from io import StringIO
 
 import fire
@@ -9,15 +10,23 @@ import pandas as pd
 from wzk.ltd import atleast_list
 from wzk.subprocess2 import call2
 
+warnings.warn(
+    "wzk.gcp.gcloud2 is deprecated. Use wzk.gcp (google-cloud-compute API) instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
 PROJECT = os.environ["GCP_PROJECT"]
 ACCOUNT_NR = os.environ["GCP_ACCOUNT_NR"]
 ZONE = "us-central1-a"
-__SCOPES = "https://www.googleapis.com/auth/devstorage.read_only," \
-           "https://www.googleapis.com/auth/logging.write," \
-           "https://www.googleapis.com/auth/monitoring.write," \
-           "https://www.googleapis.com/auth/servicecontrol," \
-           "https://www.googleapis.com/auth/service.management.readonly," \
-           "https://www.googleapis.com/auth/trace.append"
+__SCOPES = (
+    "https://www.googleapis.com/auth/devstorage.read_only,"
+    "https://www.googleapis.com/auth/logging.write,"
+    "https://www.googleapis.com/auth/monitoring.write,"
+    "https://www.googleapis.com/auth/servicecontrol,"
+    "https://www.googleapis.com/auth/service.management.readonly,"
+    "https://www.googleapis.com/auth/trace.append"
+)
 
 USER = os.environ["GCP_USER"]
 USER_SHORT = os.environ["GCP_USER_SHORT"]
@@ -38,13 +47,15 @@ def add_new_disks_flag(disks):
     if disks is None:
         return ""
     disks = atleast_list(disks, convert=False)
-    cmd = [f"--create-disk=boot={d['boot']},"
-           f"auto-delete={d['autodelete']},"
-           f"device-name={d['name']},"
-           f"mode=rw,size={d['size']},"
-           f"source-snapshot=projects/{PROJECT}/global/snapshots/{d['snapshot']},"
-           f"type=projects/{PROJECT}/zones/{ZONE}/diskTypes/pd-balanced"
-           for d in disks]
+    cmd = [
+        f"--create-disk=boot={d['boot']},"
+        f"auto-delete={d['autodelete']},"
+        f"device-name={d['name']},"
+        f"mode=rw,size={d['size']},"
+        f"source-snapshot=projects/{PROJECT}/global/snapshots/{d['snapshot']},"
+        f"type=projects/{PROJECT}/zones/{ZONE}/diskTypes/pd-balanced"
+        for d in disks
+    ]
     cmd = " ".join(cmd)
     return cmd
 
@@ -56,7 +67,7 @@ def add_local_disks_flag(disks):
     n = disks["n"]  # 8
 
     cmd = f"--local-ssd=interface={interface}"
-    cmd = " ".join([cmd]*n)
+    cmd = " ".join([cmd] * n)
     return cmd
 
 
@@ -75,34 +86,38 @@ def add_startup_script_flag(startup_script):
 
 
 def create_instance_cmd(config):
-    cmd = f"gcloud compute instances create {config['name']} " \
-          f"--machine-type={config['machine']} " \
-          f"{add_new_disks_flag(config['disks_new'])} " \
-          f"{add_old_disks_flag(config['disks_old'])} " \
-          f"{add_local_disks_flag(config['disks_local'])} " \
-          f"--zone={ZONE} " \
-          f"--project={PROJECT} " \
-          f"--scopes={__SCOPES} " \
-          f"--labels={config['labels']} " \
-          f"--service-account={ACCOUNT_NR}-compute@developer.gserviceaccount.com " \
-          f"--metadata enable-oslogin=TRUE" \
-          f"{add_startup_script_flag(config['startup_script'])} " \
-          f"" \
-          f"--preemptible " \
-          f"--no-restart-on-failure " \
-          f"--reservation-affinity=any " \
-          f"--maintenance-policy=TERMINATE " \
-          # f"--provisioning-model=SPOT " \   # TODO add after this leaves beta
+    cmd = (
+        f"gcloud compute instances create {config['name']} "
+        f"--machine-type={config['machine']} "
+        f"{add_new_disks_flag(config['disks_new'])} "
+        f"{add_old_disks_flag(config['disks_old'])} "
+        f"{add_local_disks_flag(config['disks_local'])} "
+        f"--zone={ZONE} "
+        f"--project={PROJECT} "
+        f"--scopes={__SCOPES} "
+        f"--labels={config['labels']} "
+        f"--service-account={ACCOUNT_NR}-compute@developer.gserviceaccount.com "
+        f"--metadata enable-oslogin=TRUE"
+        f"{add_startup_script_flag(config['startup_script'])} "
+        f""
+        f"--preemptible "
+        f"--no-restart-on-failure "
+        f"--reservation-affinity=any "
+        f"--maintenance-policy=TERMINATE "
+    )
+    # f"--provisioning-model=SPOT " \   # TODO add after this leaves beta
     return cmd
 
 
 def create_disk_cmd(disk):
-    cmd = f"gcloud beta compute disks create {disk['name']} " \
-          f"--size={disk['size']}GB " \
-          f"--labels={disk['labels']} " \
-          f"--project={PROJECT}  " \
-          f"--zone={ZONE} " \
-          f"--type=pd-balanced"
+    cmd = (
+        f"gcloud beta compute disks create {disk['name']} "
+        f"--size={disk['size']}GB "
+        f"--labels={disk['labels']} "
+        f"--project={PROJECT}  "
+        f"--zone={ZONE} "
+        f"--type=pd-balanced"
+    )
     return cmd
 
 
@@ -124,7 +139,7 @@ def attach_disk(instance, disk):
     subprocess.call(attach_disk_cmd(instance=instance, disk=disk), shell=True)
     blk1 = set(lsblk().NAME.values)
     sdx = blk1.difference(blk0)
-    sdx = list(sdx)[0]
+    sdx = next(iter(sdx))
     return sdx
 
 
@@ -168,7 +183,7 @@ def upload2bucket(disk, file, bucket, n, n0=0):
     file_name, file_ext = os.path.splitext(os.path.split(file)[1])
 
     directory = f"/home/{USER}/sdb"
-    for i in range(n0, n+n0):
+    for i in range(n0, n + n0):
         disk_i = f"{disk}-{i}"
         file_i = f"{bucket}/{file_name}_{i}{file_ext}"
 
@@ -225,21 +240,4 @@ def umount_detach(sdx, disk):
 
 
 if __name__ == "__main__":
-    fire.Fire({"connect2": connect2,
-               "attach_mount": attach_mount,
-               "umount_detach": umount_detach})
-
-# gcloud compute instances create instance-2
-# --project=neon-polymer-214621
-# --zone=us-central1-a
-# --machine-type=e2-standard-8
-# --network-interface=network-tier=PREMIUM,subnet=default
-# --metadata=enable-oslogin=true
-# --maintenance-policy=MIGRATE
-# --service-account=508084122889-compute@developer.gserviceaccount.com
-# --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append
-# --create-disk=auto-delete=yes,boot=yes,device-name=instance-2,mode=rw,size=30,source-snapshot=projects/neon-polymer-214621/global/snapshots/tenh-setup,type=projects/neon-polymer-214621/zones/us-central1-a/diskTypes/pd-balanced
-# --disk=boot=no,device-name=nfs-server,mode=rw,name=nfs-server --reservation-affinity=any
-
-
-# "gcloud compute project-info add-metadata --metadata enable-oslogin=FALSE"
+    fire.Fire({"connect2": connect2, "attach_mount": attach_mount, "umount_detach": umount_detach})

@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 
 import numpy as np
@@ -8,7 +7,6 @@ from wzk.mpl2 import plotting
 
 
 class Test(TestCase):
-
     def test_plot_projections_2d(self):
         n_dof = 4
         n = 100
@@ -29,8 +27,7 @@ class Test(TestCase):
         arr = np.arange(45).reshape(5, 9)
         mask0 = np.equal(arr % 2, 0)
         mask1 = np.equal(arr % 2, 1)
-        limits = np.array([[0, 5],
-                           [0, 9]])
+        limits = np.array([[0, 5], [0, 9]])
 
         arr2 = arr.copy()
         arr2[mask0] = 0
@@ -49,7 +46,9 @@ class Test(TestCase):
         plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="lower", axis_order="ij->yx")
 
         fig, ax = plotting.new_fig(title="lower, ji")
-        h = plotting.imshow(ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="lower", axis_order="ij->yx")
+        h = plotting.imshow(
+            ax=ax, img=arr, limits=limits, cmap="Blues", mask=mask0, origin="lower", axis_order="ij->yx"
+        )
 
         plotting.imshow(h=h, img=arr, mask=mask1, cmap="Reds", axis_order="ij->yx")
 
@@ -62,8 +61,7 @@ class Test(TestCase):
     def test_grid_lines(self):
         fig, ax = plotting.new_fig()
 
-        limits = np.array([[0, 4],
-                           [0, 5]])
+        limits = np.array([[0, 4], [0, 5]])
         plotting.set_ax_limits(ax=ax, limits=limits, n_dim=2)
         plotting.grid_lines(ax=ax, start=0.5, step=(0.2, 0.5), limits=limits, color="b", ls=":")
 

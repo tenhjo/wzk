@@ -1,4 +1,3 @@
-
 import numpy as np
 from matplotlib import transforms
 
@@ -109,7 +108,7 @@ def set_labels_position(ax, position):
 def get_ticks(ax, axis="x"):
 
     def ticks2arr(tt):
-        return np.array([t for t in tt])
+        return np.array(list(tt))
 
     if axis == "x":
         return ticks2arr(ax.get_xticks())
@@ -184,7 +183,7 @@ def remove_ticks(ax, v, axis="x"):
 def position2axis(position):
     p_list = ["bottom", "top", "left", "right"]
     ip = p_list.index(position)
-    axis = "x" if ip//2 == 0 else "y"
+    axis = "x" if ip // 2 == 0 else "y"
     return axis, ip
 
 
@@ -211,7 +210,7 @@ def change_tick_appearance(ax, position, v, size=None, color=None):
         __apply(h_i=h[i], s=size, c=color)
 
 
-def change_label_appearance(ax, position, v, color, xt=0., yt=0.):
+def change_label_appearance(ax, position, v, color, xt=0.0, yt=0.0):
 
     def __apply(h_i, _color, _xt, _yt):
         if _color is not None:
@@ -255,7 +254,7 @@ def add_ticks(ax, ticks, labels=None, axis="x"):
 
         if labels is not None and any(np.atleast_1d(labels)):
             # if len(labels_old) > len(ticks_old):  # two axes (bottom, top), (left, right)
-            _labels = np.hstack((labels_old[:len(ticks_old)], _as_list(labels)))
+            _labels = np.hstack((labels_old[: len(ticks_old)], _as_list(labels)))
             _labels = _labels[sort_idx].tolist()
         else:
             _labels = None
@@ -288,7 +287,7 @@ def set_ticks_and_labels(ax, ticks=None, labels=None, axis="x"):
         __set_ticks(_set_ticks=ax.set_yticks, _set_ticklabels=ax.set_yticklabels, _ticks=ticks, _labels=labels)
 
 
-def __transform_label(ax, h_label, xt=0., yt=0., ha=None, va=None):
+def __transform_label(ax, h_label, xt=0.0, yt=0.0, ha=None, va=None):
     if xt != 0 or yt != 0:
         offset = transforms.ScaledTranslation(xt=xt, yt=yt, scale_trans=ax.get_figure().dpi_scale_trans)
         h_label.set_transform(h_label.get_transform() + offset)
@@ -299,7 +298,7 @@ def __transform_label(ax, h_label, xt=0., yt=0., ha=None, va=None):
         h_label.set_ha(ha)
 
 
-def transform_tick_labels(ax, xt=0., yt=0., rotation=0., axis="x", ha=None, va=None):
+def transform_tick_labels(ax, xt=0.0, yt=0.0, rotation=0.0, axis="x", ha=None, va=None):
 
     if rotation != 0:
         ax.tick_params(axis=axis, rotation=rotation)

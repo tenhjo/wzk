@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from wzk import mpl2, splines, trajectory
@@ -14,12 +13,12 @@ def test_basis_function():
     u = np.linspace(0, 1, 100)
     for degree in range(5):
         nurbs.degree = degree
-        nurbs.set_knotvector(k=np.linspace(0, 1, n_points+degree+1))
+        nurbs.set_knotvector(k=np.linspace(0, 1, n_points + degree + 1))
         fig, ax = mpl2.new_fig()
         ax.set_aspect(1)
         for i in range(10):
             n_in = nurbs.n_in(u=u, i=i, n=degree)
-            ax.plot(u, n_in+i*0.001,  label=f"{degree} - {i}")
+            ax.plot(u, n_in + i * 0.001, label=f"{degree} - {i}")
 
         ax.legend()
 
@@ -60,7 +59,7 @@ def test_random_jac():
     hp = ax.plot(*p.T, color="blue", marker="o")[0]
 
     dx_dp = nurbs.evaluate_jac(u)[..., 1:-1, :]  # does not depend on p
-    for i in range(100):
+    for _i in range(100):
         do_dx = length_jac(x)
         do_dp = (do_dx[:, np.newaxis, :] * dx_dp[:, :, np.newaxis]).sum(axis=0)
         nurbs.p[1:-1] -= do_dp[1:-1]
@@ -76,7 +75,7 @@ def test_unit_circle():
     k = np.array([0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4], dtype=float)
     p = np.array([[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0]])
 
-    sq22 = np.sqrt(2)/2
+    sq22 = np.sqrt(2) / 2
     w = np.array([1, sq22, 1, sq22, 1, sq22, 1, sq22, 1])
     nurbs = splines.NURBS(p=p, k=k, w=w, degree=2)
     u = np.linspace(0, 1, 90)
@@ -93,7 +92,7 @@ def test_unit_circle():
 def test_gui():
     n = 5
     p = np.random.random((n, 2))
-    u = np.linspace(0., 1, 20)
+    u = np.linspace(0.0, 1, 20)
 
     nurbs = splines.NURBS(p=p, degree=3)
     x_spline = nurbs.evaluate(u)

@@ -27,6 +27,10 @@ dependencies = [
 wandb = [
     "wandb>=0.19",
 ]
+gcp = [
+    "google-cloud-compute>=1.22",
+    "google-cloud-storage>=2.18",
+]
 dev = [
     "pytest>=9.0.2",
     "ruff>=0.15.0",
@@ -57,7 +61,28 @@ include = ["./", "src/", "tests/"]
 exclude = [".venv/"]
 
 [tool.ty.rules]
-possibly-unbound-attribute = "warn"
+# Suppress false positives from numpy/matplotlib typing
+not-subscriptable = "ignore"
+invalid-argument-type = "ignore"
+unsupported-operator = "ignore"
+unresolved-attribute = "ignore"
+no-matching-overload = "ignore"
+invalid-parameter-default = "ignore"
+not-iterable = "ignore"
+invalid-assignment = "ignore"
+invalid-return-type = "ignore"
+call-non-callable = "ignore"
+unknown-argument = "ignore"
+missing-argument = "ignore"
+invalid-method-override = "ignore"
+positional-only-parameter-as-kwarg = "ignore"
+invalid-declaration = "ignore"
+possibly-missing-attribute = "ignore"
+unused-type-ignore-comment = "warn"
+# Optional dependencies
+unresolved-import = "ignore"
 
 [tool.ty.environment]
 python-version = "3.13"
+
+

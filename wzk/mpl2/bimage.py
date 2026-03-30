@@ -6,8 +6,7 @@ from wzk import grid
 from wzk.mpl2.bimage_boundaries import get_combined_edges
 
 
-def plot_img_patch(img, limits,
-                   ax=None, **kwargs):
+def plot_img_patch(img, limits, ax=None, **kwargs):
     """
     Plot an image as a Collection of square Rectangle Patches.
     Draw all True / nonzero pixels.
@@ -18,21 +17,20 @@ def plot_img_patch(img, limits,
     ij = np.array(np.nonzero(img)).T
     xy = grid.i2x(i=ij, limits=limits, shape=img.shape, mode="b")
 
-    pc = PatchCollection([Rectangle((x, y), width=voxel_size, height=voxel_size,
-                                    fill=False, snap=True) for (x, y) in xy], **kwargs)
+    pc = PatchCollection(
+        [Rectangle((x, y), width=voxel_size, height=voxel_size, fill=False, snap=True) for (x, y) in xy], **kwargs
+    )
     ax.add_collection(pc)
     return pc
 
 
-def plot_img_outlines(img, limits,
-                      ax, **kwargs):
+def plot_img_outlines(img, limits, ax, **kwargs):
     """
     Plot the image by drawing the outlines of the areas where the values are True.
     """
 
     combined_edges = get_combined_edges(bimg=img)
-    combined_edges = [grid.i2x(i=ce, shape=img.shape, limits=limits, mode="b")
-                      for ce in combined_edges]
+    combined_edges = [grid.i2x(i=ce, shape=img.shape, limits=limits, mode="b") for ce in combined_edges]
 
     lc = LineCollection(combined_edges, **kwargs)
     ax.add_collection(lc)
@@ -47,11 +45,20 @@ def __img_none_limits(limits=None, img=None):
     return limits
 
 
-def plot_img_patch_w_outlines(ax, img, limits,
-                              color=None, edgecolor="k", hatchcolor="k", facecolor="None",
-                              hatch="xx",
-                              lw=2, alpha_outline=1, alpha_patch=1.,
-                              **kwargs):
+def plot_img_patch_w_outlines(
+    ax,
+    img,
+    limits,
+    color=None,
+    edgecolor="k",
+    hatchcolor="k",
+    facecolor="None",
+    hatch="xx",
+    lw=2,
+    alpha_outline=1,
+    alpha_patch=1.0,
+    **kwargs,
+):
     if img is None:
         return None
 
@@ -64,10 +71,18 @@ def plot_img_patch_w_outlines(ax, img, limits,
     ax.set_xlim(limits[0])
     ax.set_ylim(limits[1])
 
-    plot_img_outlines(img=img, limits=limits, ax=ax, color=edgecolor, ls="-", lw=lw, alpha=alpha_outline,
-                      **kwargs)
-    plot_img_patch(img=img, limits=limits, ax=ax, lw=0, hatch=hatch, facecolor=facecolor, edgecolor=hatchcolor,
-                   alpha=alpha_patch, **kwargs)
+    plot_img_outlines(img=img, limits=limits, ax=ax, color=edgecolor, ls="-", lw=lw, alpha=alpha_outline, **kwargs)
+    plot_img_patch(
+        img=img,
+        limits=limits,
+        ax=ax,
+        lw=0,
+        hatch=hatch,
+        facecolor=facecolor,
+        edgecolor=hatchcolor,
+        alpha=alpha_patch,
+        **kwargs,
+    )
     return None
 
 
@@ -76,20 +91,16 @@ def initialize_pixel_grid(img, limits, ax, **kwargs):
     ij = np.array(list(np.ndindex(img.shape)))
     xy = grid.i2x(i=ij, shape=img.shape, limits=limits, mode="b")
     voxel_size = grid.limits2voxel_size(shape=img.shape, limits=limits)
-    pixel_grid = PatchCollection([Rectangle(xy=(x, y), width=voxel_size,
-                                            height=voxel_size, snap=True)
-                                  for (x, y) in xy], **kwargs)
+    pixel_grid = PatchCollection(
+        [Rectangle(xy=(x, y), width=voxel_size, height=voxel_size, snap=True) for (x, y) in xy], **kwargs
+    )
     ax.add_collection(pixel_grid)
 
     return pixel_grid
 
 
 def set_pixel_grid(bimg, pixel_grid, **kwargs):
-    val_none_dict = {"color": "None",
-                     "edgecolor": "None",
-                     "facecolor": "None",
-                     "linewidth": 0,
-                     "linestyle": "None"}
+    val_none_dict = {"color": "None", "edgecolor": "None", "facecolor": "None", "linewidth": 0, "linestyle": "None"}
 
     def value_wrapper(k):
         v = kwargs[k]

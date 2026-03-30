@@ -10,9 +10,9 @@ from wzk.logger import setup_logger
 logger = setup_logger(__name__)
 
 
-def get_route(manager: pywrapcp.RoutingIndexManager,
-              routing: pywrapcp.RoutingModel,
-              assignment: pywrapcp.Assignment) -> np.ndarray:
+def get_route(
+    manager: pywrapcp.RoutingIndexManager, routing: pywrapcp.RoutingModel, assignment: pywrapcp.Assignment
+) -> np.ndarray:
     index = routing.Start(0)
     route = []
 
@@ -73,7 +73,7 @@ def _solve_tsp(x: np.ndarray, dist_mat: np.ndarray | None = None, time_limit: in
     assignment = routing.SolveWithParameters(search_parameters=search_parameters)
     route = get_route(manager=manager, routing=routing, assignment=assignment)
 
-    cost = dist_mat[route, np.roll(route, - 1)].sum()
+    cost = dist_mat[route, np.roll(route, -1)].sum()
     logger.info("TSP cost for %s points after %ss: %s", x.shape, time_limit, cost)
 
     return route
@@ -93,10 +93,9 @@ def _extend_distmat(dist_mat: np.ndarray, x: np.ndarray, x_new: np.ndarray) -> n
     return dist_mat2
 
 
-def solve_tsp(x: np.ndarray,
-              dist_mat: np.ndarray | None = None,
-              x_home: np.ndarray | None = None,
-              time_limit: int = 10) -> np.ndarray:
+def solve_tsp(
+    x: np.ndarray, dist_mat: np.ndarray | None = None, x_home: np.ndarray | None = None, time_limit: int = 10
+) -> np.ndarray:
     """
     Solve TSP on x and return a route over x indices.
     If x_home is provided, anchor the route by prepending x_home to the optimization problem
@@ -124,10 +123,9 @@ def solve_tsp(x: np.ndarray,
     return route
 
 
-def order_q_with_tsp(*,
-                     q: np.ndarray,
-                     anchor_q: np.ndarray | None = None,
-                     time_limit_sec: int = 3) -> tuple[np.ndarray, np.ndarray]:
+def order_q_with_tsp(
+    *, q: np.ndarray, anchor_q: np.ndarray | None = None, time_limit_sec: int = 3
+) -> tuple[np.ndarray, np.ndarray]:
     q_np = np.asarray(q, dtype=np.float32)
     assert q_np.ndim == 2, f"q must be 2D (n, d), got {q_np.shape}"
 
@@ -147,8 +145,7 @@ def order_q_with_tsp(*,
     return q_np[route_np], route_np
 
 
-def _order_q_with_tsp(*,
-                      q: np.ndarray,
-                      anchor_q: np.ndarray | None = None,
-                      time_limit_sec: int = 3) -> tuple[np.ndarray, np.ndarray]:
+def _order_q_with_tsp(
+    *, q: np.ndarray, anchor_q: np.ndarray | None = None, time_limit_sec: int = 3
+) -> tuple[np.ndarray, np.ndarray]:
     return order_q_with_tsp(q=q, anchor_q=anchor_q, time_limit_sec=time_limit_sec)

@@ -14,7 +14,7 @@ def limits2size(limits):
 
 
 def limits2center(limits):
-    s2 = limits2size(limits)/2
+    s2 = limits2size(limits) / 2
     return limits[:, 0] + s2
 
 
@@ -79,10 +79,9 @@ def add_safety_limits(limits: np.ndarray, factor=None, offset=None):
     if offset.ndim == 0:
         offset = np.full_like(s, fill_value=float(offset), dtype=float)
 
-    assert np.all(offset > -s/2)
+    assert np.all(offset > -s / 2)
 
-    limits_safe = np.array([limits[..., 0] - offset,
-                            limits[..., 1] + offset]).T
+    limits_safe = np.array([limits[..., 0] - offset, limits[..., 1] + offset]).T
     if squeeze:
         return limits_safe[0]
     return limits_safe

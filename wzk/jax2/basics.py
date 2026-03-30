@@ -14,7 +14,7 @@ from ._types import ArrayLike, AxisLike, BoolArray, ShapeLike, float32, int32
 
 def object2numeric_array(arr: ArrayLike) -> np.ndarray:
     s = np.shape(arr)
-    arr = np.array([v for v in np.ravel(arr)])
+    arr = np.array(list(np.ravel(arr)))
     arr = np.reshape(arr, s + np.shape(arr)[1:])
     return arr
 
@@ -28,10 +28,9 @@ def numeric2object_array(arr: ArrayLike) -> np.ndarray:
     return arr_obj
 
 
-def scalar2array(*val_or_arr: Any,
-                 shape: int | tuple[int, ...] | list[int],
-                 squeeze: bool = True,
-                 safe: bool = True) -> Any:
+def scalar2array(
+    *val_or_arr: Any, shape: int | tuple[int, ...] | list[int], squeeze: bool = True, safe: bool = True
+) -> Any:
     """Broadcast scalar-like values to numpy arrays with the provided shape."""
     shape = sh.shape_wrapper(shape)
 
@@ -72,10 +71,7 @@ def unify(x: ArrayLike) -> np.generic:
     return x_mean.astype(x.dtype)
 
 
-def __fill_index_with(idx: Any,
-                      axis: AxisLike,
-                      shape: tuple[int, ...],
-                      mode: str = "slice") -> tuple[Any, ...] | Any:
+def __fill_index_with(idx: Any, axis: AxisLike, shape: tuple[int, ...], mode: str = "slice") -> tuple[Any, ...] | Any:
     """
     orange <-> orth-range
     """
@@ -98,11 +94,7 @@ def __fill_index_with(idx: Any,
     return tuple(idx_with_)
 
 
-def insert(a: ArrayLike,
-           val: Any,
-           idx: Any,
-           axis: AxisLike,
-           mode: str = "slice") -> jax.Array | np.ndarray:
+def insert(a: ArrayLike, val: Any, idx: Any, axis: AxisLike, mode: str = "slice") -> jax.Array | np.ndarray:
     idx = __fill_index_with(idx=idx, axis=axis, shape=a.shape, mode=mode)
     if isinstance(a, jax.Array):
         if isinstance(idx, list):
@@ -117,9 +109,7 @@ def extract(a: ArrayLike, idx: Any, axis: AxisLike, mode: str = "slice") -> Any:
     return a[idx]
 
 
-def __argfun(a: ArrayLike,
-             axis: AxisLike,
-             fun: Callable[..., np.ndarray]) -> np.ndarray | tuple[np.ndarray, ...]:
+def __argfun(a: ArrayLike, axis: AxisLike, fun: Callable[..., np.ndarray]) -> np.ndarray | tuple[np.ndarray, ...]:
     a = np.asarray(a)
     axis = sh.axis_wrapper(axis=axis, n_dim=a.ndim)
     if len(axis) == 1:
@@ -146,11 +136,9 @@ def argmin(a: ArrayLike, axis: AxisLike = None) -> np.ndarray | tuple[np.ndarray
     return __argfun(a=a, axis=axis, fun=np.argmin)
 
 
-def allclose(a: ArrayLike,
-             b: ArrayLike,
-             rtol: float = 1.0e-5,
-             atol: float = 1.0e-8,
-             axis: AxisLike = None) -> BoolArray | bool:
+def allclose(
+    a: ArrayLike, b: ArrayLike, rtol: float = 1.0e-5, atol: float = 1.0e-8, axis: AxisLike = None
+) -> BoolArray | bool:
     a = np.asarray(a)
     b = np.asarray(b)
     assert a.shape == b.shape, f"{a.shape} != {b.shape}"
@@ -162,14 +150,13 @@ def allclose(a: ArrayLike,
     shape = np.array(a.shape)[np.array(axis_tuple)]
     bool_arr = np.zeros(shape, dtype=bool)
     for i in product(*(range(s) for s in shape)):
-        bool_arr[i] = np.allclose(extract(a, idx=i, axis=axis_tuple),
-                                  extract(b, idx=i, axis=axis_tuple),
-                                  rtol=rtol, atol=atol)
+        bool_arr[i] = np.allclose(
+            extract(a, idx=i, axis=axis_tuple), extract(b, idx=i, axis=axis_tuple), rtol=rtol, atol=atol
+        )
     return bool_arr
 
 
-def __wrapper_pair2list_fun(*args: ArrayLike,
-                            fun: Callable[[Any, Any], Any]) -> Any:
+def __wrapper_pair2list_fun(*args: ArrayLike, fun: Callable[[Any, Any], Any]) -> Any:
     assert len(args) >= 2
     res = fun(args[0], args[1])
     for a in args[2:]:

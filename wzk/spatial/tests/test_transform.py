@@ -1,4 +1,3 @@
-
 import unittest
 
 import numpy as np
@@ -8,7 +7,6 @@ from wzk.logger import log_print
 
 
 class Test(unittest.TestCase):
-
     def test_AxBxC(self):
         a, b, c = np.random.random((3, 100, 3))
         r0 = np.cross(a, np.cross(b, c))
@@ -17,9 +15,7 @@ class Test(unittest.TestCase):
 
     def test_is_rotation(self):
         a = np.zeros((5, 3, 3))
-        a[0] = np.array([[0., 0., 0.],
-                         [0., 0, 0.],
-                         [0., 0., 0.13321902]])
+        a[0] = np.array([[0.0, 0.0, 0.0], [0.0, 0, 0.0], [0.0, 0.0, 0.13321902]])
         a[1] = a[0].copy()
         a[2] = np.eye(3)
 
@@ -36,9 +32,9 @@ def vis_rotvec():
     x[:, 2] = np.arange(5)
     rv = np.zeros((5, 3))
     # rv[:, :] = np.array([[0.3, 0.2, 0.1]])  # it's not the same as multiplying a z rotation matrix on that frame
-    rv[1, 2] += np.pi/2
+    rv[1, 2] += np.pi / 2
     rv[2, 2] += np.pi
-    rv[3, 2] += 2*np.pi
+    rv[3, 2] += 2 * np.pi
     rv[4, 2] += -np.pi
     log_print(rv)
     f = spatial.trans_rotvec2frame(trans=x, rotvec=rv)
@@ -59,4 +55,3 @@ def vis_get_frames_between():
     log_print(f)
     # p = mc2.Visualizer()
     # mc2.plot_coordinate_frames(p=p, f=f, h=None, scale=0.2)
-

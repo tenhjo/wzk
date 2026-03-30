@@ -20,16 +20,17 @@ logger = setup_logger(__name__)
 
 # bayes_opt and pyswarms seem so infinitely slow compared to SLSQP, not sure when they are better suited
 
-default_options = {"maxiter": 1000,
-                   "disp": True,  # True
-                   "ftol": 1e-12,
-                   "sens_step": 1e-7,
-                   "sens_type": "fd",  # "fd" or "cs"
-                   "pll_type": None}  # "POA" or None  | I measured no speed difference)
+default_options = {
+    "maxiter": 1000,
+    "disp": True,  # True
+    "ftol": 1e-12,
+    "sens_step": 1e-7,
+    "sens_type": "fd",  # "fd" or "cs"
+    "pll_type": None,
+}  # "POA" or None  | I measured no speed difference)
 
 
 class SolverPar:
-
     __slots__ = ["name", "options"]
 
     def __init__(self, name: str = "PyOpt-SLSQP") -> None:
@@ -55,19 +56,19 @@ def fw_objective_pyopt(fun: Callable[[np.ndarray], float]) -> Callable:
     return fun2
 
 
-def create_opt_problem(fun: Callable[[np.ndarray], float],
-                       x0: np.ndarray,
-                       lower: float = -1., upper: float = +1.) -> Optimization:
+def create_opt_problem(
+    fun: Callable[[np.ndarray], float], x0: np.ndarray, lower: float = -1.0, upper: float = +1.0
+) -> Optimization:
     opt_prob = Optimization("", fw_objective_pyopt(fun))
     for i, x0_i in enumerate(x0):
-        opt_prob.addVar(f"x{i+1}", "c", lower=lower, upper=upper, value=x0_i)
+        opt_prob.addVar(f"x{i + 1}", "c", lower=lower, upper=upper, value=x0_i)
     opt_prob.addObj("f")
     return opt_prob
 
 
-def minimize_cobyla(fun: Callable[[np.ndarray], float],
-                    x0: np.ndarray, options: dict,
-                    log_level: int = 0) -> np.ndarray:
+def minimize_cobyla(
+    fun: Callable[[np.ndarray], float], x0: np.ndarray, options: dict, log_level: int = 0
+) -> np.ndarray:
     cobyla = COBYLA(pll_type=options["pll_type"])
     cobyla.setOption("IPRINT", 3)
     cobyla.setOption("MAXFUN", 10000)
@@ -84,9 +85,7 @@ def minimize_cobyla(fun: Callable[[np.ndarray], float],
     return x
 
 
-def minimize_slsqp(fun: Callable[[np.ndarray], float],
-                   x0: np.ndarray, options: dict,
-                   log_level: int = 0) -> np.ndarray:
+def minimize_slsqp(fun: Callable[[np.ndarray], float], x0: np.ndarray, options: dict, log_level: int = 0) -> np.ndarray:
     slsqp = SLSQP(pll_type=options["pll_type"])
     slsqp.setOption("IPRINT", 0 if log_level > 5 else -1)
     slsqp.setOption("MAXIT", options["maxiter"])
@@ -97,9 +96,7 @@ def minimize_slsqp(fun: Callable[[np.ndarray], float],
 
     opt_prob = create_opt_problem(fun=fun, x0=x0)
 
-    slsqp(opt_prob,
-          sens_type=options["sens_type"],
-          sens_step=options["sens_step"])
+    slsqp(opt_prob, sens_type=options["sens_type"], sens_step=options["sens_step"])
 
     res = opt_prob.solution(0)
     print_result(res=res, log_level=log_level)
@@ -123,10 +120,11 @@ def fw_objective_bayes(fun: Callable[[np.ndarray], float]) -> Callable:
     return fun2
 
 
-def minimize_bayes_opt(fun: Callable[[np.ndarray], float],
-                       x0: np.ndarray, options: dict,
-                       log_level: int = 0) -> np.ndarray:
+def minimize_bayes_opt(
+    fun: Callable[[np.ndarray], float], x0: np.ndarray, options: dict, log_level: int = 0
+) -> np.ndarray:
     from bayes_opt import BayesianOptimization
+
     low = -0.1
     high = +0.1
     n = len(x0)
@@ -156,15 +154,15 @@ def fw_objective_swarms(fun: Callable[[np.ndarray], float]) -> Callable:
     return fun2
 
 
-def minimize_swarms(fun: Callable[[np.ndarray], float],
-                    x0: np.ndarray, options: dict,
-                    log_level: int = 0) -> np.ndarray:
+def minimize_swarms(
+    fun: Callable[[np.ndarray], float], x0: np.ndarray, options: dict, log_level: int = 0
+) -> np.ndarray:
     import pyswarms
 
     n = len(x0)
     low = -0.1
     high = +0.1
-    bounds = ( np.full(n, low), np.full(n, high))
+    bounds = (np.full(n, low), np.full(n, high))
     options = {"c1": 0.5, "c2": 0.3, "w": 0.9}
     optimizer = pyswarms.single.GlobalBestPSO(n_particles=500, dimensions=n, options=options, bounds=bounds)
     o, x = optimizer.optimize(fw_objective_swarms(fun), iters=1000)
@@ -172,11 +170,13 @@ def minimize_swarms(fun: Callable[[np.ndarray], float],
     return x
 
 
-def minimize(fun: Callable[[np.ndarray], float],
-             x0: np.ndarray,
-             solver: str = "PyOpt-SLSQP",
-             options: dict | None = None,
-             log_level: int = 0) -> np.ndarray:
+def minimize(
+    fun: Callable[[np.ndarray], float],
+    x0: np.ndarray,
+    solver: str = "PyOpt-SLSQP",
+    options: dict | None = None,
+    log_level: int = 0,
+) -> np.ndarray:
     if options is None:
         options = default_options.copy()
 
@@ -195,8 +195,7 @@ def minimize(fun: Callable[[np.ndarray], float],
         else:
             solver = solver.split("-")[1]
             solver = solver.lower()
-            x = optimize.minimize(fun=fun, x0=x0, method=solver, tol=1e-13,
-                                  options={"disp": True, "maxiter": 1000}).x
+            x = optimize.minimize(fun=fun, x0=x0, method=solver, tol=1e-13, options={"disp": True, "maxiter": 1000}).x
 
     elif "wzk" in solver:
         if solver == "wzk-randomball":

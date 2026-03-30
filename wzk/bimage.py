@@ -1,4 +1,3 @@
-
 import warnings
 
 import numpy as np
@@ -15,7 +14,7 @@ __eps = 1e-9
 
 def __closest_boundary_rel_idx(half_side):
     idx_rel = np.arange(start=-half_side + 1, stop=half_side + 2, step=1)
-    idx_rel[half_side:] = idx_rel[half_side - 1:-1]
+    idx_rel[half_side:] = idx_rel[half_side - 1 : -1]
     return idx_rel
 
 
@@ -90,7 +89,7 @@ def __get_centers(voxel_size, n_dim):
 def __compare_dist_against_radius(x_a, x_b, r):
     dist = x_a - x_b
     dist = (dist**2).sum(axis=-1)
-    return dist < r ** 2 - 5 * __eps
+    return dist < r**2 - 5 * __eps
 
 
 def get_max_occupied_cells(length, voxel_size):
@@ -99,12 +98,14 @@ def get_max_occupied_cells(length, voxel_size):
 
 def get_outer_edge(img):
     n_dim = np.ndim(img)
-    kernel = np.ones((3,)*n_dim)
+    kernel = np.ones((3,) * n_dim)
     edge_img = convolve(img, kernel, mode="same", method="direct") > 0
     return np.logical_xor(edge_img, img)
 
 
-def get_sphere_stencil(r: float, voxel_size: float, n_dim: int = 2, use_center: bool = False) -> tuple[np.ndarray, np.ndarray]:
+def get_sphere_stencil(
+    r: float, voxel_size: float, n_dim: int = 2, use_center: bool = False
+) -> tuple[np.ndarray, np.ndarray]:
     half_side = get_max_occupied_cells(length=r, voxel_size=voxel_size) - 1
 
     if half_side == 0:
@@ -130,8 +131,7 @@ def get_sphere_stencil(r: float, voxel_size: float, n_dim: int = 2, use_center: 
     return inner, outer
 
 
-def get_stencil_list(r, n,
-                     voxel_size, n_dim):
+def get_stencil_list(r, n, voxel_size, n_dim):
     if np.size(r) > 1:
         assert np.size(r) == n
         r_unique, stencil_idx = np.unique(r, return_inverse=True)
@@ -144,12 +144,10 @@ def get_stencil_list(r, n,
     return r_unique, stencil_list, stencil_idx
 
 
-def create_stencil_dict(voxel_size: float, n_dim: int,
-                        only_inner: bool = False,
-                        use_center: bool = False) -> dict:
-    stencil_dict = dict()
-    n = int(5*(1 // voxel_size))
-    for (i, r) in enumerate(np.linspace(voxel_size/10, 2, num=n)):
+def create_stencil_dict(voxel_size: float, n_dim: int, only_inner: bool = False, use_center: bool = False) -> dict:
+    stencil_dict = {}
+    n = int(5 * (1 // voxel_size))
+    for i, r in enumerate(np.linspace(voxel_size / 10, 2, num=n)):
         printing.progress_bar(i=i, n=n, prefix="create_stencil_dict")
         assert isinstance(r, float)
         d = int((r // voxel_size) * 2 + 3)
@@ -164,8 +162,7 @@ def create_stencil_dict(voxel_size: float, n_dim: int,
     return stencil_dict
 
 
-def spheres2bimg(x, r, shape, limits,
-                 stencil_dict=None):
+def spheres2bimg(x, r, shape, limits, stencil_dict=None):
     x = np.atleast_2d(x)
     n, n_dim = x.shape
     assert len(shape) == n_dim
@@ -222,7 +219,13 @@ def sample_bimg_x(img, limits, n, cell_noise=True, replace=True):
     return x
 
 
-def sample_spheres_bimg_x(x, r, shape, limits, n,):
+def sample_spheres_bimg_x(
+    x,
+    r,
+    shape,
+    limits,
+    n,
+):
     img = spheres2bimg(x=x, r=r, shape=shape, limits=limits)
     x = sample_bimg_x(img=img, limits=limits, n=n, replace=True)
     return x
@@ -237,7 +240,7 @@ def rotate_bimg_3d(bimg: np.ndarray, dcm) -> np.ndarray:
 
     idx -= idx.min(axis=0)
     idx = idx.astype(int)
-    bimg = np.zeros(idx.max(axis=0)+1)
+    bimg = np.zeros(idx.max(axis=0) + 1)
     bimg[idx[:, 0], idx[:, 1], idx[:, 2]] = 1
     return bimg
 
@@ -296,7 +299,7 @@ def get_occupied_volume(bimg, voxel_size: float):
 
 # Conversions
 def dense_point_cloud2bimg(x, voxel_size: float):
-    limits = np.vstack([x.min(axis=0) - 1.5*voxel_size, x.max(axis=0) + 1.5*voxel_size]).T
+    limits = np.vstack([x.min(axis=0) - 1.5 * voxel_size, x.max(axis=0) + 1.5 * voxel_size]).T
     limits = math2.discretize(x=limits, step=voxel_size)
     shape = ((grid.limits2size(limits=limits) + voxel_size / 100) // voxel_size).astype(int)
 
@@ -331,8 +334,7 @@ def mesh2bimg(p, shape, limits, f=None):
         p2 = np.concatenate([p, p[:1]], axis=0)
         p2 = trajectory.get_substeps_adjusted(x=p2, n=2 * len(p) * max(shape))
         i2 = grid.x2i(x=p2, limits=limits, shape=shape)
-        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),
-            np.clip(i2[:, 1], a_min=0, a_max=shape[1]-1)] = 1
+        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0] - 1), np.clip(i2[:, 1], a_min=0, a_max=shape[1] - 1)] = 1
 
     elif img.ndim == 3:
         if f is None:
@@ -341,9 +343,11 @@ def mesh2bimg(p, shape, limits, f=None):
             f = ch.simplices
         p2 = geometry.discretize_triangle_mesh(p=p, f=f, voxel_size=voxel_size)
         i2 = grid.x2i(x=p2, limits=limits, shape=shape)
-        img[np.clip(i2[:, 0], a_min=0, a_max=shape[0]-1),
-            np.clip(i2[:, 1], a_min=0, a_max=shape[1]-1),
-            np.clip(i2[:, 2], a_min=0, a_max=shape[2]-1)] = 1
+        img[
+            np.clip(i2[:, 0], a_min=0, a_max=shape[0] - 1),
+            np.clip(i2[:, 1], a_min=0, a_max=shape[1] - 1),
+            np.clip(i2[:, 2], a_min=0, a_max=shape[2] - 1),
+        ] = 1
 
     else:
         raise ValueError
@@ -371,64 +375,43 @@ def bimg2surf_new(img):
     img_p = np.pad(img, 1, mode="constant", constant_values=False)
 
     # Neighbors in 6 directions
-    xp = img_p[2:  , 1:-1, 1:-1]  # +x
-    xm = img_p[ :-2, 1:-1, 1:-1]  # -x
-    yp = img_p[1:-1, 2:  , 1:-1]  # +y
-    ym = img_p[1:-1,  :-2, 1:-1]  # -y
-    zp = img_p[1:-1, 1:-1, 2:  ]  # +z
-    zm = img_p[1:-1, 1:-1,  :-2]  # -z
+    xp = img_p[2:, 1:-1, 1:-1]  # +x
+    xm = img_p[:-2, 1:-1, 1:-1]  # -x
+    yp = img_p[1:-1, 2:, 1:-1]  # +y
+    ym = img_p[1:-1, :-2, 1:-1]  # -y
+    zp = img_p[1:-1, 1:-1, 2:]  # +z
+    zm = img_p[1:-1, 1:-1, :-2]  # -z
 
     # Conventions: voxel (i,j,k) spans [i, i+1] x [j, j+1] x [k, k+1]
     # All windings chosen so that normals point outward assuming
     # +x right, +y up, +z "out of the screen".
 
     # face: +x / x = i+1
-    add_faces(mask=img & ~xp,  # Masks where the face is exposed (filled voxel next to empty)
-              vertices_fun=lambda i, j, k:
-              [(i+1, j  , k  ),
-               (i+1, j+1, k  ),
-               (i+1, j+1, k+1),
-               (i+1, j  , k+1)])
+    add_faces(
+        mask=img & ~xp,  # Masks where the face is exposed (filled voxel next to empty)
+        vertices_fun=lambda i, j, k: [(i + 1, j, k), (i + 1, j + 1, k), (i + 1, j + 1, k + 1), (i + 1, j, k + 1)],
+    )
 
     # face -x /  x = i
-    add_faces(mask=img & ~xm,
-              vertices_fun=lambda i, j, k:
-              [(i, j  , k  ),
-               (i, j  , k+1),
-               (i, j+1, k+1),
-               (i, j+1, k  )])
+    add_faces(mask=img & ~xm, vertices_fun=lambda i, j, k: [(i, j, k), (i, j, k + 1), (i, j + 1, k + 1), (i, j + 1, k)])
 
     # face: +y / y = j+1
-    add_faces(mask=img & ~yp,
-              vertices_fun=lambda i, j, k:
-              [(i  , j+1, k  ),
-               (i  , j+1, k+1),
-               (i+1, j+1, k+1),
-               (i+1, j+1, k  )])
+    add_faces(
+        mask=img & ~yp,
+        vertices_fun=lambda i, j, k: [(i, j + 1, k), (i, j + 1, k + 1), (i + 1, j + 1, k + 1), (i + 1, j + 1, k)],
+    )
 
     # face: -y / y = j
-    add_faces(mask=img & ~ym,
-              vertices_fun=lambda i, j, k:
-              [(i  , j, k   ),
-               (i+1, j, k   ),
-               (i+1, j, k+1 ),
-               (i  , j, k+1 )])
+    add_faces(mask=img & ~ym, vertices_fun=lambda i, j, k: [(i, j, k), (i + 1, j, k), (i + 1, j, k + 1), (i, j, k + 1)])
 
     # face +z: plane z = k+1
-    add_faces(mask=img & ~zp,
-              vertices_fun=lambda i, j, k:
-              [(i  , j  , k+1),
-               (i+1, j  , k+1),
-               (i+1, j+1, k+1),
-               (i  , j+1, k+1)])
+    add_faces(
+        mask=img & ~zp,
+        vertices_fun=lambda i, j, k: [(i, j, k + 1), (i + 1, j, k + 1), (i + 1, j + 1, k + 1), (i, j + 1, k + 1)],
+    )
 
     # -Z face: plane z = k
-    add_faces(mask=img & ~zm,
-              vertices_fun=lambda i, j, k:
-              [(i  , j    , k),
-               (i    , j+1  , k),
-               (i+1  , j+1  , k),
-               (i+1  , j    , k)])
+    add_faces(mask=img & ~zm, vertices_fun=lambda i, j, k: [(i, j, k), (i, j + 1, k), (i + 1, j + 1, k), (i + 1, j, k)])
 
     vertices = np.concatenate(vertices, dtype=np.int32, axis=0)
     vertices = vertices.reshape(-1, 3)

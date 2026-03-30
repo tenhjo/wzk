@@ -16,30 +16,38 @@ __debug_directory = "/Users/jote/Documents/PhD/data/mopla/GD/debug"
 
 class OPTimizer(ltd.CopyableObject):
     __slots__ = (
-        "active_dims",                    # bool[n_var]         |
-        "callback",                       # fun()               |
-        "clip",                           # float[n_steps]      |
-        "clip_mode",                      # str                 | "value", "norm", "norm-force" (see np2.clip2)
-        "hesse_inv",                      # float[n_var][n_var] |
-        "hesse_weighting",                # float[n_steps]      |
-        "limits",                         # fun()               | Limits of the variables
-        "limits_mode",                    # str                 | "jump", "clip", "ignore"
-        "n_processes",                    # int                 |
-        "n_samples",                      # int                 | Number of samples
-        "n_steps",                        # int                 | Number of iterations
-        "optimizer",                      # Optimizer           | Adam, RMSProp, ...
-        "return_x_list",                  # bool                | s this a suitable parameter? not really
-        "staircase",                      # OPTStaircase        |
-        "stepsize",                       # float               |
-        "type",                           # str                 | type of the optimizer: gd, sqp, ...
-        "type_root",                      # str                 | type of the root search algorithm
+        "active_dims",  # bool[n_var]         |
+        "callback",  # fun()               |
+        "clip",  # float[n_steps]      |
+        "clip_mode",  # str                 | "value", "norm", "norm-force" (see np2.clip2)
+        "hesse_inv",  # float[n_var][n_var] |
+        "hesse_weighting",  # float[n_steps]      |
+        "limits",  # fun()               | Limits of the variables
+        "limits_mode",  # str                 | "jump", "clip", "ignore"
+        "n_processes",  # int                 |
+        "n_samples",  # int                 | Number of samples
+        "n_steps",  # int                 | Number of iterations
+        "optimizer",  # Optimizer           | Adam, RMSProp, ...
+        "return_x_list",  # bool                | s this a suitable parameter? not really
+        "staircase",  # OPTStaircase        |
+        "stepsize",  # float               |
+        "type",  # str                 | type of the optimizer: gd, sqp, ...
+        "type_root",  # str                 | type of the root search algorithm
         "use_loop_instead_of_processes",  # bool                |
-        "verbose"                         # int
+        "verbose",  # int
     )
 
-    def __init__(self, n_samples: int = 1, n_steps: int = 100, stepsize: float = 1,
-                 optimizer: Naive = Naive(), clip: float = 0.1, n_processes: int = 1,
-                 clip_mode: str = "value", limits_mode: str = "clip") -> None:
+    def __init__(
+        self,
+        n_samples: int = 1,
+        n_steps: int = 100,
+        stepsize: float = 1,
+        optimizer: Naive = Naive(),
+        clip: float = 0.1,
+        n_processes: int = 1,
+        clip_mode: str = "value",
+        limits_mode: str = "clip",
+    ) -> None:
 
         self.type = None
         self.type_root = "newton"
@@ -73,11 +81,11 @@ class OPTimizer(ltd.CopyableObject):
 
 class OPTStaircase:
     __slots__ = (
-        "clip",            # float[n_stairs]
+        "clip",  # float[n_stairs]
         "hesse_inv_dict",  # dict[n_stairs]
-        "n_stairs",        # int
-        "n_steps",         # int[n_stairs]
-        "n_var",           # int[n_stairs]
+        "n_stairs",  # int
+        "n_steps",  # int[n_stairs]
+        "n_var",  # int[n_stairs]
     )
 
     def __init__(self, n_stairs: int = -1) -> None:
@@ -85,10 +93,12 @@ class OPTStaircase:
 
 
 # Gradient Descent
-def gradient_descent_mp(x: np.ndarray,
-                        fun: Callable[[np.ndarray], np.ndarray],
-                        grad: Callable[[np.ndarray, int], np.ndarray],
-                        opt: OPTimizer) -> np.ndarray:
+def gradient_descent_mp(
+    x: np.ndarray,
+    fun: Callable[[np.ndarray], np.ndarray],
+    grad: Callable[[np.ndarray, int], np.ndarray],
+    opt: OPTimizer,
+) -> np.ndarray:
 
     def gd_wrapper(xx: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         return gradient_descent(x=xx, fun=fun, grad=grad, opt=opt)
@@ -96,10 +106,12 @@ def gradient_descent_mp(x: np.ndarray,
     return mp2.mp_wrapper(x, fun=gd_wrapper, n_processes=opt.n_processes)
 
 
-def gradient_descent(x: np.ndarray,
-                     fun: Callable[[np.ndarray], np.ndarray],
-                     grad: Callable[[np.ndarray, int], np.ndarray],
-                     opt: OPTimizer) -> tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, np.ndarray, tuple]:
+def gradient_descent(
+    x: np.ndarray,
+    fun: Callable[[np.ndarray], np.ndarray],
+    grad: Callable[[np.ndarray, int], np.ndarray],
+    opt: OPTimizer,
+) -> tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, np.ndarray, tuple]:
 
     x = __x_wrapper(x)
 
@@ -157,7 +169,6 @@ def gradient_descent(x: np.ndarray,
     if opt.return_x_list:
         return x, o, (x_list, o_list)
     else:
-
         return x, o
 
 

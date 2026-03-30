@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from wzk.logger import log_print
@@ -26,14 +25,13 @@ class NURBS:
 
     def set_knotvector(self, k):
         if k is None:
-            deg2 = int(np.ceil((self.degree+1)/2))
-            k = ([0]*deg2 +
-                 list(range(self.n_points)) +
-                 [self.n_points-1] * (self.degree+1-deg2))
+            deg2 = int(np.ceil((self.degree + 1) / 2))
+            k = [0] * deg2 + list(range(self.n_points)) + [self.n_points - 1] * (self.degree + 1 - deg2)
 
         k = np.atleast_1d(k)
-        assert len(k) == self.degree + self.n_points + 1, \
+        assert len(k) == self.degree + self.n_points + 1, (
             f"len(k)[{len(k)}] == self.degree[{self.degree}] + self.n_points[{self.n_points}] + 1"
+        )
         self.k = k
         self.normalize_knotvector_01()
 
@@ -45,25 +43,26 @@ class NURBS:
         return np.divide(n, d, out=np.zeros_like(n), where=d != 0)
 
     def f_in(self, u, i, n):
-        f_in = self.divide(u - self.k[i],  self.k[i+n] - self.k[i])
+        f_in = self.divide(u - self.k[i], self.k[i + n] - self.k[i])
         return f_in
 
     def n_in(self, u, i, n):  # TODO precompute a lot of this stuff and make it more numpy like
         if n == 0:
             k0 = self.k[i]
-            k1 = self.k[i+1]
+            k1 = self.k[i + 1]
             n_in = np.logical_and(k0 <= u, u < k1).astype(int)
 
         else:
-            n_in = (self.f_in(u=u, i=i, n=n) * self.n_in(u=u, i=i, n=n-1) +
-                    (1-self.f_in(u=u, i=i+1, n=n)) * self.n_in(u=u, i=i+1, n=n-1))
+            n_in = self.f_in(u=u, i=i, n=n) * self.n_in(u=u, i=i, n=n - 1) + (
+                1 - self.f_in(u=u, i=i + 1, n=n)
+            ) * self.n_in(u=u, i=i + 1, n=n - 1)
         return n_in
 
     def evaluate(self, u):
         u = np.atleast_1d(u)
         x = 0.0
         for i in range(self.n_points):
-            x = x + self.r_in(u=u, i=i)[:, np.newaxis] * self.p[i:i+1]
+            x = x + self.r_in(u=u, i=i)[:, np.newaxis] * self.p[i : i + 1]
 
         # otherwise, they are zero, weighting is small of somewhere, handle edge cases
         x[u == 0] = self.p[0]
@@ -116,6 +115,7 @@ def try_nurbs_jacobi():
     j = nurbs.evaluate_jac(u)
 
     from wzk import mpl2
+
     fig, ax = mpl2.new_fig()
 
     h_spline = ax.plot(*x_spline.T, color="k", marker="o", lw=3)[0]

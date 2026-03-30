@@ -55,10 +55,9 @@ class DummyArray:
         return self.arr
 
 
-def initialize_array(shape: ShapeLike,
-                     mode: str = "zeros",
-                     dtype: Any = None,
-                     order: Literal["C", "F"] = "C") -> jax.Array:
+def initialize_array(
+    shape: ShapeLike, mode: str = "zeros", dtype: Any = None, order: Literal["C", "F"] = "C"
+) -> jax.Array:
     if mode == "zeros":
         arr = np.zeros(shape, dtype=dtype, order=order)
     elif mode == "ones":
@@ -92,7 +91,7 @@ def interleave(arrays: Sequence[ArrayLike], axis: int = 0, out: np.ndarray | Non
         axis += len(shape)
     assert 0 <= axis < len(shape), "'axis' is out of bounds"
     if out is not None:
-        out = out.reshape(shape[:axis + 1] + [len(arrays)] + shape[axis + 1:])
+        out = out.reshape(shape[: axis + 1] + [len(arrays)] + shape[axis + 1 :])
     shape[axis] = -1
     res = np.stack([np.asarray(a) for a in arrays], axis=axis + 1, out=out).reshape(shape)
     return jnp.asarray(res)
@@ -104,7 +103,7 @@ def digitize_group(x: ArrayLike, bins: ArrayLike, right: bool = False) -> list[n
     idx_x = np.digitize(x=x, bins=bins, right=right)
     n, m = len(x), len(bins) + 1
     s = csr_matrix((np.arange(n), [idx_x, np.arange(n)]), shape=(m, n))
-    return [group for group in np.split(s.data, s.indptr[1:-1])]
+    return list(np.split(s.data, s.indptr[1:-1]))
 
 
 def sort_args(idx: ArrayLike, *args: ArrayLike) -> list[np.ndarray]:
@@ -130,30 +129,28 @@ def convolve_2d(img: ArrayLike, kernel: ArrayLike) -> jax.Array:
     out = np.zeros(s, dtype=float32)
     for i0 in range(ks2[0], s[0] - ks2[0]):
         for i1 in range(ks2[1], s[1] - ks2[1]):
-            out[i0, i1] = np.sum(img[i0 - ks2[0]:i0 + ks2[0] + 1, i1 - ks2[1]:i1 + ks2[1] + 1] * kernel)
+            out[i0, i1] = np.sum(img[i0 - ks2[0] : i0 + ks2[0] + 1, i1 - ks2[1] : i1 + ks2[1] + 1] * kernel)
 
     return jnp.asarray(out)
 
 
-def add_small2big(idx: ArrayLike,
-                  small: ArrayLike,
-                  big: ArrayLike,
-                  mode_crop: str = "center",
-                  mode_add: str = "add") -> jax.Array | None:
+def add_small2big(
+    idx: ArrayLike, small: ArrayLike, big: ArrayLike, mode_crop: str = "center", mode_add: str = "add"
+) -> jax.Array | None:
     idx = reshape.flatten_without_last(idx)
     n_samples, n_dim = idx.shape
-    ll_big, ur_big, ll_small, ur_small = find.get_cropping_indices(pos=idx, mode=mode_crop,
-                                                                   shape_small=np.shape(small)[-n_dim:],
-                                                                   shape_big=np.shape(big))
+    ll_big, ur_big, ll_small, ur_small = find.get_cropping_indices(
+        pos=idx, mode=mode_crop, shape_small=np.shape(small)[-n_dim:], shape_big=np.shape(big)
+    )
 
     is_jax = isinstance(big, jax.Array)
     big_arr = np.array(big) if is_jax else big
 
     if np.ndim(small) > n_dim:
-        for ll_b, ur_b, ll_s, ur_s, s in zip(ll_big, ur_big, ll_small, ur_small, small):
+        for ll_b, ur_b, ll_s, ur_s, s in zip(ll_big, ur_big, ll_small, ur_small, small, strict=False):
             big_arr[slicen(ll_b, ur_b)] += np.asarray(s)[slicen(ll_s, ur_s)]
     else:
-        for ll_b, ur_b, ll_s, ur_s in zip(ll_big, ur_big, ll_small, ur_small):
+        for ll_b, ur_b, ll_s, ur_s in zip(ll_big, ur_big, ll_small, ur_small, strict=False):
             if mode_add == "add":
                 big_arr[slicen(ll_b, ur_b)] += np.asarray(small)[slicen(ll_s, ur_s)]
             elif mode_add == "replace":
@@ -173,10 +170,9 @@ def get_exclusion_mask(a: ArrayLike, exclude_values: ArrayLike) -> np.ndarray:
     return bool_a
 
 
-def matmul(a: ArrayLike,
-           b: ArrayLike,
-           axes_a: tuple[int, int] = (-2, -1),
-           axes_b: tuple[int, int] = (-2, -1)) -> jax.Array:
+def matmul(
+    a: ArrayLike, b: ArrayLike, axes_a: tuple[int, int] = (-2, -1), axes_b: tuple[int, int] = (-2, -1)
+) -> jax.Array:
     a = jnp.asarray(a)
     b = jnp.asarray(b)
     if axes_a == (-2, -1) and axes_b == (-2, -1):
@@ -209,8 +205,7 @@ def matsort(mat: ArrayLike, order_j: np.ndarray | None = None) -> tuple[np.ndarr
     interval_idx = np.zeros(2, dtype=int32)
     interval_idx[1] = n
     for i in range(0, m - 1):
-        interval_idx = np.unique(np.hstack([interval_idx,
-                                            find.get_interval_indices(mat[order_i, order_j[i]]).ravel()]))
+        interval_idx = np.unique(np.hstack([interval_idx, find.get_interval_indices(mat[order_i, order_j[i]]).ravel()]))
 
         for j, il in enumerate(idx2interval(idx=interval_idx)):
             slice_j = slice(il[0], il[1])
@@ -233,22 +228,23 @@ def idx2boolmat(idx: ArrayLike, n: int = 100) -> np.ndarray:
     return mat
 
 
-def construct_array(shape: ShapeLike,
-                    val: ArrayLike,
-                    idx: ArrayLike,
-                    init_mode: str = "zeros",
-                    dtype: Any = None,
-                    axis: AxisLike = None,
-                    insert_mode: str | None = None) -> jax.Array:
+def construct_array(
+    shape: ShapeLike,
+    val: ArrayLike,
+    idx: ArrayLike,
+    init_mode: str = "zeros",
+    dtype: Any = None,
+    axis: AxisLike = None,
+    insert_mode: str | None = None,
+) -> jax.Array:
     a = initialize_array(shape=shape, mode=init_mode, dtype=dtype)
     out = basics.insert(a=a, val=val, idx=idx, axis=axis, mode=insert_mode)
     return a if out is None else out
 
 
-def block_view(a: ArrayLike,
-               shape: ShapeLike,
-               aslist: bool = False,
-               require_aligned_blocks: bool = True) -> np.ndarray | list[np.ndarray]:
+def block_view(
+    a: ArrayLike, shape: ShapeLike, aslist: bool = False, require_aligned_blocks: bool = True
+) -> np.ndarray | list[np.ndarray]:
     a = np.asarray(a)
     assert a.flags["C_CONTIGUOUS"], "This function relies on the memory layout of the array."
     shape_tuple = tuple(int(v) for v in np.atleast_1d(shape).tolist())
@@ -257,7 +253,8 @@ def block_view(a: ArrayLike,
 
     if require_aligned_blocks:
         assert np.all(np.mod(a.shape, shape_tuple) == 0), (
-            f"blockshape {shape_tuple} must divide evenly into array shape {a.shape}")
+            f"blockshape {shape_tuple} must divide evenly into array shape {a.shape}"
+        )
 
     intra_block_strides = a.strides
     inter_block_strides = tuple(np.array(a.strides) * np.array(shape_tuple))
@@ -280,10 +277,7 @@ def expand_block_indices(idx_block: ArrayLike, block_size: int, squeeze: bool = 
     return idx2
 
 
-def replace(arr: ArrayLike,
-            r_dict: dict[Any, Any],
-            copy: bool = True,
-            dtype: Any = None) -> np.ndarray | None:
+def replace(arr: ArrayLike, r_dict: dict[Any, Any], copy: bool = True, dtype: Any = None) -> np.ndarray | None:
     arr_np = np.asarray(arr)
     if copy:
         arr2 = arr_np.copy()
@@ -309,7 +303,7 @@ def replace_tail_roll(a: ArrayLike, b: ArrayLike) -> np.ndarray:
 
 def replace_tail_roll_list(arr_list: list[ArrayLike], arr_new_list: list[ArrayLike]):
     assert len(arr_list) == len(arr_new_list)
-    return (replace_tail_roll(a=arr, b=arr_new) for (arr, arr_new) in zip(arr_list, arr_new_list))
+    return (replace_tail_roll(a=arr, b=arr_new) for (arr, arr_new) in zip(arr_list, arr_new_list, strict=False))
 
 
 def diag_wrapper(x: ArrayLike, n: int | None = None) -> jax.Array:
@@ -352,8 +346,9 @@ def get_stats(x: ArrayLike, axis: AxisLike = None, return_array: bool = False) -
     }
 
     if return_array:
-        return jnp.array([stats["size"], stats["mean"], stats["std"], stats["median"], stats["min"], stats["max"]],
-                         dtype=float32)
+        return jnp.array(
+            [stats["size"], stats["mean"], stats["std"], stats["median"], stats["min"], stats["max"]], dtype=float32
+        )
 
     return stats
 

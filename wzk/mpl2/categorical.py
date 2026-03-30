@@ -5,11 +5,15 @@ from matplotlib import ticker
 from wzk import ltd
 from wzk.mpl2 import CurlyBrace, change_tick_appearance, elongate_ticks_and_labels, make_every_box_fancy, set_borders
 
-__style = dict(newline_size=1,
-               perc_in_label=False, abs_in_xt=False,
-               newline_in_legend=" ", newline_in_label=" ",
-               absolut_right=True,
-               fontweight_label=1)
+__style = {
+    "newline_size": 1,
+    "perc_in_label": False,
+    "abs_in_xt": False,
+    "newline_in_legend": " ",
+    "newline_in_label": " ",
+    "absolut_right": True,
+    "fontweight_label": 1,
+}
 
 
 def add_absolute_ax(ax, a, f=1, position="right"):
@@ -55,9 +59,7 @@ def handle_newline(newline, n):
     return newline2
 
 
-def mosaic_plot(ax, df, col_x, col_y,
-                orderings_x=None, orderings_y=None, newline=None, ignore_na=True,
-                style=None):
+def mosaic_plot(ax, df, col_x, col_y, orderings_x=None, orderings_y=None, newline=None, ignore_na=True, style=None):
 
     # Handle Arguments
     df_x = df[col_x].values
@@ -102,22 +104,32 @@ def mosaic_plot(ax, df, col_x, col_y,
         vy = vy.replace("\n", style["newline_in_legend"])
         vy = vy.replace("u.", "undecided")
 
-        ax.bar(x_idx, temp, width=width, bottom=bottom,
-               label=vy + f" ({bool_y.mean()*100:.1f}%)" if style["perc_in_label"] else vy,
-               color=colors[i])
+        ax.bar(
+            x_idx,
+            temp,
+            width=width,
+            bottom=bottom,
+            label=vy + f" ({bool_y.mean() * 100:.1f}%)" if style["perc_in_label"] else vy,
+            color=colors[i],
+        )
 
         curly_hl = style["curly_highlight"]
         if curly_hl is not None and i in curly_hl[:, 0]:
             jj = curly_hl[curly_hl[:, 0] == i, 1]
             for j in jj:
-
-                cb = CurlyBrace(p=(x_idx[j] - width[j]/3, bottom[j]),
-                                x0=(x_idx[j] - width[j]/3, bottom[j]+temp[j]),
-                                x1=(x_idx[j] - width[j]/3 + 1, bottom[j]+temp[j]/2),
-                                zorder=10)
+                cb = CurlyBrace(
+                    p=(x_idx[j] - width[j] / 3, bottom[j]),
+                    x0=(x_idx[j] - width[j] / 3, bottom[j] + temp[j]),
+                    x1=(x_idx[j] - width[j] / 3 + 1, bottom[j] + temp[j] / 2),
+                    zorder=10,
+                )
                 ax.add_patch(cb)
-                ax.annotate(xy=(x_idx[j] - width[j]/3+1, bottom[j] + temp[j]/2), s=f"  {temp[j]:.1f}%",
-                            va="center", ha="left")
+                ax.annotate(
+                    xy=(x_idx[j] - width[j] / 3 + 1, bottom[j] + temp[j] / 2),
+                    s=f"  {temp[j]:.1f}%",
+                    va="center",
+                    ha="left",
+                )
 
         bottom += temp
 
@@ -126,9 +138,11 @@ def mosaic_plot(ax, df, col_x, col_y,
     labels_xb = [lxb.replace("\n", style["newline_in_label"]) for lxb in val_x.tolist()]
     labels_xb = [lxb.replace(".u", "undecided") for lxb in labels_xb]
 
-    labels_xt = [f"{c} ({c_perc:.1f}%)" if style["abs_in_xt"] else f"{c_perc:.1f}%"
-                 for c, c_perc in zip(counts_x, counts_x/sum(counts_x)*100)]
-    for i, (lb, lt) in enumerate(zip(labels_xb, labels_xt)):
+    labels_xt = [
+        f"{c} ({c_perc:.1f}%)" if style["abs_in_xt"] else f"{c_perc:.1f}%"
+        for c, c_perc in zip(counts_x, counts_x / sum(counts_x) * 100, strict=False)
+    ]
+    for i, (lb, lt) in enumerate(zip(labels_xb, labels_xt, strict=False)):
         if newline[i]:
             labels_xb[i] = f"\n{lb}"
             labels_xt[i] = f"{lt}\n"
@@ -162,14 +176,12 @@ def mosaic_plot(ax, df, col_x, col_y,
     return ax
 
 
-def bar_plot(ax, df, col, ordering=None, x_label="", newline=None,
-             style=None):
+def bar_plot(ax, df, col, ordering=None, x_label="", newline=None, style=None):
 
     labels, counts = value_counts(df[col], ordering=ordering)
     bar_height = counts / counts.sum()
 
     if style["orientation"] == "vertical":
-
         ax.yaxis.set_major_formatter(ticker.PercentFormatter(1.0, decimals=0))
         ax.bar(np.arange(len(labels)), bar_height, color=style["colors"])
         ax.set_xticks(np.arange(len(labels)))
@@ -206,12 +218,12 @@ def multi_bar_plot(ax, df, cols, ordering=None, colors=None, newline=None):
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1.0, decimals=0))
 
     w = g = -1
-    for i, (h, c) in enumerate(zip(heights, colors)):
+    for i, (h, c) in enumerate(zip(heights, colors, strict=False)):
         g = 0.05
         w = (bar_width - (len(cols) - 1) * g) / len(cols)
-        ax.bar(np.arange(len(labels))+i*(w+g), h, color=c, width=w, label=cols[i])
+        ax.bar(np.arange(len(labels)) + i * (w + g), h, color=c, width=w, label=cols[i])
 
-    ax.set_xticks(np.arange(len(labels)) + (len(cols)-1) * (w + g) / 2)
+    ax.set_xticks(np.arange(len(labels)) + (len(cols) - 1) * (w + g) / 2)
     elongate_ticks_and_labels(ax=ax, labels=labels, newline=newline)
 
     add_absolute_ax(ax=ax, a=c_max, f=100, position="right")
@@ -220,8 +232,7 @@ def multi_bar_plot(ax, df, cols, ordering=None, colors=None, newline=None):
     return ax
 
 
-def multi_bar_overlay_plot(ax, df, cols, ordering=None, colors=None, newline=None,
-                           shift=0.05, sort=True):
+def multi_bar_overlay_plot(ax, df, cols, ordering=None, colors=None, newline=None, shift=0.05, sort=True):
     bar_width = 0.8
 
     colors = np.array(colors)
@@ -239,12 +250,17 @@ def multi_bar_overlay_plot(ax, df, cols, ordering=None, colors=None, newline=Non
 
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1.0, decimals=0))
 
-    w = bar_width - len(cols)*shift
+    w = bar_width - len(cols) * shift
     for j, i in enumerate(reversed(sort_matrix)):
-        ax.bar(np.arange(len(labels))+j*shift, heights[i, range(len(labels))], color=colors[i], label=cols[i[0]],
-               width=w)
+        ax.bar(
+            np.arange(len(labels)) + j * shift,
+            heights[i, range(len(labels))],
+            color=colors[i],
+            label=cols[i[0]],
+            width=w,
+        )
 
-    ax.set_xticks(np.arange(len(labels)) + ((len(cols)-1) * shift) / 2)
+    ax.set_xticks(np.arange(len(labels)) + ((len(cols) - 1) * shift) / 2)
     elongate_ticks_and_labels(ax=ax, labels=labels, newline=newline)
 
     add_absolute_ax(ax=ax, a=c_max, f=100, position="right")
@@ -280,18 +296,29 @@ def multiple_choice_bar(ax, df, cols, ordering=None, colors=None, x_label="", ne
 def conditional_bar_plot(ax, df, col, col_cond, val_cond, ordering=None, newline=None, style=None):
     bool_cond = pd.DataFrame(df[col_cond] == val_cond).values
     val_cond = val_cond.replace("\n", ", ")
-    return bar_plot(ax=ax, df=df.iloc[bool_cond, :], col=col,
-                    newline=newline, ordering=ordering,
-                    style=style,
-                    x_label=f"\n(given '{col_cond}'='{val_cond}')")
+    return bar_plot(
+        ax=ax,
+        df=df.iloc[bool_cond, :],
+        col=col,
+        newline=newline,
+        ordering=ordering,
+        style=style,
+        x_label=f"\n(given '{col_cond}'='{val_cond}')",
+    )
 
 
 def pie_plot(ax, df, col, ordering=None, newline=None, style=None):
     labels, counts = value_counts(df[col], ordering=ordering)
 
-    patches, hl_o, hl_i = ax.pie(counts, colors=style["colors"], startangle=90, counterclock=False,
-                                 autopct=style["autopct"],
-                                 rotatelabels=False, pctdistance=0.6)
+    patches, hl_o, hl_i = ax.pie(
+        counts,
+        colors=style["colors"],
+        startangle=90,
+        counterclock=False,
+        autopct=style["autopct"],
+        rotatelabels=False,
+        pctdistance=0.6,
+    )
 
     newline = handle_newline(newline=newline, n=len(labels))
 
@@ -301,7 +328,7 @@ def pie_plot(ax, df, col, ordering=None, newline=None, style=None):
 
         if newline[i]:
             xy = np.array(hl.get_position())
-            xy = xy + xy * 1/2
+            xy = xy + xy * 1 / 2
             hl.set_position(xy)
 
     return ax

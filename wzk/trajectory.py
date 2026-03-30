@@ -86,25 +86,21 @@ def full2flat(x):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Substeps
-def periodic_dof_wrapper(x,
-                         is_periodic=None):
+def periodic_dof_wrapper(x, is_periodic=None):
     if is_periodic is not None and any(is_periodic):
         x[..., is_periodic] = math2.angle2minuspi_pluspi(x[..., is_periodic])
     return x
 
 
-def get_steps(q,
-              is_periodic=None):
+def get_steps(q, is_periodic=None):
     return periodic_dof_wrapper(np.diff(q, axis=-2), is_periodic=is_periodic)
 
 
-def get_steps_norm(q,
-                   is_periodic=None):
+def get_steps_norm(q, is_periodic=None):
     return np.linalg.norm(get_steps(q=q, is_periodic=is_periodic), axis=-1)
 
 
-def get_substeps(x: np.ndarray, n: int,
-                 is_periodic=None, include_start: bool = True):
+def get_substeps(x: np.ndarray, n: int, is_periodic=None, include_start: bool = True):
 
     *shape, m, d = x.shape
 
@@ -116,10 +112,10 @@ def get_substeps(x: np.ndarray, n: int,
             return x[..., 1:, :]
 
     steps = get_steps(q=x, is_periodic=is_periodic)
-    delta = (np.arange(n-1, -1, -1)/n) * steps[..., np.newaxis]
+    delta = (np.arange(n - 1, -1, -1) / n) * steps[..., np.newaxis]
     x_ss = x[..., 1:, :, np.newaxis] - delta
     x_ss = np.swapaxes(x_ss, -2, -1)
-    x_ss = x_ss.reshape(shape + [(m-1) * n, d])
+    x_ss = x_ss.reshape(shape + [(m - 1) * n, d])
 
     if include_start:
         x_ss = np.concatenate([x[..., :1, :], x_ss], axis=-2)
@@ -128,15 +124,13 @@ def get_substeps(x: np.ndarray, n: int,
     return x_ss
 
 
-def get_steps_between(start: np.ndarray, end: np.ndarray, n: int,
-                      is_periodic=None):
+def get_steps_between(start: np.ndarray, end: np.ndarray, n: int, is_periodic=None):
     q = np.concatenate([start[..., np.newaxis, :], end[..., np.newaxis, :]], axis=-2)
-    q = get_substeps(x=q, n=n-1, is_periodic=is_periodic, include_start=True)
+    q = get_substeps(x=q, n=n - 1, is_periodic=is_periodic, include_start=True)
     return q
 
 
-def get_substeps_adjusted(x: np.ndarray, n: int,
-                          is_periodic=None, weighting=None, enforce_equal_steps: bool = False):
+def get_substeps_adjusted(x: np.ndarray, n: int, is_periodic=None, weighting=None, enforce_equal_steps: bool = False):
 
     *shape, m, d = x.shape
 
@@ -145,7 +139,7 @@ def get_substeps_adjusted(x: np.ndarray, n: int,
 
     if shape:
         shape = tuple(shape)
-        x_n = np.zeros(shape+(n, d))
+        x_n = np.zeros(shape + (n, d))
         for i in np.ndindex(*shape):
             x_n[i] = get_substeps_adjusted(x=x[i], n=n, is_periodic=is_periodic, weighting=weighting)
         return x_n
@@ -171,11 +165,11 @@ def get_substeps_adjusted(x: np.ndarray, n: int,
     n_sub = np.round(n_sub_exact).astype(int)
 
     # If the number of points does not match, change the substeps where the rounding was worst
-    n_diff = (n-1) - np.sum(n_sub)
+    n_diff = (n - 1) - np.sum(n_sub)
     if n_diff != 0:
         n_sub_acc = n_sub_exact - n_sub
         n_sub_acc = 0.5 + np.sign(n_diff) * n_sub_acc
-        idx = np.argsort(n_sub_acc)[-np.abs(n_diff):]
+        idx = np.argsort(n_sub_acc)[-np.abs(n_diff) :]
         n_sub[idx] += np.sign(n_diff)
 
     n_sub_cs = np.hstack((0, n_sub.cumsum())) + 1
@@ -184,15 +178,22 @@ def get_substeps_adjusted(x: np.ndarray, n: int,
     x_n = np.empty((n, d))
     x_n[0, :] = x[0, :].copy()
     for i in range(m1):
-        x_n[n_sub_cs[i]:n_sub_cs[i + 1], :] = \
-            get_substeps(x=x[i:i + 2, :], n=n_sub[i], is_periodic=is_periodic, include_start=False)
+        x_n[n_sub_cs[i] : n_sub_cs[i + 1], :] = get_substeps(
+            x=x[i : i + 2, :], n=n_sub[i], is_periodic=is_periodic, include_start=False
+        )
 
     x_n = periodic_dof_wrapper(x=x_n, is_periodic=is_periodic)
     return x_n
 
 
-def get_path_adjusted(x: np.ndarray, n: int = None,
-                      is_periodic=None, weighting=None, enforce_equal_steps: bool = False, _m: int = 5):
+def get_path_adjusted(
+    x: np.ndarray,
+    n: int | None = None,
+    is_periodic=None,
+    weighting=None,
+    enforce_equal_steps: bool = False,
+    _m: int = 5,
+):
     n0 = x.shape[-2]
     if n is None:
         n = n0
@@ -200,12 +201,16 @@ def get_path_adjusted(x: np.ndarray, n: int = None,
         pass
 
     n = int(n)
-    return get_substeps_adjusted(x=x, n=(n - 1) * (n0 * _m) + 1,
-                                 is_periodic=is_periodic, weighting=weighting,
-                                 enforce_equal_steps=enforce_equal_steps)[..., ::(n0 * _m), :]
+    return get_substeps_adjusted(
+        x=x,
+        n=(n - 1) * (n0 * _m) + 1,
+        is_periodic=is_periodic,
+        weighting=weighting,
+        enforce_equal_steps=enforce_equal_steps,
+    )[..., :: (n0 * _m), :]
 
 
-def order_path(x, start=None, end=None, is_periodic=None, weights=1.):
+def order_path(x, start=None, end=None, is_periodic=None, weights=1.0):
     """
     Order the points given by 'x' [2d: (n, d)] according to a weighted Euclidean distance
     so that the nearest point always comes next.
@@ -264,7 +269,7 @@ def x2bee(x, n_wp=None):
     if n_wp is None:
         n_wp = x.shape[-2]
 
-    bee = get_substeps(x_se, n=n_wp-1, include_start=True)
+    bee = get_substeps(x_se, n=n_wp - 1, include_start=True)
     return bee
 
 
@@ -364,13 +369,16 @@ def get_spline_coeffs(x, y, n=None, s=None):
 def set_spline_coeffs(spl, coeffs):
     data = spl._data
     k, n = data[5], data[7]
-    data[9][:n - k - 1] = np.ravel(coeffs)
+    data[9][: n - k - 1] = np.ravel(coeffs)
     spl._data = data
 
 
 def from_spline(c, n_wp, start_end_mode=None):
     xx = np.linspace(0, 1, n_wp)
-    spl = UnivariateSpline(x=xx, y=xx, )
+    spl = UnivariateSpline(
+        x=xx,
+        y=xx,
+    )
 
     if start_end_mode == "c->0":
         z = np.zeros_like(c[..., :1, :])
@@ -427,7 +435,9 @@ def fromto_spline2(x, n_c=4, x_mode="sdbee", start_end_mode="x->0"):
     else:
         raise ValueError(f"Unknown x_mode='{x_mode}'")
 
-    x_spline = get_path_adjusted(x=x_spline, )
+    x_spline = get_path_adjusted(
+        x=x_spline,
+    )
     return x_spline
 
 
@@ -492,7 +502,7 @@ def combine_d_substeps__dx(d_dxs, n):
 
     if d_dxs.ndim == 3:
         n_samples, n_wp_ss, n_dof = d_dxs.shape
-        d_dxs = d_dxs.reshape(n_samples, n_wp_ss//n, n, n_dof)
+        d_dxs = d_dxs.reshape(n_samples, n_wp_ss // n, n, n_dof)
         ss_jac = d_substeps__dx(n=n, order=1)[np.newaxis, np.newaxis, ..., np.newaxis]
         d_dx = np.einsum("ijkl, ijkl -> ijl", d_dxs, ss_jac[:, :, 0, :, :])
         d_dx[:, :-1, :] += np.einsum("ijkl, ijkl -> ijl", d_dxs[:, 1:, :, :], ss_jac[:, :, 1, :, :])

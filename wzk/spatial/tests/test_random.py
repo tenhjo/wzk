@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from wzk import spatial
@@ -12,7 +11,7 @@ def main():
     log_print("a", np.allclose(a0, a1))
 
     b0 = _sigma_theta2quaternions(s=0.5, theta1=0, theta2=0.1)
-    b1 = _sigma_theta2quaternions(s=0.5, theta1=2*np.pi, theta2=0.1)
+    b1 = _sigma_theta2quaternions(s=0.5, theta1=2 * np.pi, theta2=0.1)
     log_print("b", np.allclose(b0, b1))
 
     c0 = _sigma_theta2quaternions(s=0.5, theta1=0.1, theta2=0)

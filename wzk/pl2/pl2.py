@@ -8,9 +8,9 @@ def fill_between(x, y_lower, y_upper, color, **kwargs):
         y=np.hstack([y_upper, y_lower[::-1]]),
         fill="toself",
         fillcolor=color,
-        line=dict(color="rgba(0,0,0,0)"),
+        line={"color": "rgba(0,0,0,0)"},
         hoverinfo="skip",
-        **kwargs
+        **kwargs,
     )
     return h
 
@@ -18,14 +18,6 @@ def fill_between(x, y_lower, y_upper, color, **kwargs):
 def set_title_and_labels(fig, title="", x="", y=""):
     fig.update_layout(
         title=title,
-        xaxis=dict(
-            title=dict(
-                text=x
-            )
-        ),
-        yaxis=dict(
-            title=dict(
-                text=y
-            )
-        ),
+        xaxis={"title": {"text": x}},
+        yaxis={"title": {"text": y}},
     )

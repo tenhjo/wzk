@@ -19,20 +19,19 @@ from .shape import shape_wrapper
 logger = setup_logger(__name__)
 
 
-def p_normal_skew(x: ArrayLike | Scalar,
-                  loc: float = 0.0,
-                  scale: float = 1.0,
-                  a: float = 0.0) -> jax.Array:
+def p_normal_skew(x: ArrayLike | Scalar, loc: float = 0.0, scale: float = 1.0, a: float = 0.0) -> jax.Array:
     t = (np.asarray(x) - loc) / scale
     return jnp.asarray(2 * norm.pdf(t) * norm.cdf(a * t), dtype=float32)
 
 
-def normal_skew_int(loc: float = 0.0,
-                    scale: float = 1.0,
-                    a: float = 0.0,
-                    low: int | None = None,
-                    high: int | None = None,
-                    size: int | ShapeLike = 1) -> int | jax.Array:
+def normal_skew_int(
+    loc: float = 0.0,
+    scale: float = 1.0,
+    a: float = 0.0,
+    low: int | None = None,
+    high: int | None = None,
+    size: int | ShapeLike = 1,
+) -> int | jax.Array:
     if low is None:
         low = int(loc - 10 * scale)
     if high is None:
@@ -78,12 +77,9 @@ def noise(shape: ShapeLike | None, scale: float, mode: str = "normal") -> jax.Ar
     raise ValueError(f"Unknown mode '{mode}'")
 
 
-def get_n_in2(n_in: int,
-              n_out: int,
-              n_total: int,
-              n_current: int,
-              safety_factor: float = 1.01,
-              max_factor: int = 128) -> int:
+def get_n_in2(
+    n_in: int, n_out: int, n_total: int, n_current: int, safety_factor: float = 1.01, max_factor: int = 128
+) -> int:
     if n_out == 0:
         n_in2 = n_in * 2
     else:
@@ -94,10 +90,7 @@ def get_n_in2(n_in: int,
     return n_in2
 
 
-def fun2n(fun: Callable[[int], ArrayLike],
-          n: int,
-          max_iter: int = 100,
-          max_factor: int = 128) -> jax.Array:
+def fun2n(fun: Callable[[int], ArrayLike], n: int, max_iter: int = 100, max_factor: int = 128) -> jax.Array:
     """
     Wrapper to repeatedly call fun(n_i) and concatenate outputs until len(x) >= n.
     """
@@ -120,14 +113,13 @@ def fun2n(fun: Callable[[int], ArrayLike],
     return jnp.asarray(x)
 
 
-def choose_from_sections(n_total: int,
-                         n_sections: int,
-                         n_choose_per_section: int | ArrayLike,
-                         flatten: bool = True) -> jax.Array | list[np.ndarray]:
+def choose_from_sections(
+    n_total: int, n_sections: int, n_choose_per_section: int | ArrayLike, flatten: bool = True
+) -> jax.Array | list[np.ndarray]:
     n_i = np.array_split(np.arange(n_total), n_sections)
 
     n_choose_per_section = scalar2array(n_choose_per_section, shape=n_sections)
-    i = [np.random.choice(arr, size=int(m)) for arr, m in zip(n_i, n_choose_per_section)]
+    i = [np.random.choice(arr, size=int(m)) for arr, m in zip(n_i, n_choose_per_section, strict=False)]
     if flatten:
         return jnp.asarray(np.concatenate(i, axis=0), dtype=int32)
     return i
@@ -181,7 +173,7 @@ def block_shuffle(arr: ArrayLike | int, block_size: int, inside: bool = False) -
     if inside:
         idx = np.arange(n)
         for i in range(0, n, block_size):
-            np.random.shuffle(idx[i:i + block_size])
+            np.random.shuffle(idx[i : i + block_size])
         return jnp.asarray(arr_np[idx])
 
     idx_block = np.arange(n_blocks)

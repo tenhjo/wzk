@@ -6,8 +6,7 @@ n = 4
 shape = (64, 64)
 x = np.random.random((n, 2))
 r = np.random.uniform(low=0.1, high=0.2, size=n)
-limits = np.array([[0., 1.],
-                   [0., 1.]])
+limits = np.array([[0.0, 1.0], [0.0, 1.0]])
 
 fig, ax = mpl2.new_fig(aspect="equal")
 dcl = mpl2.DraggableCircleList(ax=ax, xy=x, radius=r, alpha=0.5, color="red")
