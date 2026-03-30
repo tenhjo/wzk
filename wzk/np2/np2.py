@@ -353,7 +353,8 @@ def expand_block_indices(idx_block, block_size, squeeze=True):
 
     idx_block = np.atleast_1d(idx_block)
     if np.size(idx_block) == 1:
-        return np.arange(block_size * int(idx_block), block_size * (int(idx_block) + 1))
+        ii = int(np.asarray(idx_block).item())
+        return np.arange(block_size * ii, block_size * (ii + 1))
     else:
         idx2 = np.array([expand_block_indices(i, block_size=block_size, squeeze=squeeze) for i in idx_block])
         if squeeze:

@@ -1,8 +1,12 @@
-from .environ import __multiprocessing2   # must be imported before multiprocessing / numpy  # noqa: F401
+from __future__ import annotations
 
-try:  # must be imported before skimage / did not find out why yet
-    from pyOpt.pySLSQP.pySLSQP import SLSQP as _
+import importlib
+from typing import Any
 
+from .environ import __multiprocessing2  # must be imported before multiprocessing / numpy  # noqa: F401
+
+try:  # optional dependency
+    from pyOpt.pySLSQP.pySLSQP import SLSQP as _  # noqa: F401
 except ImportError:
     pass
 
@@ -11,31 +15,59 @@ from .time2 import (tic as tic,
                     tictoc as tictoc,
                     get_timestamp as get_timestamp)
 
-from .io import files as files
-from .io import sql2 as sql2
-
-from .math import math2 as math2
-from .math import geometry as geometry
-
-try:
-    from . import jax2 as jax2
-except ImportError:
-    pass
-
-from .random import random2 as random2
-from .random import perlin as perlin
-
-from . import (alg as alg,
-               limits as limits,
-               opt as opt,
-               strings as strings,
-               image as image,
-               bimage as bimage,
-               grid as grid,
-               ltd as ltd)
-
 from .printing import (progress_bar as progress_bar,
                        print2 as print2,
                        check_verbosity as check_verbosity)
 
-import wzk.mpl2.figure  # noqa: F401 # must be imported before matplotlib
+
+_LAZY_MODULES = {
+    "files": "wzk.io.files",
+    "sql2": "wzk.io.sql2",
+    "math2": "wzk.math.math2",
+    "geometry": "wzk.math.geometry",
+    "jax2": "wzk.jax2",
+    "random2": "wzk.random.random2",
+    "perlin": "wzk.random.perlin",
+    "alg": "wzk.alg",
+    "limits": "wzk.limits",
+    "opt": "wzk.opt",
+    "strings": "wzk.strings",
+    "image": "wzk.image",
+    "bimage": "wzk.bimage",
+    "grid": "wzk.grid",
+    "ltd": "wzk.ltd",
+}
+
+
+__all__ = [
+    "tic",
+    "toc",
+    "tictoc",
+    "get_timestamp",
+    "progress_bar",
+    "print2",
+    "check_verbosity",
+    *_LAZY_MODULES.keys(),
+]
+
+
+def __getattr__(name: str) -> Any:
+    module_name = _LAZY_MODULES.get(name)
+    if module_name is None:
+        raise AttributeError(f"module 'wzk' has no attribute '{name}'")
+
+    try:
+        module = importlib.import_module(module_name)
+    except ImportError as exc:
+        if name == "jax2":
+            raise AttributeError(
+                "module 'wzk' has no attribute 'jax2' (optional JAX dependencies are missing)"
+            ) from exc
+        raise
+
+    globals()[name] = module
+    return module
+
+
+def __dir__() -> list[str]:
+    return sorted(set(globals()) | set(__all__))

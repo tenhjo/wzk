@@ -27,6 +27,9 @@ def solve_tsp(x, dist_mat=None, time_limit=10,
     """
 
     n = len(x)
+    if n <= 2:
+        return np.arange(n, dtype=int)
+
     if dist_mat is None:
         dist_mat = distance_matrix(x, x)
 
@@ -71,3 +74,57 @@ def solve_tsp(x, dist_mat=None, time_limit=10,
         print(f"TSP Cost for {x.shape} points after {time_limit}s: {cost}")
 
     return route
+
+
+def order_q_with_tsp(*,
+                     q: np.ndarray,
+                     anchor_q: np.ndarray | None = None,
+                     time_limit_sec: int = 3) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Reorder waypoints q with a TSP route.
+    If anchor_q is provided, solve TSP on [anchor_q, q] and drop the anchor index in the result.
+    """
+    q_np = np.asarray(q, dtype=np.float32)
+    assert q_np.ndim == 2, f"q must be 2D (n, d), got {q_np.shape}"
+
+    n_q = q_np.shape[0]
+    if n_q <= 2:
+        route = np.arange(n_q, dtype=int)
+        return q_np, route
+
+    if anchor_q is None:
+        route_np = np.asarray(
+            solve_tsp(
+                x=q_np,
+                time_limit=time_limit_sec,
+                verbose=0,
+            ),
+            dtype=int,
+        )
+        return q_np[route_np], route_np
+
+    anchor_np = np.asarray(anchor_q, dtype=np.float32).reshape((1, -1))
+    assert anchor_np.shape[1] == q_np.shape[1], (
+        f"anchor_q dimensionality {anchor_np.shape[1]} must match q dimensionality {q_np.shape[1]}"
+    )
+
+    route_np = np.asarray(
+        solve_tsp(
+            x=np.concatenate([anchor_np, q_np], axis=0),
+            time_limit=time_limit_sec,
+            verbose=0,
+        ),
+        dtype=int,
+    )
+    route_interior = route_np[route_np != 0] - 1
+    return q_np[route_interior], route_interior
+
+
+def _order_q_with_tsp(*,
+                      q: np.ndarray,
+                      anchor_q: np.ndarray | None = None,
+                      time_limit_sec: int = 3) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Backward-compatible alias for order_q_with_tsp.
+    """
+    return order_q_with_tsp(q=q, anchor_q=anchor_q, time_limit_sec=time_limit_sec)
