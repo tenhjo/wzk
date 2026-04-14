@@ -146,11 +146,5 @@ def run_on_ephemeral_vm(
     return 0
 
 
-def _get_branch() -> str:
-    return subprocess.run(
-        ["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True, check=True
-    ).stdout.strip()
-
-
 if __name__ == "__main__":
     sys.exit(run_on_ephemeral_vm("test-vm", "echo setup", "echo run"))

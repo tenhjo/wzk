@@ -42,13 +42,9 @@ class GpuConfig:
 
 DEFAULT_PROJECT = os.environ["GCP_PROJECT"]
 DEFAULT_ZONE = "us-central1-a"
-DEFAULT_BOOT_DISK_SIZE_GB = 200
+DEFAULT_BOOT_DISK_SIZE_GB = 100
 DEFAULT_BOOT_DISK_TYPE = "pd-ssd"
 DEFAULT_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
-
-ROKIN_REPO = os.environ["ROKIN_REPO"]
-ROBOT_ZOO_REPO = os.environ["ROBOT_ZOO_REPO"]
-UV_CACHE_DIR = "/opt/uv-cache"
 
 
 @dataclass

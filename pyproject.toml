@@ -27,10 +27,6 @@ dependencies = [
 wandb = [
     "wandb>=0.19",
 ]
-gcp = [
-    "google-cloud-compute>=1.22",
-    "google-cloud-storage>=2.18",
-]
 dev = [
     "pytest>=9.0.2",
     "ruff>=0.15.0",

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import subprocess
+
 from wzk.logger import setup_logger
 
 from ._compute import create_instance
@@ -58,7 +60,7 @@ def create_with_zone_retry(config: VmConfig) -> tuple[str, GpuConfig]:
                 create_instance(trial)
                 logger.info("Created %s (%s) in %s", config.name, gpu_type, zone)
                 return zone, gpu
-            except Exception:
+            except subprocess.CalledProcessError:
                 logger.debug("Failed to create in %s/%s", gpu_type, zone)
 
     msg = f"Failed to create VM {config.name} in any zone. All GPUs stocked out."

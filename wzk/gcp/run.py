@@ -19,8 +19,12 @@ import fire
 from wzk.logger import setup_logger
 from wzk.time2 import get_timestamp
 
-from ._config import DEFAULT_PROJECT, ROBOT_ZOO_REPO, ROKIN_REPO, UV_CACHE_DIR
+from ._config import DEFAULT_PROJECT
 from ._run import run_on_ephemeral_vm
+
+ROKIN_REPO = os.environ["ROKIN_REPO"]
+ROBOT_ZOO_REPO = os.environ["ROBOT_ZOO_REPO"]
+UV_CACHE_DIR = "/opt/uv-cache"
 
 logger = setup_logger(__name__)
 
@@ -31,19 +35,26 @@ def _get_branch() -> str:
     ).stdout.strip()
 
 
+def _gcp_name(prefix: str) -> str:
+    ts = get_timestamp().replace("_", "-").replace(":", "")
+    return f"{prefix}-{ts}"
+
+
 def _clone_and_setup_script(branch: str) -> str:
     return f"""\
 set -euo pipefail
 export PATH="$HOME/.local/bin:$PATH"
-mkdir -p ~/src
+command -v uv >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh
+mkdir -p ~/src ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true
 rm -rf ~/src/rokin ~/src/robot_zoo
 git clone --depth 1 --branch {branch} {ROKIN_REPO} ~/src/rokin
 git clone --depth 1 {ROBOT_ZOO_REPO} ~/src/robot_zoo
 cd ~/src/rokin
-UV_CACHE_DIR={UV_CACHE_DIR} uv sync --dev
+UV_CACHE_DIR={UV_CACHE_DIR} uv sync --dev --group cuda
 nvidia-smi
 UV_CACHE_DIR={UV_CACHE_DIR} uv run python -c 'import jax; print("JAX backend:", jax.default_backend())'
+UV_CACHE_DIR={UV_CACHE_DIR} uv run python -m rokin.codegen --cuda
 """
 
 
@@ -71,11 +82,11 @@ echo "" >> ~/gpu_test.log
 
 UV_CACHE_DIR={UV_CACHE_DIR} uv run pytest -v --tb=long \\
   {test_paths} \\
-  >> ~/gpu_test.log 2>&1
-echo $? > ~/gpu_test.exitcode
+  >> ~/gpu_test.log 2>&1 || true
+echo ${{PIPESTATUS[0]:-$?}} > ~/gpu_test.exitcode
 
-gsutil cp ~/gpu_test.log "{gcs_prefix}/output.log"
-gsutil cp ~/gpu_test.exitcode "{gcs_prefix}/exitcode"
+gcloud storage cp ~/gpu_test.log "{gcs_prefix}/output.log"
+gcloud storage cp ~/gpu_test.exitcode "{gcs_prefix}/exitcode"
 """
 
 
@@ -87,11 +98,11 @@ export PATH="$HOME/.local/bin:$PATH"
 cd ~/src/rokin
 
 UV_CACHE_DIR={UV_CACHE_DIR} uv run python {remote_script_path} {script_args} \\
-  >> ~/script_output.log 2>&1
-echo $? > ~/script_output.exitcode
+  >> ~/script_output.log 2>&1 || true
+echo ${{PIPESTATUS[0]:-$?}} > ~/script_output.exitcode
 
-gsutil cp ~/script_output.log "{gcs_prefix}/output.log"
-gsutil cp ~/script_output.exitcode "{gcs_prefix}/exitcode"
+gcloud storage cp ~/script_output.log "{gcs_prefix}/output.log"
+gcloud storage cp ~/script_output.exitcode "{gcs_prefix}/exitcode"
 """
 
 
@@ -114,7 +125,7 @@ push_results() {{
 git config user.email "bench@rokin"
 git config user.name "Benchmark Bot"
 
-UV_CACHE_DIR={UV_CACHE_DIR} uv sync --dev
+UV_CACHE_DIR={UV_CACHE_DIR} uv sync --dev --group cuda
 nvidia-smi
 
 echo ""
@@ -151,8 +162,7 @@ def test(
 ) -> None:
     """Run GPU tests on an ephemeral VM."""
     branch = _get_branch()
-    ts = get_timestamp()
-    vm_name = f"rokin-gpu-test-{ts}"
+    vm_name = _gcp_name("rokin-gpu-test")
     gcs_prefix = f"gs://{os.environ['GCS_BUCKET']}/rokin/gpu-tests/{vm_name}"
 
     exit_code = run_on_ephemeral_vm(
@@ -179,8 +189,7 @@ def script(
 ) -> None:
     """Run an arbitrary Python script on an ephemeral GPU VM."""
     branch = _get_branch()
-    ts = get_timestamp()
-    vm_name = f"rokin-gpu-run-{ts}"
+    vm_name = _gcp_name("rokin-gpu-run")
     gcs_prefix = f"gs://{os.environ['GCS_BUCKET']}/rokin/gpu-scripts/{vm_name}"
     script_args = " ".join(args)
 
@@ -211,8 +220,7 @@ def bench(
 ) -> None:
     """Run benchmarks on an ephemeral GPU VM."""
     branch = _get_branch()
-    ts = get_timestamp()
-    vm_name = f"rokin-gpu-bench-{ts}"
+    vm_name = _gcp_name("rokin-gpu-bench")
 
     exit_code = run_on_ephemeral_vm(
         vm_name=vm_name,

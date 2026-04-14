@@ -14,6 +14,8 @@ Usage:
 
 from __future__ import annotations
 
+import os
+
 import fire
 
 from wzk.logger import setup_logger
@@ -22,8 +24,6 @@ from ._compute import create_instance, delete_instance, get_instance_status, sta
 from ._config import (
     DEFAULT_PROJECT,
     DEFAULT_ZONE,
-    ROBOT_ZOO_REPO,
-    ROKIN_REPO,
     GpuConfig,
     ProvisioningModel,
     VmConfig,
@@ -128,13 +128,16 @@ def setup_repos(
     zone: str = DEFAULT_ZONE,
 ) -> None:
     """Clone rokin/robot_zoo to ~/src/ on the VM."""
+    rokin_repo = os.environ["ROKIN_REPO"]
+    robot_zoo_repo = os.environ["ROBOT_ZOO_REPO"]
     logger.info("Cloning repos to ~/src/ on '%s'...", name)
     script = f"""\
 set -euo pipefail
+mkdir -p ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true
 mkdir -p ~/src
-[ -d ~/src/rokin ]     || git clone {ROKIN_REPO} ~/src/rokin
-[ -d ~/src/robot_zoo ] || git clone {ROBOT_ZOO_REPO} ~/src/robot_zoo
+[ -d ~/src/rokin ]     || git clone {rokin_repo} ~/src/rokin
+[ -d ~/src/robot_zoo ] || git clone {robot_zoo_repo} ~/src/robot_zoo
 echo "Repos ready in ~/src/"
 ls -1 ~/src/
 """
