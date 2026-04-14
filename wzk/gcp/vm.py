@@ -7,14 +7,11 @@ Usage:
     python -m wzk.gcp.vm ssh --name=johten-workstation
     python -m wzk.gcp.vm run 'nvidia-smi'
     python -m wzk.gcp.vm status
-    python -m wzk.gcp.vm setup_repos
     python -m wzk.gcp.vm stop
     python -m wzk.gcp.vm delete
 """
 
 from __future__ import annotations
-
-import os
 
 import fire
 
@@ -28,7 +25,7 @@ from ._config import (
     ProvisioningModel,
     VmConfig,
 )
-from ._ssh import ssh_command, ssh_interactive, ssh_script, wait_for_ssh
+from ._ssh import ssh_command, ssh_interactive, wait_for_ssh
 
 logger = setup_logger(__name__)
 
@@ -121,33 +118,6 @@ def status(
         logger.info("VM '%s': %s", name, vm_status)
 
 
-def setup_repos(
-    name: str = "johten-gpu-dev",
-    *,
-    project: str = DEFAULT_PROJECT,
-    zone: str = DEFAULT_ZONE,
-) -> None:
-    """Clone rokin/robot_zoo to ~/src/ on the VM."""
-    rokin_repo = os.environ["ROKIN_REPO"]
-    robot_zoo_repo = os.environ["ROBOT_ZOO_REPO"]
-    logger.info("Cloning repos to ~/src/ on '%s'...", name)
-    script = f"""\
-set -euo pipefail
-mkdir -p ~/.ssh
-ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true
-mkdir -p ~/src
-[ -d ~/src/rokin ]     || git clone {rokin_repo} ~/src/rokin
-[ -d ~/src/robot_zoo ] || git clone {robot_zoo_repo} ~/src/robot_zoo
-echo "Repos ready in ~/src/"
-ls -1 ~/src/
-"""
-    result = ssh_script(name, zone, script, project=project)
-    if result.stdout:
-        print(result.stdout, end="")
-    if result.returncode != 0 and result.stderr:
-        print(result.stderr, end="")
-
-
 def delete(
     name: str = "johten-gpu-dev",
     *,
@@ -167,6 +137,5 @@ if __name__ == "__main__":
         "ssh": ssh,
         "run": run,
         "status": status,
-        "setup_repos": setup_repos,
         "delete": delete,
     })

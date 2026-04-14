@@ -22,6 +22,15 @@ from ._compute import (
     stop_instance as stop_instance,
 )
 from ._config import (
+    DEFAULT_BOOT_DISK_SIZE_GB as DEFAULT_BOOT_DISK_SIZE_GB,
+)
+from ._config import (
+    DEFAULT_PROJECT as DEFAULT_PROJECT,
+)
+from ._config import (
+    DEFAULT_ZONE as DEFAULT_ZONE,
+)
+from ._config import (
     GpuConfig as GpuConfig,
 )
 from ._config import (
@@ -33,6 +42,7 @@ from ._config import (
 from ._config import (
     VmConfig as VmConfig,
 )
+from ._run import run_on_ephemeral_vm as run_on_ephemeral_vm
 from ._ssh import (
     scp_to as scp_to,
 )
@@ -63,4 +73,9 @@ from ._storage import (
 from ._storage import (
     gcs_upload as gcs_upload,
 )
-from ._zones import create_with_zone_retry as create_with_zone_retry
+from ._zones import (
+    L4_ZONES as L4_ZONES,
+)
+from ._zones import (
+    create_with_zone_retry as create_with_zone_retry,
+)
