@@ -4,29 +4,33 @@ name = "wzk"
 requires-python = ">=3.13,<3.14"
 version = "0.1.1"
 dependencies = [
-    "numpy>2.0",
-    "scipy",
-    "scikit-image",
-    "scikit-learn",
-    "einops",
-    "msgpack>=1.1.2,<2",
-    "ortools>=9.14.6206,<10",
-    "matplotlib",
-    "plotly",
-    "yourdfpy>=0.0.59",
-    "viser>=1.0.15,<2",
-    "trimesh>=4.10.0,<5",
-    "joblib",
-    "fire",
-    "meshcat>=0.3.2,<0.4",
+    "einops>=0.8",
+    "fire>=0.7",
     "jax>=0.9.0.1",
     "jaxtyping>=0.3.7",
+    "joblib>=1.4",
+    "matplotlib>=3.10",
+    "meshcat>=0.3.2,<0.4",
+    "msgpack>=1.1.2,<2",
+    "numpy>2.0",
+    "plotly>=6.0",
+    "scikit-image>=0.24",
+    "scikit-learn>=1.5",
+    "scipy>=1.15",
 ]
 
 [project.optional-dependencies]
-wandb = [
-    "wandb>=0.19",
-]
+bayes = ["bayesian-optimization>=1.5"]
+gcp = ["google-cloud-compute>=1.22", "google-cloud-storage>=2.18"]
+image = ["pillow>=10"]
+input = ["pynput>=1.8"]
+ortools = ["ortools>=9.14.6206,<10"]   # pypi-only (not on conda-forge)
+pandas = ["pandas>=2.0"]
+pdf = ["pikepdf>=10"]
+pyopt = ["pyOpt"]                       # pypi-only (not on conda-forge)
+shinka = ["shinka"]                     # pypi-only (not on conda-forge)
+swarms = ["pyswarms>=1.3"]
+wandb = ["wandb>=0.19"]
 dev = [
     "pytest>=9.0.2",
     "ruff>=0.15.0",
@@ -36,17 +40,6 @@ dev = [
 [build-system]
 build-backend = "hatchling.build"
 requires = ["hatchling"]
-
-[tool.pixi.workspace]
-channels = ["conda-forge"]
-platforms = ["osx-arm64"]
-
-[tool.pixi.pypi-dependencies]
-wzk = { path = ".", editable = true }
-
-[tool.pixi.dependencies]
-pixi-pycharm = ">=0.0.10,<0.0.11"
-hatchling = ">=1.27.0,<2"
 
 
 # Ruff

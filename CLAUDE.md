@@ -9,8 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Install (editable, via pixi)
-pixi install
+# Install (editable, with dev tools via uv)
+uv venv
+uv pip install -e ".[dev]"
 
 # Run all tests
 pytest wzk/tests/
@@ -53,6 +54,17 @@ Top-level `wzk/__init__.py` uses lazy loading — heavy submodules (`jax2`, `wan
 
 ### JAX Parity
 `wzk/jax2/` mirrors NumPy implementations. Parity is enforced by `test_jax2_*_parity.py` tests that verify JAX outputs match NumPy originals.
+
+## Build files: `pyproject.toml` + `pixi.toml`
+
+Two files, two consumers, **kept in manual sync**.
+
+- `pyproject.toml` (PEP 621) — read by `uv` / `pip` / `hatchling`. Defines `[project]` deps for the standalone Python install (`uv pip install -e .`). Optional groups (`image`, `pdf`, `bayes`, `swarms`, `input`, `pandas`, `gcp`, `wandb`, plus pypi-only `pyopt`/`ortools`/`shinka`) gate soft features.
+- `pixi.toml` — read by `pixi` / `pixi-build-ardx`. Defines `[package]` run-deps for monos sibling consumption. **Conda-forge-only** — every name resolves on conda-forge (e.g. `msgpack-python`, `meshcat-python`, `matplotlib-base`). Pypi-only deps (ortools, pyOpt, shinka) intentionally excluded.
+
+When adding/removing a runtime dep, update **both** files. The two dep sets are *not* identical — pixi.toml carries only the conda-forge subset; pyproject carries the full set including pypi-only optional groups. There is no auto-mirror.
+
+A `[tool.pixi.*]` workspace block in `pyproject.toml` *plus* a `pixi.toml` `[package]` block = two pixi entry points (standalone-pixi vs monos-sibling). Tolerable if both modes are actually used; otherwise drop the unused side to avoid silent drift.
 
 ## Conventions
 
