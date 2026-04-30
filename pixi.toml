@@ -1,0 +1,27 @@
+[package]
+name = "wzk"
+version = "0.1.0"
+
+
+[package.host-dependencies]
+
+[package.run-dependencies]
+numpy = ">2.0"
+scipy = "*"
+scikit-image = "*"
+scikit-learn = "*"
+einops = "*"
+msgpack-python = ">=1.1.2,<2"
+#ortools-python = ">=9.6,<10"
+matplotlib = "*"
+plotly = "*"
+viser = ">=1.0.15,<2"
+trimesh = ">=4.10.0,<5"
+joblib = "*"
+fire = "*"
+meshcat-python = ">=0.3.2,<0.4"
+jax = ">=0.9.0.1"
+jaxtyping = ">=0.3.7"
+
+[package.build]
+backend = { name = "pixi-build-ardx", git = "ssh://git@github.com/dlr-alr/ajtools.git", subdirectory="pixi-build-ardx", branch="pixi"}
