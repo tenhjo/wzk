@@ -22,3 +22,6 @@ scipy = ">=1.15"
 
 [package.build]
 backend = { name = "pixi-build-ardx", git = "ssh://git@github.com/dlr-alr/ajtools.git", subdirectory="pixi-build-ardx", branch="pixi"}
+
+[tool.ardx]
+python_layout = "src"
