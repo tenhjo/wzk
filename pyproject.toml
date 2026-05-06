@@ -10,7 +10,6 @@ dependencies = [
     "jaxtyping>=0.3.7",
     "joblib>=1.4",
     "matplotlib>=3.10",
-    "meshcat>=0.3.2,<0.4",
     "msgpack>=1.1.2,<2",
     "numpy>2.0",
     "plotly>=6.0",
@@ -24,6 +23,7 @@ bayes = ["bayesian-optimization>=1.5"]
 gcp = ["google-cloud-compute>=1.22", "google-cloud-storage>=2.18"]
 image = ["pillow>=10"]
 input = ["pynput>=1.8"]
+meshcat = ["meshcat>=0.3.2,<0.4"]
 ortools = ["ortools>=9.14.6206,<10"]   # pypi-only (not on conda-forge)
 pandas = ["pandas>=2.0"]
 pdf = ["pikepdf>=10"]
