@@ -23,4 +23,4 @@ scipy = ">=1.15"
 backend = { name = "pixi-build-ardx", path = "../ajtools/pixi-build-ardx" }
 
 [tool.ardx]
-python_layout = "src"
+python_layout = "flat"
