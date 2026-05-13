@@ -18,9 +18,10 @@ plotly = ">=6.0"
 scikit-image = ">=0.24"
 scikit-learn = ">=1.5"
 scipy = ">=1.15"
+meshcat-python = "*"
 
 [package.build]
-backend = { name = "pixi-build-ardx", path = "../ajtools/pixi-build-ardx" }
+backend = { name = "pixi-build-ardx", version = "*" }
 
 [tool.ardx]
 python_layout = "flat"
