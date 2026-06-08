@@ -224,3 +224,69 @@ def test_diag_wrapper() -> None:
 def test_slicen() -> None:
     sl = np2.slicen([1], [2])
     assert sl == (slice(1, 2),)
+
+
+def _reference_convolve_2d(img: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    """Frozen copy of the original O(H*W*k^2) loop — the behavioural oracle the
+    fast (FFT) ``np2.convolve_2d`` must reproduce bit-for-bit on integer inputs."""
+    s = np.array(img.shape)
+    ks = np.array(kernel.shape)
+    ks2 = ks // 2
+    out = np.zeros(s, float)
+    for i0 in range(ks2[0], s[0] - ks2[0]):
+        for i1 in range(ks2[1], s[1] - ks2[1]):
+            out[i0, i1] = np.sum(img[i0 - ks2[0]: i0 + ks2[0] + 1, i1 - ks2[1]: i1 + ks2[1] + 1] * kernel)
+    return out
+
+
+def test_convolve_2d_matches_reference_loop() -> None:
+    rng = np.random.default_rng(0)
+    cases = [
+        (rng.integers(0, 2, (60, 55)).astype(float), np.ones((7, 5))),
+        (rng.integers(0, 2, (50, 40)).astype(bool), rng.integers(0, 2, (9, 9)).astype(bool)),
+        (rng.integers(0, 4, (31, 33)).astype(float), np.ones((1, 1))),
+        (np.ones((20, 24)), np.ones((3, 7))),
+        (rng.integers(0, 3, (45, 45)).astype(float), rng.integers(0, 2, (5, 11)).astype(float)),
+    ]
+    for img, kernel in cases:
+        assert np.array_equal(np2.convolve_2d(img, kernel), _reference_convolve_2d(img, kernel))
+
+
+def test_convolve_2d_preserves_full_fit_positions() -> None:
+    # juwo's actual use: cells where the whole kernel footprint lands on free
+    # space (``conv == kernel.sum()``) must be identical to the reference.
+    free = np.ones((80, 70))
+    free[20:40, 30:55] = 0
+    free[10:15, 5:25] = 0
+    kernel = np.ones((11, 9))
+    out = np2.convolve_2d(free, kernel)
+    ref = _reference_convolve_2d(free, kernel)
+    assert np.array_equal(out == kernel.sum(), ref == kernel.sum())
+
+
+def test_convolve_2d_zeros_border() -> None:
+    out = np2.convolve_2d(np.ones((10, 10)), np.ones((5, 3)))
+    assert np.all(out[:2, :] == 0)
+    assert np.all(out[-2:, :] == 0)
+    assert np.all(out[:, :1] == 0)
+    assert np.all(out[:, -1:] == 0)
+
+
+def test_convolve_2d_rejects_even_kernel() -> None:
+    import pytest
+
+    with pytest.raises(AssertionError):
+        np2.convolve_2d(np.ones((6, 6)), np.ones((2, 2)))
+
+
+def test_convolve_2d_is_fast() -> None:
+    # 300x300 with a 31x21 footprint: the O(H*W*k^2) Python loop took ~0.6 s,
+    # the FFT path is ~0.01 s. Guards against regressing to the loop.
+    import time
+
+    img = np.ones((300, 300))
+    kernel = np.ones((31, 21))
+    t0 = time.perf_counter()
+    np2.convolve_2d(img, kernel)
+    dt = time.perf_counter() - t0
+    assert dt < 0.2, f"convolve_2d took {dt * 1e3:.0f} ms — regressed to an O(H*W*k^2) loop?"
