@@ -253,7 +253,7 @@ def test_convolve_2d_matches_reference_loop() -> None:
 
 
 def test_convolve_2d_preserves_full_fit_positions() -> None:
-    # juwo's actual use: cells where the whole kernel footprint lands on free
+    # wogen's actual use: cells where the whole kernel footprint lands on free
     # space (``conv == kernel.sum()``) must be identical to the reference.
     free = np.ones((80, 70))
     free[20:40, 30:55] = 0
