@@ -40,7 +40,10 @@ class GpuConfig:
         return cls.t4()
 
 
-DEFAULT_PROJECT = os.environ["GCP_PROJECT"]
+# Import-tolerant: wzk.gcp is imported transitively on machines with no GCP
+# setup (rocal.data.io). Actual GCP operations without GCP_PROJECT fail at
+# call time (VmConfig.__post_init__ below; gcloud rejects an empty --project).
+DEFAULT_PROJECT = os.environ.get("GCP_PROJECT", "")
 DEFAULT_ZONE = "us-central1-a"
 DEFAULT_BOOT_DISK_SIZE_GB = 100
 DEFAULT_BOOT_DISK_TYPE = "pd-ssd"
@@ -59,3 +62,7 @@ class VmConfig:
     provisioning: ProvisioningModel = ProvisioningModel.SPOT
     labels: dict[str, str] = field(default_factory=lambda: {"user": os.environ["GCP_USER_LABEL"]})
     scopes: list[str] = field(default_factory=lambda: list(DEFAULT_SCOPES))
+
+    def __post_init__(self) -> None:
+        if not self.project:
+            raise ValueError("VmConfig.project is empty — set GCP_PROJECT or pass project explicitly")
