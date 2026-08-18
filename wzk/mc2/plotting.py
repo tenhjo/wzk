@@ -15,9 +15,9 @@ default_color = "white"
 # TODO linewidth can apparently not be changed
 
 
-def ih_visualizer(vis: Visualizer):
+def ih_visualizer(vis: Visualizer | None) -> Visualizer:
     if vis is None:
-        vis = Visualizer(vis)
+        vis = Visualizer()
     return vis
 
 

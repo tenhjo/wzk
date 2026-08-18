@@ -254,7 +254,7 @@ def rotate(bimg, angle, axes):
         return bimg
 
     if np.allclose(angle % 90, 0) or np.allclose(angle % 90, 90):
-        bimg = np.rot90(bimg, k=(angle + __eps2) // 90, axes=axes)
+        bimg = np.rot90(bimg, k=int((angle + __eps2) // 90), axes=axes)
 
     else:
         bimg = bimg.astype(np.float32)
