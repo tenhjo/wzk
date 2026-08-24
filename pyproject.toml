@@ -10,7 +10,7 @@ dependencies = [
     "jaxtyping>=0.3.7",
     "joblib>=1.4",
     "matplotlib>=3.10",
-    "msgpack>=1.1.2,<2",
+    "msgpack>=1.1.2",
     "numpy>2.0",
     "plotly>=6.0",
     "scikit-image>=0.24",
@@ -23,22 +23,29 @@ bayes = ["bayesian-optimization>=1.5"]
 gcp = ["google-cloud-compute>=1.22", "google-cloud-storage>=2.18"]
 image = ["pillow>=10"]
 input = ["pynput>=1.8"]
-meshcat = ["meshcat>=0.3.2,<0.4"]
-ortools = ["ortools>=9.14.6206,<10"]   # pypi-only (not on conda-forge)
+meshcat = ["meshcat>=0.3.2"]
+ortools = ["ortools>=9.14.6206"]   # pypi-only (not on conda-forge)
 pandas = ["pandas>=2.0"]
 pdf = ["pikepdf>=10"]
 pyopt = ["pyOpt"]                       # pypi-only (not on conda-forge)
 shinka = ["shinka"]                     # pypi-only (not on conda-forge)
 swarms = ["pyswarms>=1.3"]
 wandb = ["wandb>=0.19"]
+
+# Dev tooling lives in a dependency-group, not an optional-dependency extra,
+# so that a plain `uv sync --dev` installs it — the same shape every sibling
+# repo uses. As an extra it needed `--extra dev`, which nothing (including CI)
+# actually passed, so a synced venv silently had no ruff/ty/pytest.
+[dependency-groups]
 dev = [
     "pytest>=9.0.2",
-    "ruff>=0.15.0",
+    # Exact, and identical across the sibling repos (see robot-zoo/rokin).
+    "ruff==0.15.10",
     "ty>=0.0.15",
 ]
 
 [build-system]
-requires = ["uv_build>=0.9.26,<0.10.0"]
+requires = ["uv_build>=0.9.26,<0.13"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
@@ -51,7 +58,8 @@ module-root = ""
 
 [tool.ty.src]
 include = ["./", "wzk/"]
-exclude = [".venv/"]
+# tmp/ is dated scratch probes, not shipped code (same convention as wogen).
+exclude = [".venv/", "tmp/"]
 
 [tool.ty.rules]
 # Suppress false positives from numpy/matplotlib typing

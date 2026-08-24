@@ -57,7 +57,7 @@ target/
 .pixi/*
 !.pixi/config.toml
 pixi.lock
-uv.lock
+# uv.lock IS committed (2026-08-24) — CI needs it (see the CI workflow).
 
 # Jupyter Notebook
 .ipynb_checkpoints
