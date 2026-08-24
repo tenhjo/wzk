@@ -168,10 +168,10 @@ def convolve_2d(img: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     # the loop never wrote (left zero) a border of width ks2.
     if ks2[0]:
         out[: ks2[0], :] = 0.0
-        out[-ks2[0]:, :] = 0.0
+        out[-ks2[0] :, :] = 0.0
     if ks2[1]:
         out[:, : ks2[1]] = 0.0
-        out[:, -ks2[1]:] = 0.0
+        out[:, -ks2[1] :] = 0.0
 
     # integer-valued inputs -> exact integer sums (remove FFT round-off).
     if _is_integer_valued(img) and _is_integer_valued(kernel):

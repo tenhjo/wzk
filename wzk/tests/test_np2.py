@@ -235,7 +235,7 @@ def _reference_convolve_2d(img: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     out = np.zeros(s, float)
     for i0 in range(ks2[0], s[0] - ks2[0]):
         for i1 in range(ks2[1], s[1] - ks2[1]):
-            out[i0, i1] = np.sum(img[i0 - ks2[0]: i0 + ks2[0] + 1, i1 - ks2[1]: i1 + ks2[1] + 1] * kernel)
+            out[i0, i1] = np.sum(img[i0 - ks2[0] : i0 + ks2[0] + 1, i1 - ks2[1] : i1 + ks2[1] + 1] * kernel)
     return out
 
 

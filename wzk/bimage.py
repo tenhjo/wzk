@@ -387,9 +387,12 @@ def bimg2surf_new(img):
     occ_i, occ_j, occ_k = np.unravel_index(occ_flat, img.shape)
     occ_idx = np.stack([occ_i, occ_j, occ_k], axis=1).astype(np.int32)  # (n_occ, 3)
     neighbour_at_occ = [
-        xp[occ_i, occ_j, occ_k], xm[occ_i, occ_j, occ_k],
-        yp[occ_i, occ_j, occ_k], ym[occ_i, occ_j, occ_k],
-        zp[occ_i, occ_j, occ_k], zm[occ_i, occ_j, occ_k],
+        xp[occ_i, occ_j, occ_k],
+        xm[occ_i, occ_j, occ_k],
+        yp[occ_i, occ_j, occ_k],
+        ym[occ_i, occ_j, occ_k],
+        zp[occ_i, occ_j, occ_k],
+        zm[occ_i, occ_j, occ_k],
     ]
     offsets_per_face = [
         [(1, 0, 0), (1, 1, 0), (1, 1, 1), (1, 0, 1)],  # +x
@@ -402,10 +405,10 @@ def bimg2surf_new(img):
 
     chunks = []
     for nbr, offsets in zip(neighbour_at_occ, offsets_per_face, strict=True):
-        exposed = occ_idx[~nbr]                              # (n_face, 3) — exposed voxels
+        exposed = occ_idx[~nbr]  # (n_face, 3) — exposed voxels
         if exposed.size == 0:
             continue
-        off = np.asarray(offsets, dtype=np.int32)            # (4, 3)
+        off = np.asarray(offsets, dtype=np.int32)  # (4, 3)
         chunks.append((exposed[:, None, :] + off[None, :, :]).reshape(-1, 3))
 
     if not chunks:
