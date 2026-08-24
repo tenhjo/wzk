@@ -41,7 +41,7 @@ dev = [
     "pytest>=9.0.2",
     # Exact, and identical across the sibling repos (see robot-zoo/rokin).
     "ruff==0.15.10",
-    "ty>=0.0.15",
+    "ty==0.0.63",
 ]
 
 [build-system]
@@ -82,6 +82,14 @@ possibly-missing-attribute = "ignore"
 unused-type-ignore-comment = "warn"
 # Optional dependencies
 unresolved-import = "ignore"
+# Two rules that ty 0.0.63 added (0.0.15 did not have them). Both flag real but
+# non-urgent debt rather than false positives, so they are deferred, not dismissed:
+#   possibly-missing-submodule — mpl2/figure.py, io/files.py and np2/basics.py reach
+#     `matplotlib.<sub>` / `np._core` without importing the submodule; works only
+#     because something else imported it first.
+#   deprecated — video.py:30,39 still shell out via `os.system` (use subprocess).
+possibly-missing-submodule = "ignore"
+deprecated = "ignore"
 
 [tool.ty.environment]
 python-version = "3.13"
